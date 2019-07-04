@@ -2,8 +2,8 @@ unit RESTRequest4D.Request;
 
 interface
 
-uses RESTRequest4D.Request.Intf, StatusCode.Types, Data.DB, REST.Client, REST.Response.Adapter, RESTRequest4D.Request.Params.Intf,
-  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, REST.Types;
+uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, RESTRequest4D.Request.Params.Intf, REST.Types,
+  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf;
 
 type
   TRequest = class(TInterfacedObject, IRequest)
@@ -15,13 +15,19 @@ type
     FRESTResponseDataSetAdapter: TRESTResponseDataSetAdapter;
     FRESTResponse: TRESTResponse;
     FRESTClient: TRESTClient;
+    procedure DoJoinComponents;
     function SetDataSetAdapter(const ADataSet: TDataSet): IRequest;
     function SetBaseURL(const ABaseURL: string = ''): IRequest;
     function SetResource(const AResource: string = ''): IRequest;
     function SetResourceSuffix(const AResourceSuffix: string = ''): IRequest;
     function SetMethod(const AMethod: TRESTRequestMethod = rmGET): IRequest;
-    function Execute(const AWaitMessage: string): TStatusCode; overload;
-    function Execute: TStatusCode; overload;
+    function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
+    function GetMethod: TRESTRequestMethod;
+    function GetResourceSuffix: string;
+    function GetResource: string;
+    function GetBaseURL: string;
+    function GetDataSetAdapter: TDataSet;
+    function Execute: Integer;
     function Body: IRequestBody;
     function Params: IRequestParams;
     function Authentication: IRequestAuthentication;
@@ -32,7 +38,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, System.SysUtils, VCL.Wait, RESTRequest4D.Request.Authentication;
+uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, System.SysUtils, RESTRequest4D.Request.Authentication;
 
 { TRequest }
 
@@ -51,18 +57,13 @@ end;
 constructor TRequest.Create;
 begin
   FRESTResponse := TRESTResponse.Create(nil);
-  FRESTResponse.ContentType := 'application/json';
-
   FRESTClient := TRESTClient.Create(nil);
-  FRESTClient.AcceptCharset := 'utf-8, *;q=0.8';
-  FRESTClient.Accept := 'application/json, text/plain; q=0.9, text/html;q=0.8,';
-
   FRESTRequest := TRESTRequest.Create(nil);
-  FRESTRequest.Client := FRESTClient;
-  FRESTRequest.Response := FRESTResponse;
 
   FBody := TRequestBody.Create(FRESTRequest);
   FParams := TRequestParams.Create(FRESTRequest);
+
+  DoJoinComponents;
 end;
 
 destructor TRequest.Destroy;
@@ -78,20 +79,48 @@ begin
   inherited;
 end;
 
-function TRequest.Execute: TStatusCode;
+procedure TRequest.DoJoinComponents;
 begin
-  FRESTRequest.Execute;
-  Result := TStatusCode(FRESTResponse.StatusCode);
+  FRESTRequest.Client := FRESTClient;
+  FRESTRequest.Response := FRESTResponse;
 end;
 
-function TRequest.Execute(const AWaitMessage: string): TStatusCode;
+function TRequest.Execute: Integer;
 begin
-  TWait.Create(AWaitMessage).Start(
-    procedure
-    begin
-      FRESTRequest.Execute;
-    end);
-  Result := TStatusCode(FRESTResponse.StatusCode);
+  FRESTRequest.Execute;
+  Result := FRESTResponse.StatusCode;
+end;
+
+function TRequest.GetBaseURL: string;
+begin
+  Result := FRESTClient.BaseURL;
+end;
+
+function TRequest.GetDataSetAdapter: TDataSet;
+begin
+  Result := nil;
+  if Assigned(FRESTResponseDataSetAdapter) then
+    Result := FRESTResponseDataSetAdapter.Dataset;
+end;
+
+function TRequest.GetFullRequestURL(const AIncludeParams: Boolean): string;
+begin
+  Result := FRESTRequest.GetFullRequestURL(AIncludeParams);
+end;
+
+function TRequest.GetMethod: TRESTRequestMethod;
+begin
+  Result := FRESTRequest.Method;
+end;
+
+function TRequest.GetResource: string;
+begin
+  Result := FRESTRequest.Resource;
+end;
+
+function TRequest.GetResourceSuffix: string;
+begin
+  Result := FRESTRequest.ResourceSuffix;
 end;
 
 function TRequest.Params: IRequestParams;

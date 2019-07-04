@@ -2,8 +2,8 @@ unit RESTRequest4D.Request.Intf;
 
 interface
 
-uses Data.DB, StatusCode.Types, REST.Client, RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Params.Intf,
-  RESTRequest4D.Request.Authentication.Intf, REST.Types;
+uses Data.DB, REST.Client, RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Params.Intf, REST.Types,
+  RESTRequest4D.Request.Authentication.Intf;
 
 type
   /// <summary>
@@ -62,18 +62,50 @@ type
     /// </returns>
     function SetMethod(const AMethod: TRESTRequestMethod = rmGET): IRequest;
     /// <summary>
-    ///   Execute the request.
+    ///   Get the full URL.
     /// </summary>
-    /// <param name="AWaitMessage">
-    ///   Message that will be displayed during the request.
+    /// <param name="AIncludeParams">
+    ///   Include Added Parameters.
     /// </param>
     /// <returns>
-    ///   Returns the status code of the request.
+    ///   Full URL.
     /// </returns>
-    /// <remarks>
-    ///   See more about status code in: https://httpstatuses.com/
-    /// </remarks>
-    function Execute(const AWaitMessage: string): TStatusCode; overload;
+    function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
+    /// <summary>
+    ///   Get defined method.
+    /// </summary>
+    /// <returns>
+    ///   HTTP method.
+    /// </returns>
+    function GetMethod: TRESTRequestMethod;
+    /// <summary>
+    ///   Get defined resource suffix.
+    /// </summary>
+    /// <returns>
+    ///   Resource suffix.
+    /// </returns>
+    function GetResourceSuffix: string;
+    /// <summary>
+    ///   Get defined resource.
+    /// </summary>
+    /// <returns>
+    ///   Resource.
+    /// </returns>
+    function GetResource: string;
+    /// <summary>
+    ///   Get defined base URL.
+    /// </summary>
+    /// <returns>
+    ///   Base URL.
+    /// </returns>
+    function GetBaseURL: string;
+    /// <summary>
+    ///   Get defined dataset adapter.
+    /// </summary>
+    /// <returns>
+    ///   Dataset Adapter.
+    /// </returns>
+    function GetDataSetAdapter: TDataSet;
     /// <summary>
     ///   Execute the request.
     /// </summary>
@@ -83,7 +115,7 @@ type
     /// <remarks>
     ///   See more about status code in: https://httpstatuses.com/
     /// </remarks>
-    function Execute: TStatusCode; overload;
+    function Execute: Integer;
     /// <summary>
     ///   Allows access to the request body.
     /// </summary>
