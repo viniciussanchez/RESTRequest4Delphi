@@ -12,8 +12,8 @@ type
     function Clear: IRequestAuthentication;
     function SetPassword(const APassword: string): IRequestAuthentication;
     function SetUsername(const AUser: string): IRequestAuthentication;
-    function Password: string;
-    function Username: string;
+    function GetPassword: string;
+    function GetUsername: string;
   public
     constructor Create(const ARESTClient: TRESTClient);
     destructor Destroy; override;
@@ -44,7 +44,7 @@ begin
   inherited;
 end;
 
-function TRequestAuthentication.Password: string;
+function TRequestAuthentication.GetPassword: string;
 begin
   Result := FHTTPBasicAuthenticator.Password;
 end;
@@ -65,7 +65,7 @@ begin
   FHTTPBasicAuthenticator.Username := AUser;
 end;
 
-function TRequestAuthentication.Username: string;
+function TRequestAuthentication.GetUsername: string;
 begin
   Result := FHTTPBasicAuthenticator.Username;
 end;

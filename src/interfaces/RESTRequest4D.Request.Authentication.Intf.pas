@@ -31,7 +31,7 @@ type
     /// <returns>
     ///   Password set.
     /// </returns>
-    function Password: string;
+    function GetPassword: string;
     /// <summary>
     ///   Sets the authentication user.
     /// </summary>
@@ -48,7 +48,7 @@ type
     /// <returns>
     ///   User defined.
     /// </returns>
-    function Username: string;
+    function GetUsername: string;
   end;
 
 implementation

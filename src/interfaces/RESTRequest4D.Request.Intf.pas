@@ -22,6 +22,13 @@ type
     /// </returns>
     function SetDataSetAdapter(const ADataSet: TDataSet): IRequest;
     /// <summary>
+    ///   Get defined dataset adapter.
+    /// </summary>
+    /// <returns>
+    ///   Dataset Adapter.
+    /// </returns>
+    function GetDataSetAdapter: TDataSet;
+    /// <summary>
     ///   Sets the base URL of access to resources to be consumed.
     /// </summary>
     /// <param name="ABaseURL">
@@ -31,6 +38,13 @@ type
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
     function SetBaseURL(const ABaseURL: string = ''): IRequest;
+    /// <summary>
+    ///   Get defined base URL.
+    /// </summary>
+    /// <returns>
+    ///   Base URL.
+    /// </returns>
+    function GetBaseURL: string;
     /// <summary>
     ///   Sets the resource to be consumed.
     /// </summary>
@@ -42,6 +56,13 @@ type
     /// </returns>
     function SetResource(const AResource: string = ''): IRequest;
     /// <summary>
+    ///   Get defined resource.
+    /// </summary>
+    /// <returns>
+    ///   Resource.
+    /// </returns>
+    function GetResource: string;
+    /// <summary>
     ///   Sets the suffix of the resource to be consumed.
     /// </summary>
     /// <param name="AResourceSufix">
@@ -52,6 +73,13 @@ type
     /// </returns>
     function SetResourceSuffix(const AResourceSuffix: string = ''): IRequest;
     /// <summary>
+    ///   Get defined resource suffix.
+    /// </summary>
+    /// <returns>
+    ///   Resource suffix.
+    /// </returns>
+    function GetResourceSuffix: string;
+    /// <summary>
     ///   Defines an HTTP verb for the request.
     /// </summary>
     /// <param name="AMethod">
@@ -60,7 +88,20 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
+    /// <remarks>
+    ///   Uses REST.Types.
+    /// </remarks>
     function SetMethod(const AMethod: TRESTRequestMethod = rmGET): IRequest;
+    /// <summary>
+    ///   Get defined method.
+    /// </summary>
+    /// <returns>
+    ///   HTTP method.
+    /// </returns>
+    /// <remarks>
+    ///   Uses REST.Types.
+    /// </remarks>
+    function GetMethod: TRESTRequestMethod;
     /// <summary>
     ///   Get the full URL.
     /// </summary>
@@ -71,41 +112,6 @@ type
     ///   Full URL.
     /// </returns>
     function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
-    /// <summary>
-    ///   Get defined method.
-    /// </summary>
-    /// <returns>
-    ///   HTTP method.
-    /// </returns>
-    function GetMethod: TRESTRequestMethod;
-    /// <summary>
-    ///   Get defined resource suffix.
-    /// </summary>
-    /// <returns>
-    ///   Resource suffix.
-    /// </returns>
-    function GetResourceSuffix: string;
-    /// <summary>
-    ///   Get defined resource.
-    /// </summary>
-    /// <returns>
-    ///   Resource.
-    /// </returns>
-    function GetResource: string;
-    /// <summary>
-    ///   Get defined base URL.
-    /// </summary>
-    /// <returns>
-    ///   Base URL.
-    /// </returns>
-    function GetBaseURL: string;
-    /// <summary>
-    ///   Get defined dataset adapter.
-    /// </summary>
-    /// <returns>
-    ///   Dataset Adapter.
-    /// </returns>
-    function GetDataSetAdapter: TDataSet;
     /// <summary>
     ///   Execute the request.
     /// </summary>
