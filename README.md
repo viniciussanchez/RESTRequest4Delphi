@@ -134,6 +134,38 @@ begin
 end;
 ```
 
+#### Execute asynchronous
+
+Executes a request asynchronously, i.e. run it in its own thread. There is no automatic serialization o property access though, which means that while the execution thread runs, properties of all involved TCustomRESTClient and TCustomRESTRequest instances should not be touched from other threads (including the main thread) 
+
+Using ExecuteAsync is strongly recommended on mobile platforms. iOS (and likely Android) willterminate an application if it considers the main thread to be unresponsive, which would be the case if there is a running request which takes more than a second or two to return. 
+
+The idea behind this is that the UI runs in the main thread and mobile devices should respond to user interaction basically immediately. Sluggish behaviour (caused by blocking the main thread) is considered unacceptable on these small devices.
+
+You can pass parameter:
+ * `ACompletionHandler`: An anonymous method that will be run after the execution completed.
+ * `ASynchronized`: Specifies if ACompletioHandler will be run in the main thread's (True) or execution thread's (False) context.
+ * `AFreeThread`: If True, then the execution thread will be freed after it completed.
+ * `ACompletionHandlerWithError`: An anonymous method that will be run if an exception is raised during execution.
+
+```pascal
+type
+  TMyCompletionHandlerWithError = TProc<TObject>;
+
+implementation
+
+var
+  MyCompletionHandlerWithError: TMyCompletionHandlerWithError;
+begin
+  MyCompletionHandlerWithError := procedure(AObject: TObject)
+    begin
+      if Assigned(AObject) and (AObject is Exception) then
+        raise Exception(AObject); // or whatever you want!
+    end;
+  Request.ExecuteAsync(nil, True, True, MyCompletionHandlerWithError);
+end;
+```
+
 ## Samples
 
 ![RESTRequest4D](samples/img/Screenshot_1.png)
