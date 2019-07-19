@@ -2,7 +2,7 @@ unit RESTRequest4D.Request.Intf;
 
 interface
 
-uses Data.DB, REST.Client, RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Params.Intf, REST.Types,
+uses Data.DB, REST.Client, RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Params.Intf, REST.Types, System.SysUtils,
   RESTRequest4D.Request.Authentication.Intf;
 
 type
@@ -113,6 +113,13 @@ type
     /// </returns>
     function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
     /// <summary>
+    ///   Get HTTP response status code.
+    /// </summary>
+    /// <returns>
+    ///   Status code.
+    /// </returns>
+    function GetStatusCode: Integer;
+    /// <summary>
     ///   Execute the request.
     /// </summary>
     /// <returns>
@@ -122,6 +129,42 @@ type
     ///   See more about status code in: https://httpstatuses.com/
     /// </remarks>
     function Execute: Integer;
+    /// <summary>
+    ///   <para>
+    ///     Executes a request asynchronously, i.e. run it in its own thread. There is no automatic serialization op
+    ///     property access though, which means that while the execution thread runs, properties of all involved
+    ///     TCustomRESTClient and TCustomRESTRequest instances should not be touched from other threads (including the main thread)
+    ///     <br/><br/>Using ExecuteAsync is strongly recommended on mobile platforms. iOS (and likely Android) will
+    ///     terminate an application if it considers the main thread to be unresponsive, which would be the case if
+    ///     there is a running request which takes more than a second or two to return.
+    ///   </para>
+    ///   <para>
+    ///     The idea behind this is that the UI runs in the main thread and mobile devices should respond to user
+    ///     interaction basically immediately. Sluggish behaviour (caused by blocking the main thread) is considered
+    ///     unacceptable on these small devices.
+    ///   </para>
+    /// </summary>
+    /// <param name="ARequest">
+    ///   The request to be executed
+    /// </param>
+    /// <param name="ACompletionHandler">
+    ///   An anonymous method that will be run after the execution completed
+    /// </param>
+    /// <param name="ASynchronized">
+    ///   Specifies if ACompletioHandler will be run in the main thread's (True) or execution thread's (False) context
+    /// </param>
+    /// <param name="AFreeThread">
+    ///   If True, then the execution thread will be freed after it completed
+    /// </param>
+    /// <param name="ACompletionHandlerWithError">
+    ///   An anonymous method that will be run if an exception is raised during execution
+    /// </param>
+    /// <returns>
+    ///   Returns a reference to the execution thread. Should only be used if AFreeThread=False, as other wise the
+    ///   reference may get invalid unexpectedly.
+    /// </returns>
+    function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
+      ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
     /// <summary>
     ///   Allows access to the request body.
     /// </summary>

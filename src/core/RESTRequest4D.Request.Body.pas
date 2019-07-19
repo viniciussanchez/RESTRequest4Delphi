@@ -18,13 +18,18 @@ type
 
 implementation
 
-uses System.SysUtils;
+uses System.SysUtils, REST.Types;
+
+const
+  NO_CONTENT_SHOULD_BE_ADDED = 'No content should be added to the request body when the method is GET.';
 
 { TRequestBody }
 
 function TRequestBody.Add(const AContent: string): IRequestBody;
 begin
   Result := Self;
+  if FRESTRequest.Method = TRESTRequestMethod.rmGET then
+    raise Exception.Create(NO_CONTENT_SHOULD_BE_ADDED);
   if not AContent.Trim.IsEmpty then
     FRESTRequest.Body.Add(AContent);
 end;
@@ -32,6 +37,8 @@ end;
 function TRequestBody.Add(const AContent: TJSONObject; const AOwns: Boolean): IRequestBody;
 begin
   Result := Self;
+  if FRESTRequest.Method = TRESTRequestMethod.rmGET then
+    raise Exception.Create(NO_CONTENT_SHOULD_BE_ADDED);
   if Assigned(AContent) then
   begin
     FRESTRequest.Body.Add(AContent);
@@ -43,6 +50,8 @@ end;
 function TRequestBody.Add(const AContent: TObject; const AOwns: Boolean): IRequestBody;
 begin
   Result := Self;
+  if FRESTRequest.Method = TRESTRequestMethod.rmGET then
+    raise Exception.Create(NO_CONTENT_SHOULD_BE_ADDED);
   if Assigned(AContent) then
   begin
     FRESTRequest.Body.Add(AContent);

@@ -32,6 +32,7 @@ type
     btnBasicAuthorization: TButton;
     btnExecuteRequest: TButton;
     btnClearBasicAuthentication: TButton;
+    btnGetStatusCode: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -56,6 +57,7 @@ type
     procedure btnJWTAuthorizationTokenClick(Sender: TObject);
     procedure btnBasicAuthorizationClick(Sender: TObject);
     procedure btnClearBasicAuthenticationClick(Sender: TObject);
+    procedure btnGetStatusCodeClick(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const Value: IRequest);
@@ -124,9 +126,9 @@ end;
 
 procedure TFrmMain.btnGetDatasetAdapterClick(Sender: TObject);
 var
-  MemTable: TFDMemTable;
+  LMemTable: TFDMemTable;
 begin
-  MemTable := Request.GetDataSetAdapter as TFDMemTable;
+  LMemTable := Request.GetDataSetAdapter as TFDMemTable;
 end;
 
 procedure TFrmMain.btnGetFullRequestURLClick(Sender: TObject);
@@ -136,9 +138,9 @@ end;
 
 procedure TFrmMain.btnGetMethodClick(Sender: TObject);
 var
-  Method: TRESTRequestMethod;
+  LMethod: TRESTRequestMethod;
 begin
-  Method := Request.GetMethod;
+  LMethod := Request.GetMethod;
 end;
 
 procedure TFrmMain.btnGetResourceClick(Sender: TObject);
@@ -149,6 +151,13 @@ end;
 procedure TFrmMain.btnGetResourceSuffixClick(Sender: TObject);
 begin
   ShowMessage(Request.GetResourceSuffix);
+end;
+
+procedure TFrmMain.btnGetStatusCodeClick(Sender: TObject);
+var
+  LStatusCode: Integer;
+begin
+  LStatusCode := Request.GetStatusCode;
 end;
 
 procedure TFrmMain.btnJWTAuthorizationTokenClick(Sender: TObject);

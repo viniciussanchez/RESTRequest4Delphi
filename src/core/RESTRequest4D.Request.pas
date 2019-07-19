@@ -3,7 +3,7 @@ unit RESTRequest4D.Request;
 interface
 
 uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, RESTRequest4D.Request.Params.Intf, REST.Types,
-  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf;
+  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils;
 
 type
   TRequest = class(TInterfacedObject, IRequest)
@@ -27,10 +27,13 @@ type
     function GetResource: string;
     function GetBaseURL: string;
     function GetDataSetAdapter: TDataSet;
+    function GetStatusCode: Integer;
     function Execute: Integer;
     function Body: IRequestBody;
     function Params: IRequestParams;
     function Authentication: IRequestAuthentication;
+    function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
+      ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
     constructor Create;
     destructor Destroy; override;
@@ -38,7 +41,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, System.SysUtils, RESTRequest4D.Request.Authentication;
+uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication;
 
 { TRequest }
 
@@ -91,6 +94,12 @@ begin
   Result := FRESTResponse.StatusCode;
 end;
 
+function TRequest.ExecuteAsync(ACompletionHandler: TProc; ASynchronized, AFreeThread: Boolean;
+  ACompletionHandlerWithError: TProc<TObject>): TRESTExecutionThread;
+begin
+  Result := FRESTRequest.ExecuteAsync(ACompletionHandler, ASynchronized, AFreeThread, ACompletionHandlerWithError);
+end;
+
 function TRequest.GetBaseURL: string;
 begin
   Result := FRESTClient.BaseURL;
@@ -123,6 +132,11 @@ begin
   Result := FRESTRequest.ResourceSuffix;
 end;
 
+function TRequest.GetStatusCode: Integer;
+begin
+  Result := FRESTRequest.Response.StatusCode;
+end;
+
 function TRequest.Params: IRequestParams;
 begin
   Result := FParams;
@@ -151,6 +165,8 @@ function TRequest.SetMethod(const AMethod: TRESTRequestMethod): IRequest;
 begin
   Result := Self;
   FRESTRequest.Method := AMethod;
+  if AMethod = TRESTRequestMethod.rmGET then
+    Self.FBody.Clear;
 end;
 
 function TRequest.SetResource(const AResource: string = ''): IRequest;

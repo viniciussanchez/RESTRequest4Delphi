@@ -106,9 +106,9 @@ object FrmMain: TFrmMain
     OnClick = btnGetDatasetAdapterClick
   end
   object btnGetFullRequestURL: TButton
-    Left = 293
+    Left = 430
     Top = 70
-    Width = 268
+    Width = 131
     Height = 25
     Caption = 'Get full request URL'
     TabOrder = 10
@@ -212,6 +212,15 @@ object FrmMain: TFrmMain
     Caption = 'Clear Basic Auth'
     TabOrder = 21
     OnClick = btnClearBasicAuthenticationClick
+  end
+  object btnGetStatusCode: TButton
+    Left = 293
+    Top = 70
+    Width = 131
+    Height = 25
+    Caption = 'Get status code'
+    TabOrder = 22
+    OnClick = btnGetStatusCodeClick
   end
   object FDMemTable: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
