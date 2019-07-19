@@ -196,9 +196,9 @@ object FrmMain: TFrmMain
     OnClick = btnBasicAuthorizationClick
   end
   object btnExecuteRequest: TButton
-    Left = 293
+    Left = 430
     Top = 163
-    Width = 268
+    Width = 131
     Height = 25
     Caption = 'Execute request'
     TabOrder = 20
@@ -221,6 +221,15 @@ object FrmMain: TFrmMain
     Caption = 'Get status code'
     TabOrder = 22
     OnClick = btnGetStatusCodeClick
+  end
+  object btnExecuteAsync: TButton
+    Left = 293
+    Top = 163
+    Width = 131
+    Height = 25
+    Caption = 'Execute async'
+    TabOrder = 23
+    OnClick = btnExecuteAsyncClick
   end
   object FDMemTable: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

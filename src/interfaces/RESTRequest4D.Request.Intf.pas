@@ -131,7 +131,7 @@ type
     function Execute: Integer;
     /// <summary>
     ///   <para>
-    ///     Executes a request asynchronously, i.e. run it in its own thread. There is no automatic serialization op
+    ///     Executes a request asynchronously, i.e. run it in its own thread. There is no automatic serialization o
     ///     property access though, which means that while the execution thread runs, properties of all involved
     ///     TCustomRESTClient and TCustomRESTRequest instances should not be touched from other threads (including the main thread)
     ///     <br/><br/>Using ExecuteAsync is strongly recommended on mobile platforms. iOS (and likely Android) will
@@ -144,9 +144,6 @@ type
     ///     unacceptable on these small devices.
     ///   </para>
     /// </summary>
-    /// <param name="ARequest">
-    ///   The request to be executed
-    /// </param>
     /// <param name="ACompletionHandler">
     ///   An anonymous method that will be run after the execution completed
     /// </param>

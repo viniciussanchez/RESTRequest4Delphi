@@ -8,6 +8,8 @@ uses
   FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
 
 type
+  TMyCompletionHandlerWithError = TProc<TObject>;
+
   TFrmMain = class(TForm)
     btnSetMethod: TButton;
     btnSetBaseURL: TButton;
@@ -33,6 +35,7 @@ type
     btnExecuteRequest: TButton;
     btnClearBasicAuthentication: TButton;
     btnGetStatusCode: TButton;
+    btnExecuteAsync: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -58,6 +61,7 @@ type
     procedure btnBasicAuthorizationClick(Sender: TObject);
     procedure btnClearBasicAuthenticationClick(Sender: TObject);
     procedure btnGetStatusCodeClick(Sender: TObject);
+    procedure btnExecuteAsyncClick(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const Value: IRequest);
@@ -112,6 +116,18 @@ end;
 procedure TFrmMain.btnClearParamsClick(Sender: TObject);
 begin
   Request.Params.Clear;
+end;
+
+procedure TFrmMain.btnExecuteAsyncClick(Sender: TObject);
+var
+  MyCompletionHandlerWithError: TMyCompletionHandlerWithError;
+begin
+  MyCompletionHandlerWithError := procedure(AObject: TObject)
+    begin
+      if Assigned(AObject) and (AObject is Exception) then
+        raise Exception(AObject); // or whatever you want!
+    end;
+  Request.ExecuteAsync(nil, True, True, MyCompletionHandlerWithError);
 end;
 
 procedure TFrmMain.btnExecuteRequestClick(Sender: TObject);
