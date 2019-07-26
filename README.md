@@ -93,14 +93,23 @@ begin
 end;
 ```
 
-#### Parameters
+#### Headers
 
-You can add parameters and headers. To clear the parameters, use the `Request.Params.Clear`. When you add a parameter with the same name, its value changes. See the samples:
+You can add headers. To clear the headers, use the `Request.Headers.Clear`. When you add a headers with the same name, its value changes. See the samples:
 
 ```pascal
 begin
-  Request.Params.AddParam('country', 'Brazil');
-  Request.Params.AddHeader('Accept-Encoding', 'gzip');
+  Request.Headers.Add('Accept-Encoding', 'gzip');
+end;
+```
+
+#### Parameters
+
+You can add parameters. To clear the parameters, use the `Request.Params.Clear`. When you add a parameter with the same name, its value changes. See the samples:
+
+```pascal
+begin
+  Request.Params.Add('country', 'Brazil');
 end;
 ```
 
