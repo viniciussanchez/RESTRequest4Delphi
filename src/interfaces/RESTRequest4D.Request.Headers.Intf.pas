@@ -1,4 +1,4 @@
-unit RESTRequest4D.Request.Params.Intf;
+unit RESTRequest4D.Request.Headers.Intf;
 
 interface
 
@@ -6,25 +6,28 @@ uses REST.Types;
 
 type
   /// <summary>
-  ///   Interface to represent the parameters that a request can have.
+  ///   Interface to represent the headers that a request can have.
   /// </summary>
-  IRequestParams = interface
-    ['{CB53222E-B9FD-4DF1-BDF6-4E0EA6E462A5}']
+  IRequestHeaders = interface
+    ['{619A1A04-A54E-4684-914B-D5AB1EA867A3}']
     /// <summary>
-    ///   Removes all added parameters.
+    ///   Removes all added headers.
     /// </summary>
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function Clear: IRequestParams;
+    function Clear: IRequestHeaders;
     /// <summary>
-    ///   Adds a new parameter.
+    ///   Adds a new header.
     /// </summary>
     /// <param name="AName">
-    ///   Name of the parameter.
+    ///   Name of header.
     /// </param>
     /// <param name="AValue">
-    ///   Parameter value.
+    ///   Header value.
+    /// </param>
+    /// <param name="AOptions">
+    ///   Additional options for the header.
     /// </param>
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
@@ -32,7 +35,7 @@ type
     /// <remarks>
     ///   If the parameter already exists, its value will change.
     /// </remarks>
-    function Add(const AName, AValue: string): IRequestParams;
+    function Add(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequestHeaders;
   end;
 
 implementation

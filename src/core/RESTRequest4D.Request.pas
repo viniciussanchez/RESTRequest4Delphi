@@ -3,13 +3,14 @@ unit RESTRequest4D.Request;
 interface
 
 uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, RESTRequest4D.Request.Params.Intf, REST.Types,
-  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils;
+  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils, RESTRequest4D.Request.Headers.Intf;
 
 type
   TRequest = class(TInterfacedObject, IRequest)
   private
     FBody: IRequestBody;
     FParams: IRequestParams;
+    FHeaders: IRequestHeaders;
     FAuthentication: IRequestAuthentication;
     FRESTRequest: TRESTRequest;
     FRESTResponseDataSetAdapter: TRESTResponseDataSetAdapter;
@@ -30,6 +31,7 @@ type
     function GetStatusCode: Integer;
     function Execute: Integer;
     function Body: IRequestBody;
+    function Headers: IRequestHeaders;
     function Params: IRequestParams;
     function Authentication: IRequestAuthentication;
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
@@ -41,7 +43,8 @@ type
 
 implementation
 
-uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication;
+uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication,
+  RESTRequest4D.Request.Headers;
 
 { TRequest }
 
@@ -59,12 +62,14 @@ end;
 
 constructor TRequest.Create;
 begin
+  inherited;
   FRESTResponse := TRESTResponse.Create(nil);
   FRESTClient := TRESTClient.Create(nil);
   FRESTRequest := TRESTRequest.Create(nil);
 
   FBody := TRequestBody.Create(FRESTRequest);
   FParams := TRequestParams.Create(FRESTRequest);
+  FHeaders := TRequestHeaders.Create(FRESTRequest);
 
   DoJoinComponents;
 end;
@@ -74,6 +79,7 @@ begin
   FBody := nil;
   FAuthentication := nil;
   FParams := nil;
+  FHeaders := nil;
   if Assigned(FRESTResponseDataSetAdapter) then
     FreeAndNil(FRESTResponseDataSetAdapter);
   FreeAndNil(FRESTRequest);
@@ -135,6 +141,11 @@ end;
 function TRequest.GetStatusCode: Integer;
 begin
   Result := FRESTRequest.Response.StatusCode;
+end;
+
+function TRequest.Headers: IRequestHeaders;
+begin
+  Result := FHeaders;
 end;
 
 function TRequest.Params: IRequestParams;

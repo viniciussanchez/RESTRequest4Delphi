@@ -10,7 +10,9 @@ uses
   RESTRequest4D.Request.Authentication.Intf in '..\src\interfaces\RESTRequest4D.Request.Authentication.Intf.pas',
   RESTRequest4D.Request.Body.Intf in '..\src\interfaces\RESTRequest4D.Request.Body.Intf.pas',
   RESTRequest4D.Request.Intf in '..\src\interfaces\RESTRequest4D.Request.Intf.pas',
-  RESTRequest4D.Request.Params.Intf in '..\src\interfaces\RESTRequest4D.Request.Params.Intf.pas';
+  RESTRequest4D.Request.Params.Intf in '..\src\interfaces\RESTRequest4D.Request.Params.Intf.pas',
+  RESTRequest4D.Request.Headers.Intf in '..\src\interfaces\RESTRequest4D.Request.Headers.Intf.pas',
+  RESTRequest4D.Request.Headers in '..\src\core\RESTRequest4D.Request.Headers.pas';
 
 {$R *.res}
 

@@ -2,17 +2,18 @@ unit RESTRequest4D.Request.Params;
 
 interface
 
-uses RESTRequest4D.Request.Params.Intf, REST.Client, REST.Types;
+uses RESTRequest4D.Request.Params.Intf, REST.Client, REST.Types, System.Classes;
 
 type
   TRequestParams = class(TInterfacedObject, IRequestParams)
   private
+    FParams: TStrings;
     FRESTRequest: TRESTRequest;
     function Clear: IRequestParams;
-    function AddParam(const AName, AValue: string): IRequestParams;
-    function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequestParams;
+    function Add(const AName, AValue: string): IRequestParams;
   public
     constructor Create(const ARESTRequest: TRESTRequest);
+    destructor Destroy; override;
   end;
 
 implementation
@@ -21,32 +22,36 @@ uses System.SysUtils;
 
 { TRequestParams }
 
-function TRequestParams.AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequestParams;
+function TRequestParams.Add(const AName, AValue: string): IRequestParams;
 begin
   Result := Self;
   if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
   begin
-    FRESTRequest.Params.AddHeader(AName, AValue);
-    FRESTRequest.Params.ParameterByName(AName).Options := AOptions;
+    FParams.Add(AName);
+    FRESTRequest.AddParameter(AName, AValue);
   end;
 end;
 
-function TRequestParams.AddParam(const AName, AValue: string): IRequestParams;
-begin
-  Result := Self;
-  if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
-    FRESTRequest.AddParameter(AName, AValue);
-end;
-
 function TRequestParams.Clear: IRequestParams;
+var
+  I: Integer;
 begin
   Result := Self;
-  FRESTRequest.Params.Clear;
+  for I := 0 to Pred(FParams.Count) do
+    FRESTRequest.Params.Delete(FRESTRequest.Params.ParameterByName(FParams[I]));
 end;
 
 constructor TRequestParams.Create(const ARESTRequest: TRESTRequest);
 begin
+  inherited Create;
+  FParams := TStringList.Create;
   FRESTRequest := ARESTRequest;
+end;
+
+destructor TRequestParams.Destroy;
+begin
+  FParams.Free;
+  inherited;
 end;
 
 end.

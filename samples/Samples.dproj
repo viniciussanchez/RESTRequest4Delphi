@@ -110,6 +110,8 @@
         <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Body.Intf.pas"/>
         <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Intf.pas"/>
         <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Params.Intf.pas"/>
+        <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Headers.Intf.pas"/>
+        <DCCReference Include="..\src\core\RESTRequest4D.Request.Headers.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

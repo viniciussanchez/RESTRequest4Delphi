@@ -95,7 +95,7 @@ end;
 
 procedure TFrmMain.btnAddParamClick(Sender: TObject);
 begin
-  Request.Params.AddParam('country', 'Brazil');
+  Request.Params.Add('country', 'Brazil');
 end;
 
 procedure TFrmMain.btnBasicAuthorizationClick(Sender: TObject);
@@ -178,7 +178,7 @@ end;
 
 procedure TFrmMain.btnJWTAuthorizationTokenClick(Sender: TObject);
 begin
-  Request.Params.AddHeader('Authorization', 'JWT Token', [poDoNotEncode]);
+  Request.Headers.Add('Authorization', 'JWT Token', [poDoNotEncode]);
 end;
 
 procedure TFrmMain.btnSetBaseURLClick(Sender: TObject);
@@ -208,7 +208,7 @@ end;
 
 procedure TFrmMain.Button1Click(Sender: TObject);
 begin
-  Request.Params.AddHeader('Accept-Encoding', 'gzip');
+  Request.Headers.Add('Accept-Encoding', 'gzip');
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);

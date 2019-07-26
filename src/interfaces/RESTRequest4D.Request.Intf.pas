@@ -3,7 +3,7 @@ unit RESTRequest4D.Request.Intf;
 interface
 
 uses Data.DB, REST.Client, RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Params.Intf, REST.Types, System.SysUtils,
-  RESTRequest4D.Request.Authentication.Intf;
+  RESTRequest4D.Request.Authentication.Intf, RESTRequest4D.Request.Headers.Intf;
 
 type
   /// <summary>
@@ -169,6 +169,13 @@ type
     ///   Returns an instance of the request body interface.
     /// </returns>
     function Body: IRequestBody;
+    /// <summary>
+    ///   Allows access to the request headers.
+    /// </summary>
+    /// <returns>
+    ///   Returns an instance of the request parameter interface.
+    /// </returns>
+    function Headers: IRequestHeaders;
     /// <summary>
     ///   Allows access to the request parameters.
     /// </summary>
