@@ -10,7 +10,7 @@ type
     FParams: TStrings;
     FRESTRequest: TRESTRequest;
     function Clear: IRequestParams;
-    function Add(const AName, AValue: string): IRequestParams;
+    function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams;
   public
     constructor Create(const ARESTRequest: TRESTRequest);
     destructor Destroy; override;
@@ -22,13 +22,13 @@ uses System.SysUtils;
 
 { TRequestParams }
 
-function TRequestParams.Add(const AName, AValue: string): IRequestParams;
+function TRequestParams.Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind): IRequestParams;
 begin
   Result := Self;
   if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
   begin
     FParams.Add(AName);
-    FRESTRequest.AddParameter(AName, AValue);
+    FRESTRequest.AddParameter(AName, AValue, AKind);
   end;
 end;
 

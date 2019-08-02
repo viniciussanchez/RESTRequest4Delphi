@@ -26,13 +26,16 @@ type
     /// <param name="AValue">
     ///   Parameter value.
     /// </param>
+    /// <param name="AKind">
+    ///   Type of parameter.
+    /// </param>
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
     /// <remarks>
     ///   If the parameter already exists, its value will change.
     /// </remarks>
-    function Add(const AName, AValue: string): IRequestParams;
+    function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams;
   end;
 
 implementation
