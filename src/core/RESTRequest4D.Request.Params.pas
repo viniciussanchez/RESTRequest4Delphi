@@ -10,7 +10,8 @@ type
     FParams: TStrings;
     FRESTRequest: TRESTRequest;
     function Clear: IRequestParams;
-    function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams;
+    function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
+    function Add(const AName: string; const AValue: Currency; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
   public
     constructor Create(const ARESTRequest: TRESTRequest);
     destructor Destroy; override;
@@ -30,6 +31,11 @@ begin
     FParams.Add(AName);
     FRESTRequest.AddParameter(AName, AValue, AKind);
   end;
+end;
+
+function TRequestParams.Add(const AName: string; const AValue: Currency; const AKind: TRESTRequestParameterKind): IRequestParams;
+begin
+  Result := Self.Add(AName, CurrToStr(AValue), AKind);
 end;
 
 function TRequestParams.Clear: IRequestParams;

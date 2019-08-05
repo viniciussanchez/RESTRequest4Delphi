@@ -96,6 +96,7 @@ end;
 procedure TFrmMain.btnAddParamClick(Sender: TObject);
 begin
   Request.Params.Add('country', 'Brazil');
+  Request.Params.Add('year', 2019);
 end;
 
 procedure TFrmMain.btnBasicAuthorizationClick(Sender: TObject);

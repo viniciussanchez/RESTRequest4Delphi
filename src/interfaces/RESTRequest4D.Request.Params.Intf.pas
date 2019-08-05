@@ -35,7 +35,26 @@ type
     /// <remarks>
     ///   If the parameter already exists, its value will change.
     /// </remarks>
-    function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams;
+    function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
+    /// <summary>
+    ///   Adds a new parameter.
+    /// </summary>
+    /// <param name="AName">
+    ///   Name of the parameter.
+    /// </param>
+    /// <param name="AValue">
+    ///   Parameter value.
+    /// </param>
+    /// <param name="AKind">
+    ///   Type of parameter.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    /// <remarks>
+    ///   If the parameter already exists, its value will change.
+    /// </remarks>
+    function Add(const AName: string; const AValue: Currency; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
   end;
 
 implementation
