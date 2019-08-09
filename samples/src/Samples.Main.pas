@@ -68,7 +68,7 @@ type
     procedure Button2Click(Sender: TObject);
   private
     FRequest: IRequest;
-    procedure SetRequest(const Value: IRequest);
+    procedure SetRequest(const AValue: IRequest);
   public
     property Request: IRequest read FRequest write SetRequest;
   end;
@@ -125,14 +125,14 @@ end;
 
 procedure TFrmMain.btnExecuteAsyncClick(Sender: TObject);
 var
-  MyCompletionHandlerWithError: TMyCompletionHandlerWithError;
+  LMyCompletionHandlerWithError: TMyCompletionHandlerWithError;
 begin
-  MyCompletionHandlerWithError := procedure(AObject: TObject)
+  LMyCompletionHandlerWithError := procedure(AObject: TObject)
     begin
       if Assigned(AObject) and (AObject is Exception) then
         raise Exception(AObject); // or whatever you want!
     end;
-  Request.ExecuteAsync(nil, True, True, MyCompletionHandlerWithError);
+  Request.ExecuteAsync(nil, True, True, LMyCompletionHandlerWithError);
 end;
 
 procedure TFrmMain.btnExecuteRequestClick(Sender: TObject);
@@ -238,9 +238,9 @@ begin
   Request := nil;
 end;
 
-procedure TFrmMain.SetRequest(const Value: IRequest);
+procedure TFrmMain.SetRequest(const AValue: IRequest);
 begin
-  FRequest := Value;
+  FRequest := AValue;
 end;
 
 end.
