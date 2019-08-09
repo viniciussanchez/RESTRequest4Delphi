@@ -23,6 +23,8 @@ type
     function SetResourceSuffix(const AResourceSuffix: string = ''): IRequest;
     function SetMethod(const AMethod: TRESTRequestMethod = rmGET): IRequest;
     function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
+    function GetTimeout: Integer;
+    function SetTimeout(const ATimeout: Integer): IRequest;
     function GetMethod: TRESTRequestMethod;
     function GetResourceSuffix: string;
     function GetResource: string;
@@ -143,6 +145,11 @@ begin
   Result := FRESTRequest.Response.StatusCode;
 end;
 
+function TRequest.GetTimeout: Integer;
+begin
+  Result := FRESTRequest.Timeout;
+end;
+
 function TRequest.Headers: IRequestHeaders;
 begin
   Result := FHeaders;
@@ -190,6 +197,11 @@ function TRequest.SetResourceSuffix(const AResourceSuffix: string = ''): IReques
 begin
   Result := Self;
   FRESTRequest.ResourceSuffix := AResourceSuffix;
+end;
+
+function TRequest.SetTimeout(const ATimeout: Integer): IRequest;
+begin
+  FRESTRequest.Timeout := ATimeout;
 end;
 
 end.

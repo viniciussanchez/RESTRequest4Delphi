@@ -12,6 +12,23 @@ type
   IRequest = interface
     ['{2C882459-F4C3-4854-8F7A-F68E8F8DE98E}']
     /// <summary>
+    ///   Get defined request timeout.
+    /// </summary>
+    /// <returns>
+    ///   Request timeout.
+    /// </returns>
+    function GetTimeout: Integer;
+    /// <summary>
+    ///   Defines a new timeout for request.
+    /// </summary>
+    /// <param name="ATimeout">
+    ///   Request timeout.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function SetTimeout(const ATimeout: Integer): IRequest;
+    /// <summary>
     ///   Defines a DataSet that will be assigned to an adapter to respond to requests.
     /// </summary>
     /// <param name="ADataSet">
