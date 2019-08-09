@@ -36,6 +36,8 @@ type
     btnClearBasicAuthentication: TButton;
     btnGetStatusCode: TButton;
     btnExecuteAsync: TButton;
+    Button2: TButton;
+    Button3: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -62,6 +64,8 @@ type
     procedure btnClearBasicAuthenticationClick(Sender: TObject);
     procedure btnGetStatusCodeClick(Sender: TObject);
     procedure btnExecuteAsyncClick(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const Value: IRequest);
@@ -210,6 +214,18 @@ end;
 procedure TFrmMain.Button1Click(Sender: TObject);
 begin
   Request.Headers.Add('Accept-Encoding', 'gzip');
+end;
+
+procedure TFrmMain.Button2Click(Sender: TObject);
+var
+  LTimeout: Integer;
+begin
+  LTimeout := Request.GetTimeout;
+end;
+
+procedure TFrmMain.Button3Click(Sender: TObject);
+begin
+  Request.SetTimeout(30000);
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);

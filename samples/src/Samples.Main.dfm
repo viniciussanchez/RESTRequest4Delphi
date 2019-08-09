@@ -3,7 +3,7 @@ object FrmMain: TFrmMain
   Top = 0
   Caption = 'REST Request - Samples'
   ClientHeight = 199
-  ClientWidth = 571
+  ClientWidth = 665
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -230,6 +230,24 @@ object FrmMain: TFrmMain
     Caption = 'Execute async'
     TabOrder = 23
     OnClick = btnExecuteAsyncClick
+  end
+  object Button2: TButton
+    Left = 567
+    Top = 39
+    Width = 89
+    Height = 25
+    Caption = 'Get timeout'
+    TabOrder = 24
+    OnClick = Button2Click
+  end
+  object Button3: TButton
+    Left = 567
+    Top = 8
+    Width = 89
+    Height = 25
+    Caption = 'Set timeout'
+    TabOrder = 25
+    OnClick = Button3Click
   end
   object FDMemTable: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
