@@ -257,7 +257,7 @@ object FrmMain: TFrmMain
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 512
-    Top = 136
+    Left = 600
+    Top = 128
   end
 end

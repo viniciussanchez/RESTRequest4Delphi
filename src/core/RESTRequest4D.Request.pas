@@ -18,6 +18,8 @@ type
     FRESTClient: TRESTClient;
     procedure DoJoinComponents;
     procedure DoAfterExecute(Sender: TCustomRESTRequest);
+    function ClearDataSet(const ADataSet: TDataSet): TRequest;
+    function ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean = True): TRequest;
     function SetDataSetAdapter(const ADataSet: TDataSet): IRequest;
     function SetBaseURL(const ABaseURL: string = ''): IRequest;
     function SetResource(const AResource: string = ''): IRequest;
@@ -47,9 +49,19 @@ type
 implementation
 
 uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize.Helper,
-  RESTRequest4D.Request.Headers;
+  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet;
 
 { TRequest }
+
+function TRequest.ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean): TRequest;
+begin
+  Result := Self;
+  if ADataSet is TFDDataSet then
+  begin
+    TFDDataSet(ADataSet).CancelUpdates;
+    TFDDataSet(ADataSet).CachedUpdates := AActive;
+  end;
+end;
 
 function TRequest.Authentication: IRequestAuthentication;
 begin
@@ -61,6 +73,24 @@ end;
 function TRequest.Body: IRequestBody;
 begin
   Result := FBody;
+end;
+
+function TRequest.ClearDataSet(const ADataSet: TDataSet): TRequest;
+var
+  LHandlerControlsEnabled: Boolean;
+begin
+  Result := Self;
+  LHandlerControlsEnabled := not ADataSet.ControlsDisabled;
+  if LHandlerControlsEnabled then
+    ADataSet.DisableControls;
+  try
+    ADataSet.First;
+    while not ADataSet.Eof do
+      ADataSet.Delete;
+  finally
+    if LHandlerControlsEnabled then
+      ADataSet.EnableControls;
+  end;
 end;
 
 constructor TRequest.Create;
@@ -91,12 +121,29 @@ begin
 end;
 
 procedure TRequest.DoAfterExecute(Sender: TCustomRESTRequest);
+var
+  LDataSetChild: TDataSet;
+  LDataSetsChilds: TList<TDataSet>;
 begin
+  LDataSetsChilds := nil;
   if not Assigned(FDataSetAdapter) then
     Exit;
   if not FDataSetAdapter.Active then
     FDataSetAdapter.Open;
-  FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
+  ClearDataSet(FDataSetAdapter);
+  FDataSetAdapter.GetDetailDataSets(LDataSetsChilds);
+  try
+    for LDataSetChild in LDataSetsChilds do
+      ClearDataSet(LDataSetChild).ActiveCachedUpdates(LDataSetChild, False);
+    FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
+  finally
+    if Assigned(LDataSetsChilds) then
+    begin
+      for LDataSetChild in LDataSetsChilds do
+        ActiveCachedUpdates(LDataSetChild);
+      LDataSetsChilds.Free;
+    end;
+  end;
 end;
 
 procedure TRequest.DoJoinComponents;
