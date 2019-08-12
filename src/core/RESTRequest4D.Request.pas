@@ -13,10 +13,11 @@ type
     FHeaders: IRequestHeaders;
     FAuthentication: IRequestAuthentication;
     FRESTRequest: TRESTRequest;
-    FRESTResponseDataSetAdapter: TRESTResponseDataSetAdapter;
+    FDataSetAdapter: TDataSet;
     FRESTResponse: TRESTResponse;
     FRESTClient: TRESTClient;
     procedure DoJoinComponents;
+    procedure DoAfterExecute(Sender: TCustomRESTRequest);
     function SetDataSetAdapter(const ADataSet: TDataSet): IRequest;
     function SetBaseURL(const ABaseURL: string = ''): IRequest;
     function SetResource(const AResource: string = ''): IRequest;
@@ -73,6 +74,7 @@ begin
   FParams := TRequestParams.Create(FRESTRequest);
   FHeaders := TRequestHeaders.Create(FRESTRequest);
 
+  FRESTRequest.OnAfterExecute := DoAfterExecute;
   DoJoinComponents;
 end;
 
@@ -82,12 +84,16 @@ begin
   FAuthentication := nil;
   FParams := nil;
   FHeaders := nil;
-  if Assigned(FRESTResponseDataSetAdapter) then
-    FreeAndNil(FRESTResponseDataSetAdapter);
   FreeAndNil(FRESTRequest);
   FreeAndNil(FRESTClient);
   FreeAndNil(FRESTResponse);
   inherited;
+end;
+
+procedure TRequest.DoAfterExecute(Sender: TCustomRESTRequest);
+begin
+  if not Assigned(FDataSetAdapter) then
+    Exit;
 end;
 
 procedure TRequest.DoJoinComponents;
@@ -115,9 +121,7 @@ end;
 
 function TRequest.GetDataSetAdapter: TDataSet;
 begin
-  Result := nil;
-  if Assigned(FRESTResponseDataSetAdapter) then
-    Result := FRESTResponseDataSetAdapter.Dataset;
+  Result := FDataSetAdapter;
 end;
 
 function TRequest.GetFullRequestURL(const AIncludeParams: Boolean): string;
@@ -169,14 +173,7 @@ end;
 function TRequest.SetDataSetAdapter(const ADataSet: TDataSet): IRequest;
 begin
   Result := Self;
-  if not Assigned(ADataSet) then
-    Exit;
-  if not Assigned(FRESTResponseDataSetAdapter) then
-  begin
-    FRESTResponseDataSetAdapter := TRESTResponseDataSetAdapter.Create(nil);
-    FRESTResponseDataSetAdapter.Response := FRESTResponse;
-  end;
-  FRESTResponseDataSetAdapter.Dataset := ADataSet;
+  FDataSetAdapter := ADataSet;
 end;
 
 function TRequest.SetMethod(const AMethod: TRESTRequestMethod): IRequest;
