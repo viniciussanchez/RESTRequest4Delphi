@@ -46,7 +46,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication,
+uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize.Helper,
   RESTRequest4D.Request.Headers;
 
 { TRequest }
@@ -94,6 +94,7 @@ procedure TRequest.DoAfterExecute(Sender: TCustomRESTRequest);
 begin
   if not Assigned(FDataSetAdapter) then
     Exit;
+  FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
 end;
 
 procedure TRequest.DoJoinComponents;
