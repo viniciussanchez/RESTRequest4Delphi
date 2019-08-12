@@ -2,9 +2,10 @@
 ![Delphi Supported Versions](https://img.shields.io/badge/Delphi%20Supported%20Versions-XE3%20and%20ever-blue.svg)
 ![Platforms](https://img.shields.io/badge/Supported%20platforms-Win32%20and%20Win64-red.svg)
  
-RESTRequest4Delphi is a REST request facilitator made for applications built in Delphi. With it, we eliminate the TRESTClient components: TRESTResponse, TRESTResponseDataSetAdapter, THTTPBasicAuthenticator and TRESTRequest. For ease of use, RESTRequest4Delphi uses the Fluent Interface / Fluent API (how to name methods to be used with the impression that you are writing a text).
+RESTRequest4Delphi is a REST request facilitator made for applications built in Delphi. With it, we eliminate the TRESTClient components: TRESTResponse, THTTPBasicAuthenticator and TRESTRequest. For ease of use, RESTRequest4Delphi uses the Fluent Interface / Fluent API (how to name methods to be used with the impression that you are writing a text).
  
 ## Prerequisites
+ * [**dataset-serialize**](https://github.com/viniciussanchez/dataset-serialize) - This is a DataSet serializer for Delphi
  * `[Optional]` For ease I recommend using the Boss for installation
    * [**Boss**](https://github.com/HashLoad/boss) - Dependency Manager for Delphi
  
