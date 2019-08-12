@@ -83,7 +83,7 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <DCC_UnitSearchPath>C:\Projetos\RESTRequest4Delphi\modules\dataset-serialize\src\types;C:\Projetos\RESTRequest4Delphi\modules\dataset-serialize\src\providers;C:\Projetos\RESTRequest4Delphi\modules\dataset-serialize\src\interfaces;C:\Projetos\RESTRequest4Delphi\modules\dataset-serialize\src\helpers;C:\Projetos\RESTRequest4Delphi\modules\dataset-serialize\src\core;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>C:\Projetos\RESTRequest4Delphi\modules\dataset-serialize\src\types;C:\Projetos\RESTRequest4Delphi\modules\dataset-serialize\src\providers;C:\Projetos\RESTRequest4Delphi\modules\dataset-serialize\src\helpers;C:\Projetos\RESTRequest4Delphi\modules\dataset-serialize\src\core;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
