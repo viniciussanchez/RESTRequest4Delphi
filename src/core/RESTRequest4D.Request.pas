@@ -94,6 +94,8 @@ procedure TRequest.DoAfterExecute(Sender: TCustomRESTRequest);
 begin
   if not Assigned(FDataSetAdapter) then
     Exit;
+  if not FDataSetAdapter.Active then
+    FDataSetAdapter.Open;
   FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
 end;
 
