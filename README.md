@@ -88,9 +88,9 @@ You can get the dataset as follows:
 
 ```pascal
 var
-  MemTable: TFDMemTable;
+  LMemTable: TFDMemTable;
 begin
-  MemTable := Request.GetDataSetAdapter as TFDMemTable;
+  LMemTable := Request.GetDataSetAdapter as TFDMemTable;
 end;
 ```
 
@@ -165,14 +165,14 @@ type
 implementation
 
 var
-  MyCompletionHandlerWithError: TMyCompletionHandlerWithError;
+  LMyCompletionHandlerWithError: TMyCompletionHandlerWithError;
 begin
-  MyCompletionHandlerWithError := procedure(AObject: TObject)
+  LMyCompletionHandlerWithError := procedure(AObject: TObject)
     begin
       if Assigned(AObject) and (AObject is Exception) then
         raise Exception(AObject); // or whatever you want!
     end;
-  Request.ExecuteAsync(nil, True, True, MyCompletionHandlerWithError);
+  Request.ExecuteAsync(nil, True, True, LMyCompletionHandlerWithError);
 end;
 ```
 
