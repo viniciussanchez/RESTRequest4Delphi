@@ -40,6 +40,8 @@ type
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
+    Button6: TButton;
+    Button7: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -70,6 +72,8 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const AValue: IRequest);
@@ -242,6 +246,18 @@ end;
 procedure TFrmMain.Button5Click(Sender: TObject);
 begin
   Request.SetAccept(CONTENTTYPE_APPLICATION_JSON);
+end;
+
+procedure TFrmMain.Button6Click(Sender: TObject);
+var
+  LAcceptCharset: string;
+begin
+  LAcceptCharset := Request.GetAcceptCharset;
+end;
+
+procedure TFrmMain.Button7Click(Sender: TObject);
+begin
+  Request.SetAcceptCharset('utf-8');
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);

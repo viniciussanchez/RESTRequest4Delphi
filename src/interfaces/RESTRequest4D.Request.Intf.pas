@@ -12,6 +12,26 @@ type
   IRequest = interface
     ['{2C882459-F4C3-4854-8F7A-F68E8F8DE98E}']
     /// <summary>
+    ///   Get defined charset that the response is expected to be encoded in.
+    /// </summary>
+    /// <returns>
+    ///   Charset that the response is expected to be encoded in.
+    /// </returns>
+    function GetAcceptCharset: string;
+    /// <summary>
+    ///   Specifies the charset that the response is expected to be encoded in.
+    /// </summary>
+    /// <param name="AAcceptCharset">
+    ///   Charset that the response is expected to be encoded in.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    /// <remarks>
+    ///   Defaults to UTF-8.
+    /// </remarks>
+    function SetAcceptCharset(const AAcceptCharset: string): IRequest;
+    /// <summary>
     ///   Get difined content-type that is accepted for the response.
     /// </summary>
     /// <returns>

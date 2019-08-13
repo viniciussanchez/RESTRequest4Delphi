@@ -3,7 +3,7 @@ object FrmMain: TFrmMain
   Top = 0
   Caption = 'REST Request - Samples'
   ClientHeight = 199
-  ClientWidth = 665
+  ClientWidth = 706
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -234,7 +234,7 @@ object FrmMain: TFrmMain
   object Button2: TButton
     Left = 567
     Top = 39
-    Width = 89
+    Width = 131
     Height = 25
     Caption = 'Get timeout'
     TabOrder = 24
@@ -243,7 +243,7 @@ object FrmMain: TFrmMain
   object Button3: TButton
     Left = 567
     Top = 8
-    Width = 89
+    Width = 131
     Height = 25
     Caption = 'Set timeout'
     TabOrder = 25
@@ -252,7 +252,7 @@ object FrmMain: TFrmMain
   object Button4: TButton
     Left = 567
     Top = 101
-    Width = 89
+    Width = 131
     Height = 25
     Caption = 'Get accept'
     TabOrder = 26
@@ -261,11 +261,29 @@ object FrmMain: TFrmMain
   object Button5: TButton
     Left = 567
     Top = 70
-    Width = 89
+    Width = 131
     Height = 25
     Caption = 'Set accept'
     TabOrder = 27
     OnClick = Button5Click
+  end
+  object Button6: TButton
+    Left = 567
+    Top = 163
+    Width = 131
+    Height = 25
+    Caption = 'Get accept charset'
+    TabOrder = 28
+    OnClick = Button6Click
+  end
+  object Button7: TButton
+    Left = 567
+    Top = 132
+    Width = 131
+    Height = 25
+    Caption = 'Set accept charset'
+    TabOrder = 29
+    OnClick = Button7Click
   end
   object FDMemTable: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
@@ -275,7 +293,7 @@ object FrmMain: TFrmMain
     UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
     UpdateOptions.CheckRequired = False
     UpdateOptions.AutoCommitUpdates = True
-    Left = 600
-    Top = 128
+    Left = 40
+    Top = 136
   end
 end
