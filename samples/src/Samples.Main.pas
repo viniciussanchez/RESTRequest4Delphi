@@ -38,6 +38,8 @@ type
     btnExecuteAsync: TButton;
     Button2: TButton;
     Button3: TButton;
+    Button4: TButton;
+    Button5: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -66,6 +68,8 @@ type
     procedure btnExecuteAsyncClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const AValue: IRequest);
@@ -226,6 +230,18 @@ end;
 procedure TFrmMain.Button3Click(Sender: TObject);
 begin
   Request.SetTimeout(30000);
+end;
+
+procedure TFrmMain.Button4Click(Sender: TObject);
+var
+  LAccept: string;
+begin
+  LAccept := Request.GetAccept;
+end;
+
+procedure TFrmMain.Button5Click(Sender: TObject);
+begin
+  Request.SetAccept(CONTENTTYPE_APPLICATION_JSON);
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);

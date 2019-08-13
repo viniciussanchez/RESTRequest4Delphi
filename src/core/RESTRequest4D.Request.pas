@@ -19,6 +19,8 @@ type
     procedure DoJoinComponents;
     procedure DoAfterExecute(Sender: TCustomRESTRequest);
     procedure ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean = True);
+    function GetAccept: string;
+    function SetAccept(const AAccept: string): IRequest;
     function SetDataSetAdapter(const ADataSet: TDataSet): IRequest;
     function SetBaseURL(const ABaseURL: string = ''): IRequest;
     function SetResource(const AResource: string = ''): IRequest;
@@ -145,6 +147,11 @@ begin
   Result := FRESTRequest.ExecuteAsync(ACompletionHandler, ASynchronized, AFreeThread, ACompletionHandlerWithError);
 end;
 
+function TRequest.GetAccept: string;
+begin
+  Result := FRESTRequest.Accept;
+end;
+
 function TRequest.GetBaseURL: string;
 begin
   Result := FRESTClient.BaseURL;
@@ -193,6 +200,19 @@ end;
 function TRequest.Params: IRequestParams;
 begin
   Result := FParams;
+end;
+
+function TRequest.SetAccept(const AAccept: string): IRequest;
+const
+  REQUEST_DEFAULT_ACCEPT =
+    CONTENTTYPE_APPLICATION_JSON + ', ' +
+    CONTENTTYPE_TEXT_PLAIN + '; q=0.9, ' +
+    CONTENTTYPE_TEXT_HTML + ';q=0.8,';
+begin
+  Result := Self;
+  FRESTRequest.Accept := REQUEST_DEFAULT_ACCEPT;
+  if not AAccept.Trim.IsEmpty then
+    FRESTRequest.Accept := AAccept;
 end;
 
 function TRequest.SetBaseURL(const ABaseURL: string = ''): IRequest;

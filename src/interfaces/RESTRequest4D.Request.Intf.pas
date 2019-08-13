@@ -12,6 +12,31 @@ type
   IRequest = interface
     ['{2C882459-F4C3-4854-8F7A-F68E8F8DE98E}']
     /// <summary>
+    ///   Get difined content-type that is accepted for the response.
+    /// </summary>
+    /// <returns>
+    ///   Content-Type that is accepted for the response.
+    /// </returns>
+    function GetAccept: string;
+    /// <summary>
+    ///   <para>
+    ///     Specifies the Content-Type that is accepted for the response.
+    ///   </para>
+    ///   <para>
+    ///     Defaults to: application/json,text/plain;q=0.9,text/html;q=0.8
+    ///   </para>
+    ///   <para>
+    ///     We are after JSON, which is why it has the highest quality factor (default 1.0)
+    ///   </para>
+    /// </summary>
+    /// <param name="AAccept">
+    ///   Content-Type that is accepted for the response.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function SetAccept(const AAccept: string): IRequest;
+    /// <summary>
     ///   Get defined request timeout.
     /// </summary>
     /// <returns>

@@ -249,6 +249,24 @@ object FrmMain: TFrmMain
     TabOrder = 25
     OnClick = Button3Click
   end
+  object Button4: TButton
+    Left = 567
+    Top = 101
+    Width = 89
+    Height = 25
+    Caption = 'Get accept'
+    TabOrder = 26
+    OnClick = Button4Click
+  end
+  object Button5: TButton
+    Left = 567
+    Top = 70
+    Width = 89
+    Height = 25
+    Caption = 'Set accept'
+    TabOrder = 27
+    OnClick = Button5Click
+  end
   object FDMemTable: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll
