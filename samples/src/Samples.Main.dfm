@@ -3,7 +3,7 @@ object FrmMain: TFrmMain
   Top = 0
   Caption = 'REST Request - Samples'
   ClientHeight = 199
-  ClientWidth = 706
+  ClientWidth = 841
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -284,6 +284,24 @@ object FrmMain: TFrmMain
     Caption = 'Set accept charset'
     TabOrder = 29
     OnClick = Button7Click
+  end
+  object Button8: TButton
+    Left = 704
+    Top = 8
+    Width = 131
+    Height = 25
+    Caption = 'Set accept encoding'
+    TabOrder = 30
+    OnClick = Button8Click
+  end
+  object Button9: TButton
+    Left = 704
+    Top = 39
+    Width = 131
+    Height = 25
+    Caption = 'Get accept encoding'
+    TabOrder = 31
+    OnClick = Button9Click
   end
   object FDMemTable: TFDMemTable
     FetchOptions.AssignedValues = [evMode]

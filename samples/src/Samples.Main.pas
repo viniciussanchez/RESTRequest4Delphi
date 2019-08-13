@@ -42,6 +42,8 @@ type
     Button5: TButton;
     Button6: TButton;
     Button7: TButton;
+    Button8: TButton;
+    Button9: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -74,6 +76,8 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button7Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const AValue: IRequest);
@@ -258,6 +262,18 @@ end;
 procedure TFrmMain.Button7Click(Sender: TObject);
 begin
   Request.SetAcceptCharset('utf-8');
+end;
+
+procedure TFrmMain.Button8Click(Sender: TObject);
+begin
+  Request.SetAcceptEncoding('gzip, deflate');
+end;
+
+procedure TFrmMain.Button9Click(Sender: TObject);
+var
+  LAcceptEncoding: string;
+begin
+  LAcceptEncoding := Request.GetAcceptEncoding;
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);

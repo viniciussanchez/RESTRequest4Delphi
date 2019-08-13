@@ -19,6 +19,8 @@ type
     procedure DoJoinComponents;
     procedure DoAfterExecute(Sender: TCustomRESTRequest);
     procedure ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean = True);
+    function GetAcceptEncoding: string;
+    function SetAcceptEncoding(const AAcceptEncoding: string): IRequest;
     function GetAcceptCharset: string;
     function SetAcceptCharset(const AAcceptCharset: string): IRequest;
     function GetAccept: string;
@@ -159,6 +161,11 @@ begin
   Result := FRESTRequest.AcceptCharset;
 end;
 
+function TRequest.GetAcceptEncoding: string;
+begin
+  Result := FRESTRequest.AcceptEncoding;
+end;
+
 function TRequest.GetBaseURL: string;
 begin
   Result := FRESTClient.BaseURL;
@@ -230,6 +237,12 @@ begin
   FRESTRequest.AcceptCharset := REQUEST_DEFAULT_ACCEPT_CHARSET;
   if not AAcceptCharset.Trim.IsEmpty then
     FRESTRequest.AcceptCharset := AAcceptCharset;
+end;
+
+function TRequest.SetAcceptEncoding(const AAcceptEncoding: string): IRequest;
+begin
+  Result := Self;
+  FRESTRequest.AcceptEncoding := AAcceptEncoding;
 end;
 
 function TRequest.SetBaseURL(const ABaseURL: string = ''): IRequest;

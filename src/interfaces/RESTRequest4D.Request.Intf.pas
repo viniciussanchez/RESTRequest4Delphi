@@ -12,6 +12,27 @@ type
   IRequest = interface
     ['{2C882459-F4C3-4854-8F7A-F68E8F8DE98E}']
     /// <summary>
+    ///   Get defined accepted encoding.
+    /// </summary>
+    /// <returns>
+    ///   Accepted encoding.
+    /// </returns>
+    function GetAcceptEncoding: string;
+    /// <summary>
+    ///   Specifies the accepted encoding.
+    /// </summary>
+    /// <param name="AAcceptEncoding">
+    ///   Accepted encoding.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    /// <remarks>
+    ///   Defaults to empty string, which means "identity encoding".
+    ///   To allow for compressed responses set to "gzip, deflate".
+    /// </remarks>
+    function SetAcceptEncoding(const AAcceptEncoding: string): IRequest;
+    /// <summary>
     ///   Get defined charset that the response is expected to be encoded in.
     /// </summary>
     /// <returns>
