@@ -6,6 +6,6 @@
 	"mainsrc": "/src",
 	"projects": [],
 	"dependencies": {
-		"github.com/viniciussanchez/dataset-serialize": "^v2.7.0"
+		"github.com/viniciussanchez/dataset-serialize": "^v2.8.0"
 	}
 }
