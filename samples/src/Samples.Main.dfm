@@ -3,7 +3,7 @@ object FrmMain: TFrmMain
   Top = 0
   Caption = 'REST Request - Samples'
   ClientHeight = 199
-  ClientWidth = 841
+  ClientWidth = 861
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -288,7 +288,7 @@ object FrmMain: TFrmMain
   object Button8: TButton
     Left = 704
     Top = 8
-    Width = 131
+    Width = 149
     Height = 25
     Caption = 'Set accept encoding'
     TabOrder = 30
@@ -297,11 +297,29 @@ object FrmMain: TFrmMain
   object Button9: TButton
     Left = 704
     Top = 39
-    Width = 131
+    Width = 149
     Height = 25
     Caption = 'Get accept encoding'
     TabOrder = 31
     OnClick = Button9Click
+  end
+  object Button10: TButton
+    Left = 704
+    Top = 101
+    Width = 149
+    Height = 25
+    Caption = 'Get raise exception on 500'
+    TabOrder = 32
+    OnClick = Button10Click
+  end
+  object Button11: TButton
+    Left = 704
+    Top = 70
+    Width = 149
+    Height = 25
+    Caption = 'Set raise exception on 500'
+    TabOrder = 33
+    OnClick = Button11Click
   end
   object FDMemTable: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
