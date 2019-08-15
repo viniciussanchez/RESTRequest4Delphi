@@ -60,14 +60,25 @@ uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Req
 { TRequest }
 
 procedure TRequest.ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean = True);
+var
+  LDataSet: TDataSet;
+  LDataSetDetails: TList<TDataSet>;
 begin
-  if ADataSet is TFDDataSet then
-  begin
-    if not AActive then
-      TFDDataSet(ADataSet).Close;
-    TFDDataSet(ADataSet).CachedUpdates := AActive;
-    if not AActive then
-      TFDDataSet(ADataSet).Open;
+  LDataSetDetails := TList<TDataSet>.Create;
+  try
+    if ADataSet is TFDDataSet then
+    begin
+      if not AActive then
+        TFDDataSet(ADataSet).Close;
+      TFDDataSet(ADataSet).CachedUpdates := AActive;
+      if not AActive then
+        TFDDataSet(ADataSet).Open;
+    end;
+    FDataSetAdapter.GetDetailDataSets(LDataSetDetails);
+    for LDataSet in LDataSetDetails do
+      ActiveCachedUpdates(LDataSet, False);
+  finally
+    LDataSetDetails.Free;
   end;
 end;
 
@@ -111,27 +122,14 @@ begin
 end;
 
 procedure TRequest.DoAfterExecute(Sender: TCustomRESTRequest);
-var
-  LDataSet: TDataSet;
-  LDataSetDetails: TList<TDataSet>;
 begin
   if not Assigned(FDataSetAdapter) then
     Exit;
-  LDataSetDetails := TList<TDataSet>.Create;
-  try
-    FDataSetAdapter.GetDetailDataSets(LDataSetDetails);
-    if not FDataSetAdapter.Active then
-      FDataSetAdapter.Open;
-    ActiveCachedUpdates(FDataSetAdapter, False);
-    for LDataSet in LDataSetDetails do
-      ActiveCachedUpdates(LDataSet, False);
-    FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
-    ActiveCachedUpdates(FDataSetAdapter);
-    for LDataSet in LDataSetDetails do
-      ActiveCachedUpdates(LDataSet);
-  finally
-    LDataSetDetails.Free;
-  end;
+  if not FDataSetAdapter.Active then
+    FDataSetAdapter.Open;
+  ActiveCachedUpdates(FDataSetAdapter, False);
+  FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
+  ActiveCachedUpdates(FDataSetAdapter);
 end;
 
 procedure TRequest.DoJoinComponents;
