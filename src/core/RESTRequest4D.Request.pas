@@ -75,7 +75,7 @@ begin
       if not AActive then
         TFDDataSet(ADataSet).Open;
     end;
-    FDataSetAdapter.GetDetailDataSets(LDataSetDetails);
+    ADataSet.GetDetailDataSets(LDataSetDetails);
     for LDataSet in LDataSetDetails do
       ActiveCachedUpdates(LDataSet, False);
   finally
