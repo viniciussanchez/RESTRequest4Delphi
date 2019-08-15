@@ -77,7 +77,7 @@ begin
     end;
     ADataSet.GetDetailDataSets(LDataSetDetails);
     for LDataSet in LDataSetDetails do
-      ActiveCachedUpdates(LDataSet, False);
+      ActiveCachedUpdates(LDataSet, AActive);
   finally
     LDataSetDetails.Free;
   end;
