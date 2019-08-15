@@ -139,12 +139,25 @@ type
     /// </returns>
     function SetResource(const AResource: string = ''): IRequest;
     /// <summary>
+    ///   Get defined value if the component needs to raise an exception on server status code return 500.
+    /// </summary>
+    /// <returns>
+    ///   Defined raise exception on error 500.
+    /// </returns>
+    function GetRaiseExceptionOn500: Boolean;
+    /// <summary>
     ///   Defines if the component needs to raise an exception on server status code return 500.
     /// </summary>
+    /// <param name="ARaiseException">
+    ///   Raise exception.
+    /// </param>
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function SetRaiseExceptionOn500(const Value: Boolean): IRequest;
+    /// <remarks>
+    ///   Default is True.
+    /// </remarks>
+    function SetRaiseExceptionOn500(const ARaiseException: Boolean = True): IRequest;
     /// <summary>
     ///   Get defined resource.
     /// </summary>

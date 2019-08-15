@@ -44,6 +44,8 @@ type
     Button7: TButton;
     Button8: TButton;
     Button9: TButton;
+    Button10: TButton;
+    Button11: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -78,6 +80,8 @@ type
     procedure Button6Click(Sender: TObject);
     procedure Button8Click(Sender: TObject);
     procedure Button9Click(Sender: TObject);
+    procedure Button10Click(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const AValue: IRequest);
@@ -221,6 +225,18 @@ end;
 procedure TFrmMain.btnSetResourceSuffixClick(Sender: TObject);
 begin
   Request.SetResourceSuffix('method');
+end;
+
+procedure TFrmMain.Button10Click(Sender: TObject);
+var
+  LRaiseException: Boolean;
+begin
+  LRaiseException := Request.GetRaiseExceptionOn500;
+end;
+
+procedure TFrmMain.Button11Click(Sender: TObject);
+begin
+  Request.SetRaiseExceptionOn500(False);
 end;
 
 procedure TFrmMain.Button1Click(Sender: TObject);
