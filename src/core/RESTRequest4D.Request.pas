@@ -30,7 +30,8 @@ type
     function SetResource(const AResource: string = ''): IRequest;
     function SetResourceSuffix(const AResourceSuffix: string = ''): IRequest;
     function SetMethod(const AMethod: TRESTRequestMethod = rmGET): IRequest;
-    function SetRaiseExceptionOn500(const Value: Boolean): IRequest;
+    function SetRaiseExceptionOn500(const ARaiseException: Boolean = True): IRequest;
+    function GetRaiseExceptionOn500: Boolean;
     function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
     function GetTimeout: Integer;
     function SetTimeout(const ATimeout: Integer): IRequest;
@@ -187,6 +188,11 @@ begin
   Result := FRESTRequest.Method;
 end;
 
+function TRequest.GetRaiseExceptionOn500: Boolean;
+begin
+  Result := FRESTClient.RaiseExceptionOn500;
+end;
+
 function TRequest.GetResource: string;
 begin
   Result := FRESTRequest.Resource;
@@ -266,10 +272,10 @@ begin
     Self.FBody.Clear;
 end;
 
-function TRequest.SetRaiseExceptionOn500(const Value: Boolean): IRequest;
+function TRequest.SetRaiseExceptionOn500(const ARaiseException: Boolean = True): IRequest;
 begin
   Result := Self;
-  FRESTClient.RaiseExceptionOn500 := Value;
+  FRESTClient.RaiseExceptionOn500 := ARaiseException;
 end;
 
 function TRequest.SetResource(const AResource: string = ''): IRequest;
