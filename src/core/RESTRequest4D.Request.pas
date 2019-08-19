@@ -56,7 +56,8 @@ type
 implementation
 
 uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize.Helper,
-  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet;
+  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client;
 
 { TRequest }
 
@@ -67,7 +68,7 @@ var
 begin
   LDataSetDetails := TList<TDataSet>.Create;
   try
-    if ADataSet is TFDDataSet then
+    if ADataSet is TFDMemTable then
     begin
       if not AActive then
         TFDDataSet(ADataSet).Close;
