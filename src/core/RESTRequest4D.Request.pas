@@ -3,7 +3,8 @@ unit RESTRequest4D.Request;
 interface
 
 uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, RESTRequest4D.Request.Params.Intf, REST.Types,
-  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils, RESTRequest4D.Request.Headers.Intf;
+  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils, RESTRequest4D.Request.Headers.Intf,
+  FireDAC.Comp.Client;
 
 type
   TRequest = class(TInterfacedObject, IRequest)
@@ -67,7 +68,7 @@ var
 begin
   LDataSetDetails := TList<TDataSet>.Create;
   try
-    if ADataSet is TFDDataSet then
+    if ADataSet is TFDMemTable then
     begin
       if not AActive then
         TFDDataSet(ADataSet).Close;
