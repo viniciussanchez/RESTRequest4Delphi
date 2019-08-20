@@ -71,10 +71,10 @@ begin
     if ADataSet is TFDMemTable then
     begin
       if not AActive then
-        TFDDataSet(ADataSet).Close;
-      TFDDataSet(ADataSet).CachedUpdates := AActive;
-      if not AActive then
-        TFDDataSet(ADataSet).Open;
+        TFDMemTable(ADataSet).Close;
+      TFDMemTable(ADataSet).CachedUpdates := AActive;
+      if AActive and not TFDMemTable(ADataSet).Active then
+        TFDMemTable(ADataSet).Open;
     end;
     ADataSet.GetDetailDataSets(LDataSetDetails);
     for LDataSet in LDataSetDetails do
@@ -126,9 +126,7 @@ end;
 procedure TRequest.DoAfterExecute(Sender: TCustomRESTRequest);
 begin
   if not Assigned(FDataSetAdapter) then
-    Exit;
-  if not FDataSetAdapter.Active then
-    FDataSetAdapter.Open;
+    Exit;  
   ActiveCachedUpdates(FDataSetAdapter, False);
   FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
   ActiveCachedUpdates(FDataSetAdapter);
