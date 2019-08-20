@@ -126,9 +126,7 @@ end;
 procedure TRequest.DoAfterExecute(Sender: TCustomRESTRequest);
 begin
   if not Assigned(FDataSetAdapter) then
-    Exit;
-  if not FDataSetAdapter.Active then
-    FDataSetAdapter.Open;
+    Exit;  
   ActiveCachedUpdates(FDataSetAdapter, False);
   FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
   ActiveCachedUpdates(FDataSetAdapter);
