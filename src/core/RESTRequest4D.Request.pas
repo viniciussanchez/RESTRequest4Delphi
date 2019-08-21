@@ -51,7 +51,7 @@ type
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
       ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
-    constructor Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = '');
+    constructor Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = '');
     destructor Destroy; override;
   end;
 
@@ -98,7 +98,7 @@ begin
   Result := FBody;
 end;
 
-constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = '');
+constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = '');
 begin
   FRESTResponse := TRESTResponse.Create(nil);
   FRESTClient := TRESTClient.Create(nil);
@@ -115,6 +115,8 @@ begin
   FRESTRequest.Method := AMethod;
   FRESTClient.RaiseExceptionOn500 := False;
   FRESTClient.BaseURL := ABaseURL;
+  if not AToken.Trim.IsEmpty then
+    FHeaders.Add('Authorization', AToken, [poDoNotEncode]);
 end;
 
 destructor TRequest.Destroy;
