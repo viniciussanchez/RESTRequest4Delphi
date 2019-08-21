@@ -113,6 +113,7 @@ begin
   DoJoinComponents;
 
   FRESTRequest.Method := AMethod;
+  FRESTClient.RaiseExceptionOn500 := False;
   FRESTClient.BaseURL := ABaseURL;
 end;
 
