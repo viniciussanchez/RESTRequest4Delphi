@@ -3,13 +3,15 @@ unit RESTRequest4D.Request;
 interface
 
 uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, RESTRequest4D.Request.Params.Intf, REST.Types,
-  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils, RESTRequest4D.Request.Headers.Intf;
+  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils, RESTRequest4D.Request.Headers.Intf,
+  RESTRequest4D.Request.Response.Intf;
 
 type
   TRequest = class(TInterfacedObject, IRequest)
   private
     FBody: IRequestBody;
     FParams: IRequestParams;
+    FResponse: IRequestResponse;
     FHeaders: IRequestHeaders;
     FAuthentication: IRequestAuthentication;
     FRESTRequest: TRESTRequest;
@@ -44,6 +46,7 @@ type
     function Execute: Integer;
     function Body: IRequestBody;
     function Headers: IRequestHeaders;
+    function Response: IRequestResponse;
     function Params: IRequestParams;
     function Authentication: IRequestAuthentication;
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
@@ -56,7 +59,8 @@ type
 implementation
 
 uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize.Helper,
-  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
+  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  RESTRequest4D.Request.Response;
 
 { TRequest }
 
@@ -104,6 +108,7 @@ begin
   FBody := TRequestBody.Create(FRESTRequest);
   FParams := TRequestParams.Create(FRESTRequest);
   FHeaders := TRequestHeaders.Create(FRESTRequest);
+  FResponse := TRequestResponse.Create(FRESTResponse);
 
   FRESTRequest.OnAfterExecute := DoAfterExecute;
   DoJoinComponents;
@@ -219,6 +224,11 @@ end;
 function TRequest.Params: IRequestParams;
 begin
   Result := FParams;
+end;
+
+function TRequest.Response: IRequestResponse;
+begin
+  Result := FResponse;
 end;
 
 function TRequest.SetAccept(const AAccept: string): IRequest;

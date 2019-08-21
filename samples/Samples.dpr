@@ -12,7 +12,9 @@ uses
   RESTRequest4D.Request.Intf in '..\src\interfaces\RESTRequest4D.Request.Intf.pas',
   RESTRequest4D.Request.Params.Intf in '..\src\interfaces\RESTRequest4D.Request.Params.Intf.pas',
   RESTRequest4D.Request.Headers.Intf in '..\src\interfaces\RESTRequest4D.Request.Headers.Intf.pas',
-  RESTRequest4D.Request.Headers in '..\src\core\RESTRequest4D.Request.Headers.pas';
+  RESTRequest4D.Request.Headers in '..\src\core\RESTRequest4D.Request.Headers.pas',
+  RESTRequest4D.Request.Response.Intf in '..\src\interfaces\RESTRequest4D.Request.Response.Intf.pas',
+  RESTRequest4D.Request.Response in '..\src\core\RESTRequest4D.Request.Response.pas';
 
 {$R *.res}
 
