@@ -49,15 +49,14 @@ type
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
       ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
-    constructor Create;
+    constructor Create(const AMethod: TRESTRequestMethod = rmGET);
     destructor Destroy; override;
   end;
 
 implementation
 
 uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize.Helper,
-  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client;
+  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
 
 { TRequest }
 
@@ -96,9 +95,8 @@ begin
   Result := FBody;
 end;
 
-constructor TRequest.Create;
+constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET);
 begin
-  inherited;
   FRESTResponse := TRESTResponse.Create(nil);
   FRESTClient := TRESTClient.Create(nil);
   FRESTRequest := TRESTRequest.Create(nil);
@@ -109,6 +107,8 @@ begin
 
   FRESTRequest.OnAfterExecute := DoAfterExecute;
   DoJoinComponents;
+
+  FRESTRequest.Method := AMethod;
 end;
 
 destructor TRequest.Destroy;
