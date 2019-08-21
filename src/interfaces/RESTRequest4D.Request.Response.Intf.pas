@@ -36,6 +36,13 @@ type
     ///   Returns the content encoding of the request.
     /// </returns>
     function GetContentEncoding: string;
+    /// <summary>
+    ///   Get HTTP response status code.
+    /// </summary>
+    /// <returns>
+    ///   Status code.
+    /// </returns>
+    function GetStatusCode: Integer;
   end;
 
 implementation

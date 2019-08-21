@@ -216,13 +216,6 @@ type
     /// </returns>
     function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
     /// <summary>
-    ///   Get HTTP response status code.
-    /// </summary>
-    /// <returns>
-    ///   Status code.
-    /// </returns>
-    function GetStatusCode: Integer;
-    /// <summary>
     ///   Execute the request.
     /// </summary>
     /// <returns>

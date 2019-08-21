@@ -12,6 +12,7 @@ type
     function GetContentLength: Cardinal;
     function GetContentType: string;
     function GetContentEncoding: string;
+    function GetStatusCode: Integer;
   public
     constructor Create(const ARESTResponse: TRESTResponse);
   end;
@@ -43,6 +44,11 @@ end;
 function TRequestResponse.GetContentType: string;
 begin
   Result := FRESTResponse.ContentType;
+end;
+
+function TRequestResponse.GetStatusCode: Integer;
+begin
+  Result := FRESTResponse.StatusCode;
 end;
 
 end.

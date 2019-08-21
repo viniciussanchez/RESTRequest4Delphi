@@ -42,7 +42,6 @@ type
     function GetResource: string;
     function GetBaseURL: string;
     function GetDataSetAdapter: TDataSet;
-    function GetStatusCode: Integer;
     function Execute: Integer;
     function Body: IRequestBody;
     function Headers: IRequestHeaders;
@@ -204,11 +203,6 @@ end;
 function TRequest.GetResourceSuffix: string;
 begin
   Result := FRESTRequest.ResourceSuffix;
-end;
-
-function TRequest.GetStatusCode: Integer;
-begin
-  Result := FRESTRequest.Response.StatusCode;
 end;
 
 function TRequest.GetTimeout: Integer;

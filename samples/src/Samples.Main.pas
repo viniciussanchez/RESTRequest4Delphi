@@ -46,6 +46,10 @@ type
     Button9: TButton;
     Button10: TButton;
     Button11: TButton;
+    Button12: TButton;
+    Button13: TButton;
+    Button14: TButton;
+    Button15: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -82,6 +86,10 @@ type
     procedure Button9Click(Sender: TObject);
     procedure Button10Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
+    procedure Button13Click(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
+    procedure Button15Click(Sender: TObject);
+    procedure Button14Click(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const AValue: IRequest);
@@ -194,7 +202,7 @@ procedure TFrmMain.btnGetStatusCodeClick(Sender: TObject);
 var
   LStatusCode: Integer;
 begin
-  LStatusCode := Request.GetStatusCode;
+  LStatusCode := Request.Response.GetStatusCode;
 end;
 
 procedure TFrmMain.btnJWTAuthorizationTokenClick(Sender: TObject);
@@ -237,6 +245,34 @@ end;
 procedure TFrmMain.Button11Click(Sender: TObject);
 begin
   Request.SetRaiseExceptionOn500(False);
+end;
+
+procedure TFrmMain.Button12Click(Sender: TObject);
+var
+  LContentEncoding: string;
+begin
+  LContentEncoding := Request.Response.GetContentEncoding;
+end;
+
+procedure TFrmMain.Button13Click(Sender: TObject);
+var
+  LContentType: string;
+begin
+  LContentType := Request.Response.GetContentType;
+end;
+
+procedure TFrmMain.Button14Click(Sender: TObject);
+var
+  LContentLength: Cardinal;
+begin
+  LContentLength := Request.Response.GetContentLength;
+end;
+
+procedure TFrmMain.Button15Click(Sender: TObject);
+var
+  LContent: string;
+begin
+  LContent := Request.Response.GetContent;
 end;
 
 procedure TFrmMain.Button1Click(Sender: TObject);
