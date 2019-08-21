@@ -51,7 +51,8 @@ type
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
       ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
-    constructor Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = '');
+    constructor Create(const ABaseURL: string; const AToken: string = ''); overload;
+    constructor Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = ''); overload;
     destructor Destroy; override;
   end;
 
@@ -96,6 +97,11 @@ end;
 function TRequest.Body: IRequestBody;
 begin
   Result := FBody;
+end;
+
+constructor TRequest.Create(const ABaseURL, AToken: string);
+begin
+  Create(rmGET, ABaseURL, AToken);
 end;
 
 constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = '');
