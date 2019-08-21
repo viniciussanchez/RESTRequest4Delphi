@@ -49,7 +49,7 @@ type
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
       ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
-    constructor Create(const AMethod: TRESTRequestMethod = rmGET);
+    constructor Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = '');
     destructor Destroy; override;
   end;
 
@@ -95,7 +95,7 @@ begin
   Result := FBody;
 end;
 
-constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET);
+constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = '');
 begin
   FRESTResponse := TRESTResponse.Create(nil);
   FRESTClient := TRESTClient.Create(nil);
@@ -109,6 +109,7 @@ begin
   DoJoinComponents;
 
   FRESTRequest.Method := AMethod;
+  FRESTClient.BaseURL := ABaseURL;
 end;
 
 destructor TRequest.Destroy;
