@@ -3,7 +3,7 @@ unit RESTRequest4D.Request.Intf;
 interface
 
 uses Data.DB, REST.Client, RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Params.Intf, REST.Types, System.SysUtils,
-  RESTRequest4D.Request.Authentication.Intf, RESTRequest4D.Request.Headers.Intf;
+  RESTRequest4D.Request.Authentication.Intf, RESTRequest4D.Request.Headers.Intf, RESTRequest4D.Request.Response.Intf;
 
 type
   /// <summary>
@@ -216,13 +216,6 @@ type
     /// </returns>
     function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
     /// <summary>
-    ///   Get HTTP response status code.
-    /// </summary>
-    /// <returns>
-    ///   Status code.
-    /// </returns>
-    function GetStatusCode: Integer;
-    /// <summary>
     ///   Execute the request.
     /// </summary>
     /// <returns>
@@ -279,6 +272,13 @@ type
     ///   Returns an instance of the request parameter interface.
     /// </returns>
     function Headers: IRequestHeaders;
+    /// <summary>
+    ///   Allows access to the request response.
+    /// </summary>
+    /// <returns>
+    ///   Returns an instance of the request response interface.
+    /// </returns>
+    function Response: IRequestResponse;
     /// <summary>
     ///   Allows access to the request parameters.
     /// </summary>

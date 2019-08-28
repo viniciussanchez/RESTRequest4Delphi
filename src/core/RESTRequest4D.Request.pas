@@ -3,13 +3,15 @@ unit RESTRequest4D.Request;
 interface
 
 uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, RESTRequest4D.Request.Params.Intf, REST.Types,
-  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils, RESTRequest4D.Request.Headers.Intf;
+  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils, RESTRequest4D.Request.Headers.Intf,
+  RESTRequest4D.Request.Response.Intf;
 
 type
   TRequest = class(TInterfacedObject, IRequest)
   private
     FBody: IRequestBody;
     FParams: IRequestParams;
+    FResponse: IRequestResponse;
     FHeaders: IRequestHeaders;
     FAuthentication: IRequestAuthentication;
     FRESTRequest: TRESTRequest;
@@ -40,24 +42,25 @@ type
     function GetResource: string;
     function GetBaseURL: string;
     function GetDataSetAdapter: TDataSet;
-    function GetStatusCode: Integer;
     function Execute: Integer;
     function Body: IRequestBody;
     function Headers: IRequestHeaders;
+    function Response: IRequestResponse;
     function Params: IRequestParams;
     function Authentication: IRequestAuthentication;
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
       ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
-    constructor Create;
+    constructor Create(const ABaseURL: string; const AToken: string = ''); overload;
+    constructor Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = ''); overload;
     destructor Destroy; override;
   end;
 
 implementation
 
 uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize.Helper,
-  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet,
-  FireDAC.Comp.Client;
+  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
+  RESTRequest4D.Request.Response;
 
 { TRequest }
 
@@ -96,9 +99,13 @@ begin
   Result := FBody;
 end;
 
-constructor TRequest.Create;
+constructor TRequest.Create(const ABaseURL, AToken: string);
 begin
-  inherited;
+  Create(rmGET, ABaseURL, AToken);
+end;
+
+constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = '');
+begin
   FRESTResponse := TRESTResponse.Create(nil);
   FRESTClient := TRESTClient.Create(nil);
   FRESTRequest := TRESTRequest.Create(nil);
@@ -106,9 +113,16 @@ begin
   FBody := TRequestBody.Create(FRESTRequest);
   FParams := TRequestParams.Create(FRESTRequest);
   FHeaders := TRequestHeaders.Create(FRESTRequest);
+  FResponse := TRequestResponse.Create(FRESTResponse);
 
   FRESTRequest.OnAfterExecute := DoAfterExecute;
   DoJoinComponents;
+
+  FRESTRequest.Method := AMethod;
+  FRESTClient.RaiseExceptionOn500 := False;
+  FRESTClient.BaseURL := ABaseURL;
+  if not AToken.Trim.IsEmpty then
+    FHeaders.Add('Authorization', AToken, [poDoNotEncode]);
 end;
 
 destructor TRequest.Destroy;
@@ -200,11 +214,6 @@ begin
   Result := FRESTRequest.ResourceSuffix;
 end;
 
-function TRequest.GetStatusCode: Integer;
-begin
-  Result := FRESTRequest.Response.StatusCode;
-end;
-
 function TRequest.GetTimeout: Integer;
 begin
   Result := FRESTRequest.Timeout;
@@ -218,6 +227,11 @@ end;
 function TRequest.Params: IRequestParams;
 begin
   Result := FParams;
+end;
+
+function TRequest.Response: IRequestResponse;
+begin
+  Result := FResponse;
 end;
 
 function TRequest.SetAccept(const AAccept: string): IRequest;
