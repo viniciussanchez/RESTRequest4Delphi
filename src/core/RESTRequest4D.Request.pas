@@ -303,6 +303,7 @@ end;
 
 function TRequest.SetTimeout(const ATimeout: Integer): IRequest;
 begin
+  Result := Self;
   FRESTRequest.Timeout := ATimeout;
 end;
 
