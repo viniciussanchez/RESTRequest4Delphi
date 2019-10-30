@@ -11,6 +11,7 @@ type
     function Clear: IRequestBody;
     function Add(const AContent: string; const AContentType: TRESTContentType = ctNone): IRequestBody; overload;
     function Add(const AContent: TJSONObject; const AOwns: Boolean = True): IRequestBody; overload;
+    function Add(const AContent: TJSONArray; const AOwns: Boolean = True): IRequestBody; overload;
     function Add(const AContent: TObject; const AOwns: Boolean = True): IRequestBody; overload;
   public
     constructor Create(const ARESTRequest: TRESTRequest);
@@ -55,6 +56,19 @@ begin
   if Assigned(AContent) then
   begin
     FRESTRequest.Body.Add(AContent);
+    if AOwns then
+      AContent.Free;
+  end;
+end;
+
+function TRequestBody.Add(const AContent: TJSONArray; const AOwns: Boolean): IRequestBody;
+begin
+  Result := Self;
+  if FRESTRequest.Method = TRESTRequestMethod.rmGET then
+    raise Exception.Create(NO_CONTENT_SHOULD_BE_ADDED);
+  if Assigned(AContent) then
+  begin
+    Self.Add(AContent.ToString, ctAPPLICATION_JSON);
     if AOwns then
       AContent.Free;
   end;
