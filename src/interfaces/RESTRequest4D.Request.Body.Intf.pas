@@ -2,7 +2,7 @@ unit RESTRequest4D.Request.Body.Intf;
 
 interface
 
-uses System.JSON;
+uses System.JSON, REST.Types;
 
 type
   /// <summary>
@@ -26,7 +26,7 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function Add(const AContent: string): IRequestBody; overload;
+    function Add(const AContent: string; const AContentType: TRESTContentType = ctNone): IRequestBody; overload;
     /// <summary>
     ///   Adds content to the body of the request.
     /// </summary>
