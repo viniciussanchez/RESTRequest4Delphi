@@ -2,6 +2,8 @@ unit RESTRequest4D.Request.Response.Intf;
 
 interface
 
+uses System.SysUtils;
+
 type
   /// <summary>
   ///   Interface representing the request response.
@@ -43,6 +45,13 @@ type
     ///   Status code.
     /// </returns>
     function GetStatusCode: Integer;
+    /// <summary>
+    ///   Get response raw bytes.
+    /// </summary>
+    /// <returns>
+    ///   Returns TBytes of the response.
+    /// </returns>
+    function GetRawBytes: TBytes;    
   end;
 
 implementation
