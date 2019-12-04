@@ -2,7 +2,7 @@ unit RESTRequest4D.Request.Params.Intf;
 
 interface
 
-uses REST.Types;
+uses REST.Types, System.Classes;
 
 type
   /// <summary>
@@ -55,6 +55,19 @@ type
     ///   If the parameter already exists, its value will change.
     /// </remarks>
     function Add(const AName: string; const AValue: Currency; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
+    /// <summary>
+    ///   Adds a new parameter.
+    /// </summary>
+    /// <param name="AName">
+    ///   Name of the parameter.
+    /// </param>
+    /// <param name="AValue">
+    ///   Parameter value.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function Add(const AName: string; const AValue: TStream): IRequestParams; overload;
   end;
 
 implementation

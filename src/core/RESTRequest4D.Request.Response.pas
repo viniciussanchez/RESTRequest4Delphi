@@ -2,7 +2,7 @@ unit RESTRequest4D.Request.Response;
 
 interface
 
-uses RESTRequest4D.Request.Response.Intf, REST.Client, System.SysUtils;
+uses RESTRequest4D.Request.Response.Intf, REST.Client, System.SysUtils, System.JSON;
 
 type
   TRequestResponse = class(TInterfacedObject, IRequestResponse)
@@ -13,7 +13,8 @@ type
     function GetContentType: string;
     function GetContentEncoding: string;
     function GetStatusCode: Integer;
-    function GetRawBytes: TBytes;    
+    function GetRawBytes: TBytes;
+    function GetJSONValue: TJSONValue;
   public
     constructor Create(const ARESTResponse: TRESTResponse);
   end;
@@ -45,6 +46,11 @@ end;
 function TRequestResponse.GetContentType: string;
 begin
   Result := FRESTResponse.ContentType;
+end;
+
+function TRequestResponse.GetJSONValue: TJSONValue;
+begin
+  Result := FRESTResponse.JSONValue;
 end;
 
 function TRequestResponse.GetRawBytes: TBytes;

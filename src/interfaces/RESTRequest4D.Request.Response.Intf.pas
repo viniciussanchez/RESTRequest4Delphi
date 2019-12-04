@@ -2,7 +2,7 @@ unit RESTRequest4D.Request.Response.Intf;
 
 interface
 
-uses System.SysUtils;
+uses System.SysUtils, System.JSON;
 
 type
   /// <summary>
@@ -51,7 +51,14 @@ type
     /// <returns>
     ///   Returns TBytes of the response.
     /// </returns>
-    function GetRawBytes: TBytes;    
+    function GetRawBytes: TBytes;
+    /// <summary>
+    ///   Get response JSON value.
+    /// </summary>
+    /// <returns>
+    ///   Returns TJSONValue of the response.
+    /// </returns>
+    function GetJSONValue: TJSONValue;
   end;
 
 implementation

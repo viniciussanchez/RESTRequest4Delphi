@@ -38,8 +38,6 @@ end;
 function TRequestBody.Add(const AContent: TJSONObject; const AOwns: Boolean): IRequestBody;
 begin
   Result := Self;
-  if FRESTRequest.Method = TRESTRequestMethod.rmGET then
-    raise Exception.Create(NO_CONTENT_SHOULD_BE_ADDED);
   if Assigned(AContent) then
   begin
     FRESTRequest.Body.Add(AContent);
