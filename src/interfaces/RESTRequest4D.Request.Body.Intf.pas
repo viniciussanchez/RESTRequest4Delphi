@@ -2,7 +2,7 @@ unit RESTRequest4D.Request.Body.Intf;
 
 interface
 
-uses System.JSON;
+uses System.JSON, REST.Types;
 
 type
   /// <summary>
@@ -26,7 +26,7 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function Add(const AContent: string): IRequestBody; overload;
+    function Add(const AContent: string; const AContentType: TRESTContentType = ctNone): IRequestBody; overload;
     /// <summary>
     ///   Adds content to the body of the request.
     /// </summary>
@@ -40,6 +40,19 @@ type
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
     function Add(const AContent: TJSONObject; const AOwns: Boolean = True): IRequestBody; overload;
+    /// <summary>
+    ///   Adds content to the body of the request.
+    /// </summary>
+    /// <param name="AContent">
+    ///   Content to be added in JSON array format.
+    /// </param>
+    /// <param name="AOwns">
+    ///   Indicates who owns JSON.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function Add(const AContent: TJSONArray; const AOwns: Boolean = True): IRequestBody; overload;
     /// <summary>
     ///   Adds content to the body of the request.
     /// </summary>
