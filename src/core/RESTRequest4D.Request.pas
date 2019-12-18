@@ -53,7 +53,6 @@ type
     function Authentication: IRequestAuthentication;
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True; ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
-    constructor Create(const AToken: string); overload;
     constructor Create(const ABaseURL: string; const AToken: string = ''); overload;
     constructor Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = ''); overload;
     destructor Destroy; override;
@@ -100,11 +99,6 @@ end;
 function TRequest.Body: IRequestBody;
 begin
   Result := FBody;
-end;
-
-constructor TRequest.Create(const AToken: string);
-begin
-  Create(rmGET, EmptyStr, AToken);
 end;
 
 constructor TRequest.Create(const ABaseURL, AToken: string);
