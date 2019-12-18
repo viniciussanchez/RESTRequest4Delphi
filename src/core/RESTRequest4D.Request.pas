@@ -319,6 +319,7 @@ end;
 
 function TRequest.SetToken(const AToken: string): IRequest;
 begin
+  Result := Self;
   FToken := AToken;
 end;
 
