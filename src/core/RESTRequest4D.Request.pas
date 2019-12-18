@@ -18,6 +18,7 @@ type
     FDataSetAdapter: TDataSet;
     FRESTResponse: TRESTResponse;
     FRESTClient: TRESTClient;
+    FToken: string;
     procedure DoJoinComponents;
     procedure DoAfterExecute(Sender: TCustomRESTRequest);
     procedure ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean = True);
@@ -33,6 +34,7 @@ type
     function SetResourceSuffix(const AResourceSuffix: string = ''): IRequest;
     function SetMethod(const AMethod: TRESTRequestMethod = rmGET): IRequest;
     function SetRaiseExceptionOn500(const ARaiseException: Boolean = True): IRequest;
+    function SetToken(const AToken: string): IRequest;
     function GetRaiseExceptionOn500: Boolean;
     function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
     function GetTimeout: Integer;
@@ -42,14 +44,14 @@ type
     function GetResource: string;
     function GetBaseURL: string;
     function GetDataSetAdapter: TDataSet;
+    function GetToken: string;
     function Execute: Integer;
     function Body: IRequestBody;
     function Headers: IRequestHeaders;
     function Response: IRequestResponse;
     function Params: IRequestParams;
     function Authentication: IRequestAuthentication;
-    function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
-      ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
+    function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True; ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
     constructor Create(const ABaseURL: string; const AToken: string = ''); overload;
     constructor Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = ''); overload;
@@ -121,8 +123,7 @@ begin
   FRESTRequest.Method := AMethod;
   FRESTClient.RaiseExceptionOn500 := False;
   FRESTClient.BaseURL := ABaseURL;
-  if not AToken.Trim.IsEmpty then
-    FHeaders.Add('Authorization', AToken, [poDoNotEncode]);
+  FToken := AToken;
 end;
 
 destructor TRequest.Destroy;
@@ -154,6 +155,8 @@ end;
 
 function TRequest.Execute: Integer;
 begin
+  if not FToken.Trim.IsEmpty then
+    FHeaders.Add('Authorization', FToken, [poDoNotEncode]);
   FRESTRequest.Execute;
   Result := FRESTResponse.StatusCode;
 end;
@@ -161,6 +164,8 @@ end;
 function TRequest.ExecuteAsync(ACompletionHandler: TProc; ASynchronized, AFreeThread: Boolean;
   ACompletionHandlerWithError: TProc<TObject>): TRESTExecutionThread;
 begin
+  if not FToken.Trim.IsEmpty then
+    FHeaders.Add('Authorization', FToken, [poDoNotEncode]);
   Result := FRESTRequest.ExecuteAsync(ACompletionHandler, ASynchronized, AFreeThread, ACompletionHandlerWithError);
 end;
 
@@ -217,6 +222,11 @@ end;
 function TRequest.GetTimeout: Integer;
 begin
   Result := FRESTRequest.Timeout;
+end;
+
+function TRequest.GetToken: string;
+begin
+  Result := FToken;
 end;
 
 function TRequest.Headers: IRequestHeaders;
@@ -305,6 +315,12 @@ function TRequest.SetTimeout(const ATimeout: Integer): IRequest;
 begin
   Result := Self;
   FRESTRequest.Timeout := ATimeout;
+end;
+
+function TRequest.SetToken(const AToken: string): IRequest;
+begin
+  Result := Self;
+  FToken := AToken;
 end;
 
 end.

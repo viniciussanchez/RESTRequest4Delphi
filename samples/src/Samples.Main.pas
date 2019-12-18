@@ -50,6 +50,8 @@ type
     Button13: TButton;
     Button14: TButton;
     Button15: TButton;
+    Button16: TButton;
+    Button17: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -90,6 +92,8 @@ type
     procedure Button12Click(Sender: TObject);
     procedure Button15Click(Sender: TObject);
     procedure Button14Click(Sender: TObject);
+    procedure Button16Click(Sender: TObject);
+    procedure Button17Click(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const AValue: IRequest);
@@ -273,6 +277,18 @@ var
   LContent: string;
 begin
   LContent := Request.Response.GetContent;
+end;
+
+procedure TFrmMain.Button16Click(Sender: TObject);
+begin
+  Request.SetToken('token');
+end;
+
+procedure TFrmMain.Button17Click(Sender: TObject);
+var
+  LToken: string;
+begin
+  LToken := Request.GetToken;
 end;
 
 procedure TFrmMain.Button1Click(Sender: TObject);

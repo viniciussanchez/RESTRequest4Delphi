@@ -27,7 +27,8 @@ begin
   Result := Self;
   if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
   begin
-    FHeaders.Add(AName);
+    if (FHeaders.IndexOf(AName) < 0) then
+      FHeaders.Add(AName);
     FRESTRequest.Params.AddHeader(AName, AValue);
     FRESTRequest.Params.ParameterByName(AName).Options := AOptions;
   end;
