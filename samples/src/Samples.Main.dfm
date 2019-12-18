@@ -357,6 +357,24 @@ object FrmMain: TFrmMain
     TabOrder = 37
     OnClick = Button15Click
   end
+  object Button16: TButton
+    Left = 293
+    Top = 195
+    Width = 131
+    Height = 25
+    Caption = 'Set Token'
+    TabOrder = 38
+    OnClick = Button16Click
+  end
+  object Button17: TButton
+    Left = 430
+    Top = 194
+    Width = 131
+    Height = 25
+    Caption = 'Get Token'
+    TabOrder = 39
+    OnClick = Button17Click
+  end
   object FDMemTable: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll

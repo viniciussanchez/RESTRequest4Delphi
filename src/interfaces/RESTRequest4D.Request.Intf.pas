@@ -206,6 +206,23 @@ type
     /// </remarks>
     function GetMethod: TRESTRequestMethod;
     /// <summary>
+    ///   Defines an token to the request.
+    /// </summary>
+    /// <param name="AToken">
+    ///   The token value.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function SetToken(const AToken: string): IRequest;
+    /// <summary>
+    ///   Get defined token.
+    /// </summary>
+    /// <returns>
+    ///   The token value.
+    /// </returns>
+    function GetToken: string;
+    /// <summary>
     ///   Get the full URL.
     /// </summary>
     /// <param name="AIncludeParams">
