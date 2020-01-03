@@ -78,7 +78,7 @@ begin
       if not AActive then
         TFDMemTable(ADataSet).Close;
       TFDMemTable(ADataSet).CachedUpdates := AActive;
-      if AActive and not TFDMemTable(ADataSet).Active then
+      if AActive and (not TFDMemTable(ADataSet).Active) and (TFDMemTable(ADataSet).FieldCount > 0) then
         TFDMemTable(ADataSet).Open;
     end;
     ADataSet.GetDetailDataSets(LDataSetDetails);
