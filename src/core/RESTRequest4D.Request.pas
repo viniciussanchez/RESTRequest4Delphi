@@ -60,7 +60,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize.Helper,
+uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize,
   RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   RESTRequest4D.Request.Response;
 
