@@ -60,7 +60,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize.Helper,
+uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize,
   RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   RESTRequest4D.Request.Response;
 
@@ -78,7 +78,7 @@ begin
       if not AActive then
         TFDMemTable(ADataSet).Close;
       TFDMemTable(ADataSet).CachedUpdates := AActive;
-      if AActive and not TFDMemTable(ADataSet).Active then
+      if AActive and (not TFDMemTable(ADataSet).Active) and (TFDMemTable(ADataSet).FieldCount > 0) then
         TFDMemTable(ADataSet).Open;
     end;
     ADataSet.GetDetailDataSets(LDataSetDetails);
