@@ -56,7 +56,7 @@ type
     /// </remarks>
     function Add(const AName: string; const AValue: Currency; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
     /// <summary>
-    ///   Adds a new parameter.
+    ///   Adds a new file multi part param.
     /// </summary>
     /// <param name="AName">
     ///   Name of the parameter.
@@ -67,7 +67,20 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function Add(const AName: string; const AValue: TStream): IRequestParams; overload;
+    function AddFile(const AName: string; const AValue: TStream): IRequestParams;
+    /// <summary>
+    ///   Adds a new text multi part param.
+    /// </summary>
+    /// <param name="AName">
+    ///   Name of the parameter.
+    /// </param>
+    /// <param name="AValue">
+    ///   Parameter value.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function AddText(const AName: string; const AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequestParams;
   end;
 
 implementation
