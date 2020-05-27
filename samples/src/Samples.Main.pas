@@ -51,6 +51,7 @@ type
     Button15: TButton;
     Button16: TButton;
     Button17: TButton;
+    Button18: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnSetMethodClick(Sender: TObject);
@@ -93,6 +94,7 @@ type
     procedure Button14Click(Sender: TObject);
     procedure Button16Click(Sender: TObject);
     procedure Button17Click(Sender: TObject);
+    procedure Button18Click(Sender: TObject);
   private
     FRequest: IRequest;
     procedure SetRequest(const AValue: IRequest);
@@ -211,6 +213,7 @@ end;
 procedure TFrmMain.btnJWTAuthorizationTokenClick(Sender: TObject);
 begin
   Request.Headers.Add('Authorization', 'JWT Token', [poDoNotEncode]);
+  // or Request.AddHeader('Authorization', 'JWT Token', [poDoNotEncode]);
 end;
 
 procedure TFrmMain.btnSetBaseURLClick(Sender: TObject);
@@ -290,9 +293,14 @@ begin
   LToken := Request.GetToken;
 end;
 
+procedure TFrmMain.Button18Click(Sender: TObject);
+begin
+  Request.Headers.Clear; // or Request.ClearHeaders;
+end;
+
 procedure TFrmMain.Button1Click(Sender: TObject);
 begin
-  Request.Headers.Add('Accept-Encoding', 'gzip');
+  Request.Headers.Add('Accept-Encoding', 'gzip'); // or Request.AddHeader('Accept-Encoding', 'gzip');
 end;
 
 procedure TFrmMain.Button2Click(Sender: TObject);

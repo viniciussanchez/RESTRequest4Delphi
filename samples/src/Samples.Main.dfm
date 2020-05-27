@@ -375,6 +375,15 @@ object FrmMain: TFrmMain
     TabOrder = 39
     OnClick = Button17Click
   end
+  object Button18: TButton
+    Left = 567
+    Top = 195
+    Width = 131
+    Height = 25
+    Caption = 'Clear headers'
+    TabOrder = 40
+    OnClick = Button18Click
+  end
   object FDMemTable: TFDMemTable
     FetchOptions.AssignedValues = [evMode]
     FetchOptions.Mode = fmAll

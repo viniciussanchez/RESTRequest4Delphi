@@ -64,6 +64,8 @@ type
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function Headers: IRequestHeaders;
+    function ClearHeaders: IRequest;
+    function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function Response: IRequestResponse;
     function Params: IRequestParams;
     function Authentication: IRequestAuthentication;
@@ -130,6 +132,12 @@ begin
   Self.Body.Add(AContent, AOwns);
 end;
 
+function TRequest.AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions): IRequest;
+begin
+  Result := Self;
+  Self.Headers.Add(AName, AValue, AOptions);
+end;
+
 function TRequest.Authentication: IRequestAuthentication;
 begin
   if not Assigned(FAuthentication) then
@@ -151,6 +159,12 @@ function TRequest.ClearBody: IRequest;
 begin
   Result := Self;
   Self.Body.Clear;
+end;
+
+function TRequest.ClearHeaders: IRequest;
+begin
+  Result := Self;
+  Self.Headers.Clear;
 end;
 
 constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = '');

@@ -374,6 +374,32 @@ type
     /// </returns>
     function Headers: IRequestHeaders;
     /// <summary>
+    ///   Removes all added headers.
+    /// </summary>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function ClearHeaders: IRequest;
+    /// <summary>
+    ///   Adds a new header.
+    /// </summary>
+    /// <param name="AName">
+    ///   Name of header.
+    /// </param>
+    /// <param name="AValue">
+    ///   Header value.
+    /// </param>
+    /// <param name="AOptions">
+    ///   Additional options for the header.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    /// <remarks>
+    ///   If the parameter already exists, its value will change.
+    /// </remarks>
+    function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
+    /// <summary>
     ///   Allows access to the request response.
     /// </summary>
     /// <returns>
