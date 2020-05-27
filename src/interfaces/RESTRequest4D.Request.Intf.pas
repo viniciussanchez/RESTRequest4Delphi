@@ -3,7 +3,7 @@ unit RESTRequest4D.Request.Intf;
 interface
 
 uses Data.DB, REST.Client, RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Params.Intf, REST.Types, System.SysUtils,
-  RESTRequest4D.Request.Authentication.Intf, RESTRequest4D.Request.Headers.Intf, RESTRequest4D.Request.Response.Intf;
+  RESTRequest4D.Request.Authentication.Intf, RESTRequest4D.Request.Headers.Intf, RESTRequest4D.Request.Response.Intf, System.JSON;
 
 type
   /// <summary>
@@ -310,6 +310,62 @@ type
     ///   Returns an instance of the request body interface.
     /// </returns>
     function Body: IRequestBody;
+    /// <summary>
+    ///   Removes all content added in the request body.
+    /// </summary>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function ClearBody: IRequest;
+    /// <summary>
+    ///   Adds content to the body of the request.
+    /// </summary>
+    /// <param name="AContent">
+    ///   Content to be added.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function AddBody(const AContent: string; const AContentType: TRESTContentType = ctNone): IRequest; overload;
+    /// <summary>
+    ///   Adds content to the body of the request.
+    /// </summary>
+    /// <param name="AContent">
+    ///   Content to be added in JSON format.
+    /// </param>
+    /// <param name="AOwns">
+    ///   Indicates who owns JSON.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
+    /// <summary>
+    ///   Adds content to the body of the request.
+    /// </summary>
+    /// <param name="AContent">
+    ///   Content to be added in JSON array format.
+    /// </param>
+    /// <param name="AOwns">
+    ///   Indicates who owns JSON.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
+    /// <summary>
+    ///   Adds content to the body of the request.
+    /// </summary>
+    /// <param name="AContent">
+    ///   Object that must be serialized.
+    /// </param>
+    /// <param name="AOwns">
+    ///   Indicates who owns object.
+    /// </param>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     /// <summary>
     ///   Allows access to the request headers.
     /// </summary>

@@ -111,17 +111,17 @@ uses REST.Types, System.JSON;
 
 procedure TFrmMain.btnAddBodyWithJSONObjectClick(Sender: TObject);
 begin
-  Request.Body.Add(TJSONObject.Create, True);
+  Request.Body.Add(TJSONObject.Create); // or Request.AddBody(TJSONObject.Create);
 end;
 
 procedure TFrmMain.btnAddBodyWithObjectClick(Sender: TObject);
 begin
-  Request.Body.Add(TObject.Create, True);
+  Request.Body.Add(TObject.Create); // or Request.AddBody(TObject.Create);
 end;
 
 procedure TFrmMain.btnAddBodyWithStringClick(Sender: TObject);
 begin
-  Request.Body.Add('Any thing');
+  Request.Body.Add('Any thing'); // or Request.AddBody('Any thing');
 end;
 
 procedure TFrmMain.btnAddParamClick(Sender: TObject);
@@ -142,7 +142,7 @@ end;
 
 procedure TFrmMain.btnClearBodyClick(Sender: TObject);
 begin
-  Request.Body.Clear;
+  Request.Body.Clear; // or Request.ClearBody;
 end;
 
 procedure TFrmMain.btnClearParamsClick(Sender: TObject);

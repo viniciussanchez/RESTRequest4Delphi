@@ -4,7 +4,7 @@ interface
 
 uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, RESTRequest4D.Request.Params.Intf, REST.Types,
   RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils, RESTRequest4D.Request.Headers.Intf,
-  RESTRequest4D.Request.Response.Intf;
+  RESTRequest4D.Request.Response.Intf, System.JSON;
 
 type
   IRequestAuthentication = RESTRequest4D.Request.Authentication.Intf.IRequestAuthentication;
@@ -58,6 +58,11 @@ type
     function Delete: IRequest;
     function Execute: Integer;
     function Body: IRequestBody;
+    function ClearBody: IRequest;
+    function AddBody(const AContent: string; const AContentType: TRESTContentType = ctNone): IRequest; overload;
+    function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
+    function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
+    function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function Headers: IRequestHeaders;
     function Response: IRequestResponse;
     function Params: IRequestParams;
@@ -101,6 +106,30 @@ begin
   end;
 end;
 
+function TRequest.AddBody(const AContent: string; const AContentType: TRESTContentType): IRequest;
+begin
+  Result := Self;
+  Self.Body.Add(AContent, AContentType);
+end;
+
+function TRequest.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
+begin
+  Result := Self;
+  Self.Body.Add(AContent, AOwns);
+end;
+
+function TRequest.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
+begin
+  Result := Self;
+  Self.Body.Add(AContent, AOwns);
+end;
+
+function TRequest.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
+begin
+  Result := Self;
+  Self.Body.Add(AContent, AOwns);
+end;
+
 function TRequest.Authentication: IRequestAuthentication;
 begin
   if not Assigned(FAuthentication) then
@@ -116,6 +145,12 @@ end;
 constructor TRequest.Create(const ABaseURL, AToken: string);
 begin
   Create(rmGET, ABaseURL, AToken);
+end;
+
+function TRequest.ClearBody: IRequest;
+begin
+  Result := Self;
+  Self.Body.Clear;
 end;
 
 constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = '');
