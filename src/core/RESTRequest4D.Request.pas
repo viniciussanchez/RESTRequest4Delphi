@@ -45,6 +45,10 @@ type
     function GetBaseURL: string;
     function GetDataSetAdapter: TDataSet;
     function GetToken: string;
+    function Get: IRequest;
+    function Post: IRequest;
+    function Put: IRequest;
+    function Delete: IRequest;
     function Execute: Integer;
     function Body: IRequestBody;
     function Headers: IRequestHeaders;
@@ -127,6 +131,13 @@ begin
   FToken := AToken;
 end;
 
+function TRequest.Delete: IRequest;
+begin
+  Result := Self;
+  Self.SetMethod(TRESTRequestMethod.rmDELETE);
+  Self.Execute;
+end;
+
 destructor TRequest.Destroy;
 begin
   FBody := nil;
@@ -168,6 +179,13 @@ begin
   if not FToken.Trim.IsEmpty then
     FHeaders.Add('Authorization', FToken, [poDoNotEncode]);
   Result := FRESTRequest.ExecuteAsync(ACompletionHandler, ASynchronized, AFreeThread, ACompletionHandlerWithError);
+end;
+
+function TRequest.Get: IRequest;
+begin
+  Result := Self;
+  Self.SetMethod(TRESTRequestMethod.rmGET);
+  Self.Execute;
 end;
 
 function TRequest.GetAccept: string;
@@ -243,6 +261,20 @@ end;
 function TRequest.Params: IRequestParams;
 begin
   Result := FParams;
+end;
+
+function TRequest.Post: IRequest;
+begin
+  Result := Self;
+  Self.SetMethod(TRESTRequestMethod.rmPOST);
+  Self.Execute;
+end;
+
+function TRequest.Put: IRequest;
+begin
+  Result := Self;
+  Self.SetMethod(TRESTRequestMethod.rmPUT);
+  Self.Execute;
 end;
 
 function TRequest.Response: IRequestResponse;

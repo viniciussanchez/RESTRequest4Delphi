@@ -216,6 +216,34 @@ type
     /// </returns>
     function SetToken(const AToken: string): IRequest;
     /// <summary>
+    ///   Calls the Execute function, using the GET method.
+    /// </summary>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function Get: IRequest;
+    /// <summary>
+    ///   Calls the Execute function, using the POST method.
+    /// </summary>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function Post: IRequest;
+    /// <summary>
+    ///   Calls the Execute function, using the PUT method.
+    /// </summary>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function Put: IRequest;
+    /// <summary>
+    ///   Calls the Execute function, using the DELETE method.
+    /// </summary>
+    /// <returns>
+    ///   Returns the instance itself following the fluent API pattern.
+    /// </returns>
+    function Delete: IRequest;
+    /// <summary>
     ///   Get defined token.
     /// </summary>
     /// <returns>
