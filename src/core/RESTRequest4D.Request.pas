@@ -7,6 +7,13 @@ uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, RE
   RESTRequest4D.Request.Response.Intf;
 
 type
+  IRequestAuthentication = RESTRequest4D.Request.Authentication.Intf.IRequestAuthentication;
+  IRequestBody = RESTRequest4D.Request.Body.Intf.IRequestBody;
+  IRequestHeaders = RESTRequest4D.Request.Headers.Intf.IRequestHeaders;
+  IRequest = RESTRequest4D.Request.Intf.IRequest;
+  IRequestParams = RESTRequest4D.Request.Params.Intf.IRequestParams;
+  IRequestResponse = RESTRequest4D.Request.Response.Intf.IRequestResponse;
+
   TRequest = class(TInterfacedObject, IRequest)
   private
     FBody: IRequestBody;
