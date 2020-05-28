@@ -1,6 +1,4 @@
 # REST Request for Delphi
-![Delphi Supported Versions](https://img.shields.io/badge/Delphi%20Supported%20Versions-XE3%20and%20ever-blue.svg)
-![Platforms](https://img.shields.io/badge/Supported%20platforms-Win32%20and%20Win64-red.svg)
  
 RESTRequest4Delphi is a REST request facilitator made for applications built in Delphi. With it, we eliminate the TRESTClient components: TRESTResponse, THTTPBasicAuthenticator and TRESTRequest. For ease of use, RESTRequest4Delphi uses the Fluent Interface / Fluent API (how to name methods to be used with the impression that you are writing a text).
  
