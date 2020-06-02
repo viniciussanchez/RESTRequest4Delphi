@@ -57,13 +57,11 @@ type
     function Put: IRequest;
     function Delete: IRequest;
     function Execute: Integer;
-    function Body: IRequestBody;
     function ClearBody: IRequest;
     function AddBody(const AContent: string; const AContentType: TRESTContentType = ctNone): IRequest; overload;
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
-    function Headers: IRequestHeaders;
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function Response: IRequestResponse;
@@ -111,31 +109,31 @@ end;
 function TRequest.AddBody(const AContent: string; const AContentType: TRESTContentType): IRequest;
 begin
   Result := Self;
-  Self.Body.Add(AContent, AContentType);
+  FBody.Add(AContent, AContentType);
 end;
 
 function TRequest.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
-  Self.Body.Add(AContent, AOwns);
+  FBody.Add(AContent, AOwns);
 end;
 
 function TRequest.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
-  Self.Body.Add(AContent, AOwns);
+  FBody.Add(AContent, AOwns);
 end;
 
 function TRequest.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
-  Self.Body.Add(AContent, AOwns);
+  FBody.Add(AContent, AOwns);
 end;
 
 function TRequest.AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions): IRequest;
 begin
   Result := Self;
-  Self.Headers.Add(AName, AValue, AOptions);
+  FHeaders.Add(AName, AValue, AOptions);
 end;
 
 function TRequest.Authentication: IRequestAuthentication;
@@ -143,11 +141,6 @@ begin
   if not Assigned(FAuthentication) then
     FAuthentication := TRequestAuthentication.Create(FRESTClient);
   Result := FAuthentication;
-end;
-
-function TRequest.Body: IRequestBody;
-begin
-  Result := FBody;
 end;
 
 constructor TRequest.Create(const ABaseURL, AToken: string);
@@ -158,13 +151,13 @@ end;
 function TRequest.ClearBody: IRequest;
 begin
   Result := Self;
-  Self.Body.Clear;
+  FBody.Clear;
 end;
 
 function TRequest.ClearHeaders: IRequest;
 begin
   Result := Self;
-  Self.Headers.Clear;
+  FHeaders.Clear;
 end;
 
 constructor TRequest.Create(const AMethod: TRESTRequestMethod = rmGET; const ABaseURL: string = ''; const AToken: string = '');
@@ -302,11 +295,6 @@ end;
 function TRequest.GetToken: string;
 begin
   Result := FToken;
-end;
-
-function TRequest.Headers: IRequestHeaders;
-begin
-  Result := FHeaders;
 end;
 
 class function TRequest.New: IRequest;

@@ -113,17 +113,17 @@ uses REST.Types, System.JSON;
 
 procedure TFrmMain.btnAddBodyWithJSONObjectClick(Sender: TObject);
 begin
-  Request.Body.Add(TJSONObject.Create); // or Request.AddBody(TJSONObject.Create);
+  Request.AddBody(TJSONObject.Create);
 end;
 
 procedure TFrmMain.btnAddBodyWithObjectClick(Sender: TObject);
 begin
-  Request.Body.Add(TObject.Create); // or Request.AddBody(TObject.Create);
+  Request.AddBody(TObject.Create);
 end;
 
 procedure TFrmMain.btnAddBodyWithStringClick(Sender: TObject);
 begin
-  Request.Body.Add('Any thing'); // or Request.AddBody('Any thing');
+  Request.AddBody('Any thing');
 end;
 
 procedure TFrmMain.btnAddParamClick(Sender: TObject);
@@ -144,7 +144,7 @@ end;
 
 procedure TFrmMain.btnClearBodyClick(Sender: TObject);
 begin
-  Request.Body.Clear; // or Request.ClearBody;
+  Request.ClearBody;
 end;
 
 procedure TFrmMain.btnClearParamsClick(Sender: TObject);
@@ -212,8 +212,7 @@ end;
 
 procedure TFrmMain.btnJWTAuthorizationTokenClick(Sender: TObject);
 begin
-  Request.Headers.Add('Authorization', 'JWT Token', [poDoNotEncode]);
-  // or Request.AddHeader('Authorization', 'JWT Token', [poDoNotEncode]);
+  Request.AddHeader('Authorization', 'JWT Token', [poDoNotEncode]);
 end;
 
 procedure TFrmMain.btnSetBaseURLClick(Sender: TObject);
@@ -295,12 +294,12 @@ end;
 
 procedure TFrmMain.Button18Click(Sender: TObject);
 begin
-  Request.Headers.Clear; // or Request.ClearHeaders;
+  Request.ClearHeaders;
 end;
 
 procedure TFrmMain.Button1Click(Sender: TObject);
 begin
-  Request.Headers.Add('Accept-Encoding', 'gzip'); // or Request.AddHeader('Accept-Encoding', 'gzip');
+  Request.AddHeader('Accept-Encoding', 'gzip');
 end;
 
 procedure TFrmMain.Button2Click(Sender: TObject);

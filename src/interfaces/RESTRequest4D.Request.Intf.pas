@@ -304,13 +304,6 @@ type
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True;
       ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
     /// <summary>
-    ///   Allows access to the request body.
-    /// </summary>
-    /// <returns>
-    ///   Returns an instance of the request body interface.
-    /// </returns>
-    function Body: IRequestBody;
-    /// <summary>
     ///   Removes all content added in the request body.
     /// </summary>
     /// <returns>
@@ -366,13 +359,6 @@ type
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
-    /// <summary>
-    ///   Allows access to the request headers.
-    /// </summary>
-    /// <returns>
-    ///   Returns an instance of the request parameter interface.
-    /// </returns>
-    function Headers: IRequestHeaders;
     /// <summary>
     ///   Removes all added headers.
     /// </summary>
