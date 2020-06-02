@@ -62,16 +62,10 @@ In the `GetFullRequestURL` method the parameter indicates whether to add the par
 
 #### Body
 
-You can assign the request body with different types of parameters (strings, JSON and objects). To clear the body of a request, simply use `Request.Body.Clear` or `Request.ClearBody`. The second parameter indicates who is responsible for destroying the object. Default is `True`. See the samples:
+You can assign the request body with different types of parameters (strings, JSON and objects). To clear the body of a request, simply use `Request.ClearBody`. The second parameter indicates who is responsible for destroying the object. Default is `True`. See the samples:
 
 ```pascal
 begin
-  Request.Body.Add('Any thing');  
-  Request.Body.Add(TJSONObject.Create);  
-  Request.Body.Add(TObject.Create);
-  
-  // or 
-  
   Request.AddBody('Any thing');  
   Request.AddBody(TJSONObject.Create);  
   Request.AddBody(TObject.Create);  
@@ -100,12 +94,10 @@ end;
 
 #### Headers
 
-You can add headers. To clear the headers, use the `Request.Headers.Clear` or `Request.ClearHeaders`. When you add a headers with the same name, its value changes. See the samples:
+You can add headers. To clear the headers, use the `Request.ClearHeaders`. When you add a headers with the same name, its value changes. See the samples:
 
 ```pascal
 begin
-  Request.Headers.Add('Accept-Encoding', 'gzip');
-  // or 
   Request.AddHeader('Accept-Encoding', 'gzip');
 end;
 ```
