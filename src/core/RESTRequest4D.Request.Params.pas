@@ -10,9 +10,17 @@ type
     FParams: TStrings;
     FRESTRequest: TRESTRequest;
     function Clear: IRequestParams;
+    {$IFDEF VER320}
+    function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkGETorPOST): IRequestParams; overload;
+    function Add(const AName: string; const AValue: Currency; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkGETorPOST): IRequestParams; overload;
+    {$ELSE}
     function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
     function Add(const AName: string; const AValue: Currency; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
+    {$ENDIF}
+
+    {$IFNDEF VER320}
     function AddFile(const AName: string; const AValue: TStream): IRequestParams;
+    {$ENDIF}
     function AddText(const AName, AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequestParams;
   public
     constructor Create(const ARESTRequest: TRESTRequest);
@@ -40,6 +48,7 @@ begin
   Result := Self.Add(AName, CurrToStr(AValue), AKind);
 end;
 
+{$IFNDEF VER320}
 function TRequestParams.AddFile(const AName: string; const AValue: TStream): IRequestParams;
 begin
   Result := Self;
@@ -54,6 +63,7 @@ begin
     ContentType := TRESTContentType.ctAPPLICATION_OCTET_STREAM;
   end;
 end;
+{$ENDIF}
 
 function TRequestParams.AddText(const AName, AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequestParams;
 begin

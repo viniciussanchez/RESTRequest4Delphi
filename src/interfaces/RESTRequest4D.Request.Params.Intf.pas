@@ -35,7 +35,11 @@ type
     /// <remarks>
     ///   If the parameter already exists, its value will change.
     /// </remarks>
+    {$IFDEF VER320}
+    function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkGETorPOST): IRequestParams; overload;
+    {$ELSE}
     function Add(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
+    {$ENDIF}
     /// <summary>
     ///   Adds a new parameter.
     /// </summary>
@@ -54,7 +58,14 @@ type
     /// <remarks>
     ///   If the parameter already exists, its value will change.
     /// </remarks>
+    {$IFDEF VER320}
+    function Add(const AName: string; const AValue: Currency; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkGETorPOST): IRequestParams; overload;
+    {$ELSE}
     function Add(const AName: string; const AValue: Currency; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequestParams; overload;
+    {$ENDIF}
+
+
+    {$IFNDEF VER320}
     /// <summary>
     ///   Adds a new file multi part param.
     /// </summary>
@@ -68,6 +79,8 @@ type
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
     function AddFile(const AName: string; const AValue: TStream): IRequestParams;
+    {$ENDIF}
+
     /// <summary>
     ///   Adds a new text multi part param.
     /// </summary>
