@@ -9,13 +9,6 @@ type
   IRequestAuthentication = interface
     ['{872B5C31-1FD3-4852-9181-CDAB194F9C38}']
     /// <summary>
-    ///   Removes authentication data.
-    /// </summary>
-    /// <returns>
-    ///   Returns the instance itself following the fluent API pattern.
-    /// </returns>
-    function Clear: IRequestAuthentication;
-    /// <summary>
     ///   Sets the authentication password.
     /// </summary>
     /// <param name="APassword">
@@ -24,14 +17,7 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function SetPassword(const APassword: string): IRequestAuthentication;
-    /// <summary>
-    ///   Returns the password set for authentication.
-    /// </summary>
-    /// <returns>
-    ///   Password set.
-    /// </returns>
-    function GetPassword: string;
+    function Password(const APassword: string): IRequestAuthentication;
     /// <summary>
     ///   Sets the authentication user.
     /// </summary>
@@ -41,14 +27,7 @@ type
     /// <returns>
     ///   Retorna a própria instância seguindo o padrão fluent API.
     /// </returns>
-    function SetUsername(const AUser: string): IRequestAuthentication;
-    /// <summary>
-    ///   Returns the user set for authentication.
-    /// </summary>
-    /// <returns>
-    ///   User defined.
-    /// </returns>
-    function GetUsername: string;
+    function Username(const AUser: string): IRequestAuthentication;
   end;
 
 implementation

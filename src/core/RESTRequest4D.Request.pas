@@ -45,17 +45,16 @@ type
     function ResourceSuffix: string; overload;
     function Method(const AMethod: TRESTRequestMethod): IRequest; overload;
     function Method: TRESTRequestMethod; overload;
-    function Token(const AToken: string): IRequest; overload;
-    function Token: string; overload;
+    function Token(const AToken: string): IRequest;
     function Timeout(const ATimeout: Integer): IRequest; overload;
     function Timeout: Integer; overload;
     function RaiseExceptionOn500(const ARaiseException: Boolean): IRequest; overload;
     function RaiseExceptionOn500: Boolean; overload;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
-    function Get: IRequest;
-    function Post: IRequest;
-    function Put: IRequest;
-    function Delete: IRequest;
+    function Get: IRequestResponse;
+    function Post: IRequestResponse;
+    function Put: IRequestResponse;
+    function Delete: IRequestResponse;
     function Execute: Integer;
     function ClearBody: IRequest;
     function AddBody(const AContent: string; const AContentType: TRESTContentType = ctNone): IRequest; overload;
@@ -64,9 +63,8 @@ type
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
-    function Response: IRequestResponse;
     function Params: IRequestParams;
-    function Authentication: IRequestAuthentication;
+    function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True; ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
     class function New: IRequest;
@@ -136,11 +134,12 @@ begin
   FHeaders.Add(AName, AValue, AOptions);
 end;
 
-function TRequest.Authentication: IRequestAuthentication;
+function TRequest.BasicAuthentication(const AUsername, APassword: string): IRequest;
 begin
+  Result := Self;
   if not Assigned(FAuthentication) then
     FAuthentication := TRequestAuthentication.Create(FRESTClient);
-  Result := FAuthentication;
+  FAuthentication.Username(AUsername).Password(APassword);
 end;
 
 constructor TRequest.Create(const ABaseURL, AToken: string);
@@ -180,9 +179,9 @@ begin
   FToken := AToken;
 end;
 
-function TRequest.Delete: IRequest;
+function TRequest.Delete: IRequestResponse;
 begin
-  Result := Self;
+  Result := FResponse;
   Self.Method(TRESTRequestMethod.rmDELETE);
   Self.Execute;
 end;
@@ -230,9 +229,9 @@ begin
   Result := FRESTRequest.ExecuteAsync(ACompletionHandler, ASynchronized, AFreeThread, ACompletionHandlerWithError);
 end;
 
-function TRequest.Get: IRequest;
+function TRequest.Get: IRequestResponse;
 begin
-  Result := Self;
+  Result := FResponse;
   Self.Method(TRESTRequestMethod.rmGET);
   Self.Execute;
 end;
@@ -292,11 +291,6 @@ begin
   Result := FRESTRequest.Timeout;
 end;
 
-function TRequest.Token: string;
-begin
-  Result := FToken;
-end;
-
 class function TRequest.New: IRequest;
 begin
   Result := TRequest.Create;
@@ -307,23 +301,18 @@ begin
   Result := FParams;
 end;
 
-function TRequest.Post: IRequest;
+function TRequest.Post: IRequestResponse;
 begin
-  Result := Self;
+  Result := FResponse;
   Self.Method(TRESTRequestMethod.rmPOST);
   Self.Execute;
 end;
 
-function TRequest.Put: IRequest;
-begin
-  Result := Self;
-  Self.Method(TRESTRequestMethod.rmPUT);
-  Self.Execute;
-end;
-
-function TRequest.Response: IRequestResponse;
+function TRequest.Put: IRequestResponse;
 begin
   Result := FResponse;
+  Self.Method(TRESTRequestMethod.rmPUT);
+  Self.Execute;
 end;
 
 function TRequest.Accept(const AAccept: string): IRequest;

@@ -16,49 +16,49 @@ type
     /// <returns>
     ///   Returns the content of the request.
     /// </returns>
-    function GetContent: string;
+    function Content: string;
     /// <summary>
     ///   Get response content length.
     /// </summary>
     /// <returns>
     ///   Returns the content length of the request.
     /// </returns>
-    function GetContentLength: Cardinal;
+    function ContentLength: Cardinal;
     /// <summary>
     ///   Get response content type.
     /// </summary>
     /// <returns>
     ///   Returns the content type of the request.
     /// </returns>
-    function GetContentType: string;
+    function ContentType: string;
     /// <summary>
     ///   Get response content encoding.
     /// </summary>
     /// <returns>
     ///   Returns the content encoding of the request.
     /// </returns>
-    function GetContentEncoding: string;
+    function ContentEncoding: string;
     /// <summary>
     ///   Get HTTP response status code.
     /// </summary>
     /// <returns>
     ///   Status code.
     /// </returns>
-    function GetStatusCode: Integer;
+    function StatusCode: Integer;
     /// <summary>
     ///   Get response raw bytes.
     /// </summary>
     /// <returns>
     ///   Returns TBytes of the response.
     /// </returns>
-    function GetRawBytes: TBytes;
+    function RawBytes: TBytes;
     /// <summary>
     ///   Get response JSON value.
     /// </summary>
     /// <returns>
     ///   Returns TJSONValue of the response.
     /// </returns>
-    function GetJSONValue: TJSONValue;
+    function JSONValue: TJSONValue;
   end;
 
 implementation

@@ -2,8 +2,8 @@ unit RESTRequest4D.Request.Intf;
 
 interface
 
-uses Data.DB, REST.Client, RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Params.Intf, REST.Types, System.SysUtils,
-  RESTRequest4D.Request.Authentication.Intf, RESTRequest4D.Request.Headers.Intf, RESTRequest4D.Request.Response.Intf, System.JSON;
+uses Data.DB, REST.Client, RESTRequest4D.Request.Params.Intf, REST.Types, System.SysUtils, RESTRequest4D.Request.Response.Intf,
+  System.JSON;
 
 type
   /// <summary>
@@ -211,42 +211,35 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function Token(const AToken: string): IRequest; overload;
-    /// <summary>
-    ///   Get defined token.
-    /// </summary>
-    /// <returns>
-    ///   The token value.
-    /// </returns>
-    function Token: string; overload;
+    function Token(const AToken: string): IRequest;
     /// <summary>
     ///   Calls the Execute function, using the GET method.
     /// </summary>
     /// <returns>
-    ///   Returns the instance itself following the fluent API pattern.
+    ///   Returns an instance of the request response interface.
     /// </returns>
-    function Get: IRequest;
+    function Get: IRequestResponse;
     /// <summary>
     ///   Calls the Execute function, using the POST method.
     /// </summary>
     /// <returns>
-    ///   Returns the instance itself following the fluent API pattern.
+    ///   Returns an instance of the request response interface.
     /// </returns>
-    function Post: IRequest;
+    function Post: IRequestResponse;
     /// <summary>
     ///   Calls the Execute function, using the PUT method.
     /// </summary>
     /// <returns>
-    ///   Returns the instance itself following the fluent API pattern.
+    ///   Returns an instance of the request response interface.
     /// </returns>
-    function Put: IRequest;
+    function Put: IRequestResponse;
     /// <summary>
     ///   Calls the Execute function, using the DELETE method.
     /// </summary>
     /// <returns>
-    ///   Returns the instance itself following the fluent API pattern.
+    ///   Returns an instance of the request response interface.
     /// </returns>
-    function Delete: IRequest;
+    function Delete: IRequestResponse;
     /// <summary>
     ///   Get the full URL.
     /// </summary>
@@ -383,13 +376,6 @@ type
     /// </remarks>
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     /// <summary>
-    ///   Allows access to the request response.
-    /// </summary>
-    /// <returns>
-    ///   Returns an instance of the request response interface.
-    /// </returns>
-    function Response: IRequestResponse;
-    /// <summary>
     ///   Allows access to the request parameters.
     /// </summary>
     /// <returns>
@@ -397,12 +383,12 @@ type
     /// </returns>
     function Params: IRequestParams;
     /// <summary>
-    ///   Allows access to the authentication of the request.
+    ///   Set credentials to basic authentication.
     /// </summary>
     /// <returns>
-    ///   Returns an instance of the authentication interface.
+    ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function Authentication: IRequestAuthentication;
+    function BasicAuthentication(const AUsername, APassword: string): IRequest;
   end;
 
 implementation

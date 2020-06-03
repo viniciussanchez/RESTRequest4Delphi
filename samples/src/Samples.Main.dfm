@@ -189,7 +189,7 @@ object FrmMain: TFrmMain
   object btnBasicAuthorization: TButton
     Left = 8
     Top = 163
-    Width = 184
+    Width = 279
     Height = 25
     Caption = 'Basic Authorization - Sample'
     TabOrder = 19
@@ -204,22 +204,13 @@ object FrmMain: TFrmMain
     TabOrder = 20
     OnClick = btnExecuteRequestClick
   end
-  object btnClearBasicAuthentication: TButton
-    Left = 198
-    Top = 163
-    Width = 89
-    Height = 25
-    Caption = 'Clear Basic Auth'
-    TabOrder = 21
-    OnClick = btnClearBasicAuthenticationClick
-  end
   object btnGetStatusCode: TButton
     Left = 293
     Top = 70
     Width = 131
     Height = 25
     Caption = 'Get status code'
-    TabOrder = 22
+    TabOrder = 21
     OnClick = btnGetStatusCodeClick
   end
   object btnExecuteAsync: TButton
@@ -228,7 +219,7 @@ object FrmMain: TFrmMain
     Width = 131
     Height = 25
     Caption = 'Execute async'
-    TabOrder = 23
+    TabOrder = 22
     OnClick = btnExecuteAsyncClick
   end
   object Button2: TButton
@@ -237,7 +228,7 @@ object FrmMain: TFrmMain
     Width = 131
     Height = 25
     Caption = 'Get timeout'
-    TabOrder = 24
+    TabOrder = 23
     OnClick = Button2Click
   end
   object Button3: TButton
@@ -246,7 +237,7 @@ object FrmMain: TFrmMain
     Width = 131
     Height = 25
     Caption = 'Set timeout'
-    TabOrder = 25
+    TabOrder = 24
     OnClick = Button3Click
   end
   object Button4: TButton
@@ -255,7 +246,7 @@ object FrmMain: TFrmMain
     Width = 131
     Height = 25
     Caption = 'Get accept'
-    TabOrder = 26
+    TabOrder = 25
     OnClick = Button4Click
   end
   object Button5: TButton
@@ -264,7 +255,7 @@ object FrmMain: TFrmMain
     Width = 131
     Height = 25
     Caption = 'Set accept'
-    TabOrder = 27
+    TabOrder = 26
     OnClick = Button5Click
   end
   object Button6: TButton
@@ -273,7 +264,7 @@ object FrmMain: TFrmMain
     Width = 131
     Height = 25
     Caption = 'Get accept charset'
-    TabOrder = 28
+    TabOrder = 27
     OnClick = Button6Click
   end
   object Button7: TButton
@@ -282,7 +273,7 @@ object FrmMain: TFrmMain
     Width = 131
     Height = 25
     Caption = 'Set accept charset'
-    TabOrder = 29
+    TabOrder = 28
     OnClick = Button7Click
   end
   object Button8: TButton
@@ -291,7 +282,7 @@ object FrmMain: TFrmMain
     Width = 149
     Height = 25
     Caption = 'Set accept encoding'
-    TabOrder = 30
+    TabOrder = 29
     OnClick = Button8Click
   end
   object Button9: TButton
@@ -300,7 +291,7 @@ object FrmMain: TFrmMain
     Width = 149
     Height = 25
     Caption = 'Get accept encoding'
-    TabOrder = 31
+    TabOrder = 30
     OnClick = Button9Click
   end
   object Button10: TButton
@@ -309,7 +300,7 @@ object FrmMain: TFrmMain
     Width = 149
     Height = 25
     Caption = 'Get raise exception on 500'
-    TabOrder = 32
+    TabOrder = 31
     OnClick = Button10Click
   end
   object Button11: TButton
@@ -318,7 +309,7 @@ object FrmMain: TFrmMain
     Width = 149
     Height = 25
     Caption = 'Set raise exception on 500'
-    TabOrder = 33
+    TabOrder = 32
     OnClick = Button11Click
   end
   object Button12: TButton
@@ -327,7 +318,7 @@ object FrmMain: TFrmMain
     Width = 149
     Height = 25
     Caption = 'Get content encoding'
-    TabOrder = 34
+    TabOrder = 33
     OnClick = Button12Click
   end
   object Button13: TButton
@@ -336,7 +327,7 @@ object FrmMain: TFrmMain
     Width = 149
     Height = 25
     Caption = 'Set content type'
-    TabOrder = 35
+    TabOrder = 34
     OnClick = Button13Click
   end
   object Button14: TButton
@@ -345,7 +336,7 @@ object FrmMain: TFrmMain
     Width = 184
     Height = 25
     Caption = 'Get content length'
-    TabOrder = 36
+    TabOrder = 35
     OnClick = Button14Click
   end
   object Button15: TButton
@@ -354,7 +345,7 @@ object FrmMain: TFrmMain
     Width = 89
     Height = 25
     Caption = 'Get content'
-    TabOrder = 37
+    TabOrder = 36
     OnClick = Button15Click
   end
   object Button16: TButton
@@ -363,25 +354,16 @@ object FrmMain: TFrmMain
     Width = 131
     Height = 25
     Caption = 'Set Token'
-    TabOrder = 38
+    TabOrder = 37
     OnClick = Button16Click
   end
-  object Button17: TButton
-    Left = 430
-    Top = 194
-    Width = 131
-    Height = 25
-    Caption = 'Get Token'
-    TabOrder = 39
-    OnClick = Button17Click
-  end
   object Button18: TButton
-    Left = 567
+    Left = 430
     Top = 195
     Width = 131
     Height = 25
     Caption = 'Clear headers'
-    TabOrder = 40
+    TabOrder = 38
     OnClick = Button18Click
   end
   object FDMemTable: TFDMemTable

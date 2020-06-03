@@ -32,7 +32,6 @@ type
     btnJWTAuthorizationToken: TButton;
     btnBasicAuthorization: TButton;
     btnExecuteRequest: TButton;
-    btnClearBasicAuthentication: TButton;
     btnGetStatusCode: TButton;
     btnExecuteAsync: TButton;
     Button2: TButton;
@@ -50,7 +49,6 @@ type
     Button14: TButton;
     Button15: TButton;
     Button16: TButton;
-    Button17: TButton;
     Button18: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -75,7 +73,6 @@ type
     procedure btnExecuteRequestClick(Sender: TObject);
     procedure btnJWTAuthorizationTokenClick(Sender: TObject);
     procedure btnBasicAuthorizationClick(Sender: TObject);
-    procedure btnClearBasicAuthenticationClick(Sender: TObject);
     procedure btnGetStatusCodeClick(Sender: TObject);
     procedure btnExecuteAsyncClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
@@ -93,7 +90,6 @@ type
     procedure Button15Click(Sender: TObject);
     procedure Button14Click(Sender: TObject);
     procedure Button16Click(Sender: TObject);
-    procedure Button17Click(Sender: TObject);
     procedure Button18Click(Sender: TObject);
   private
     FRequest: IRequest;
@@ -134,12 +130,7 @@ end;
 
 procedure TFrmMain.btnBasicAuthorizationClick(Sender: TObject);
 begin
-  Request.Authentication.SetUsername('sample').SetPassword('123');
-end;
-
-procedure TFrmMain.btnClearBasicAuthenticationClick(Sender: TObject);
-begin
-  Request.Authentication.Clear;
+  Request.BasicAuthentication('username', 'password');
 end;
 
 procedure TFrmMain.btnClearBodyClick(Sender: TObject);
@@ -207,7 +198,7 @@ procedure TFrmMain.btnGetStatusCodeClick(Sender: TObject);
 var
   LStatusCode: Integer;
 begin
-  LStatusCode := Request.Response.GetStatusCode;
+  LStatusCode := Request.Get.StatusCode;
 end;
 
 procedure TFrmMain.btnJWTAuthorizationTokenClick(Sender: TObject);
@@ -256,40 +247,33 @@ procedure TFrmMain.Button12Click(Sender: TObject);
 var
   LContentEncoding: string;
 begin
-  LContentEncoding := Request.Response.GetContentEncoding;
+  LContentEncoding := Request.Get.ContentEncoding;
 end;
 
 procedure TFrmMain.Button13Click(Sender: TObject);
 var
   LContentType: string;
 begin
-  LContentType := Request.Response.GetContentType;
+  LContentType := Request.Get.ContentType;
 end;
 
 procedure TFrmMain.Button14Click(Sender: TObject);
 var
   LContentLength: Cardinal;
 begin
-  LContentLength := Request.Response.GetContentLength;
+  LContentLength := Request.Get.ContentLength;
 end;
 
 procedure TFrmMain.Button15Click(Sender: TObject);
 var
   LContent: string;
 begin
-  LContent := Request.Response.GetContent;
+  LContent := Request.Get.Content;
 end;
 
 procedure TFrmMain.Button16Click(Sender: TObject);
 begin
   Request.Token('token');
-end;
-
-procedure TFrmMain.Button17Click(Sender: TObject);
-var
-  LToken: string;
-begin
-  LToken := Request.Token;
 end;
 
 procedure TFrmMain.Button18Click(Sender: TObject);

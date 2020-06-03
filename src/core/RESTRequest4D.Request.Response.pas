@@ -8,13 +8,13 @@ type
   TRequestResponse = class(TInterfacedObject, IRequestResponse)
   private
     FRESTResponse: TRESTResponse;
-    function GetContent: string;
-    function GetContentLength: Cardinal;
-    function GetContentType: string;
-    function GetContentEncoding: string;
-    function GetStatusCode: Integer;
-    function GetRawBytes: TBytes;
-    function GetJSONValue: TJSONValue;
+    function Content: string;
+    function ContentLength: Cardinal;
+    function ContentType: string;
+    function ContentEncoding: string;
+    function StatusCode: Integer;
+    function RawBytes: TBytes;
+    function JSONValue: TJSONValue;
   public
     constructor Create(const ARESTResponse: TRESTResponse);
   end;
@@ -28,37 +28,37 @@ begin
   FRESTResponse := ARESTResponse;
 end;
 
-function TRequestResponse.GetContent: string;
+function TRequestResponse.Content: string;
 begin
   Result := FRESTResponse.Content;
 end;
 
-function TRequestResponse.GetContentEncoding: string;
+function TRequestResponse.ContentEncoding: string;
 begin
   Result := FRESTResponse.ContentEncoding;
 end;
 
-function TRequestResponse.GetContentLength: Cardinal;
+function TRequestResponse.ContentLength: Cardinal;
 begin
   Result := FRESTResponse.ContentLength;
 end;
 
-function TRequestResponse.GetContentType: string;
+function TRequestResponse.ContentType: string;
 begin
   Result := FRESTResponse.ContentType;
 end;
 
-function TRequestResponse.GetJSONValue: TJSONValue;
+function TRequestResponse.JSONValue: TJSONValue;
 begin
   Result := FRESTResponse.JSONValue;
 end;
 
-function TRequestResponse.GetRawBytes: TBytes;
+function TRequestResponse.RawBytes: TBytes;
 begin
   Result := FRESTResponse.RawBytes;
 end;        
 
-function TRequestResponse.GetStatusCode: Integer;
+function TRequestResponse.StatusCode: Integer;
 begin
   Result := FRESTResponse.StatusCode;
 end;
