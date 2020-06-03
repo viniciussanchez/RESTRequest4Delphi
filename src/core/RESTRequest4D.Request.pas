@@ -29,29 +29,29 @@ type
     procedure DoJoinComponents;
     procedure DoAfterExecute(Sender: TCustomRESTRequest);
     procedure ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean = True);
-    function GetAcceptEncoding: string;
-    function SetAcceptEncoding(const AAcceptEncoding: string): IRequest;
-    function GetAcceptCharset: string;
-    function SetAcceptCharset(const AAcceptCharset: string): IRequest;
-    function GetAccept: string;
-    function SetAccept(const AAccept: string): IRequest;
-    function SetDataSetAdapter(const ADataSet: TDataSet): IRequest;
-    function SetBaseURL(const ABaseURL: string = ''): IRequest;
-    function SetResource(const AResource: string = ''): IRequest;
-    function SetResourceSuffix(const AResourceSuffix: string = ''): IRequest;
-    function SetMethod(const AMethod: TRESTRequestMethod = rmGET): IRequest;
-    function SetRaiseExceptionOn500(const ARaiseException: Boolean = True): IRequest;
-    function SetToken(const AToken: string): IRequest;
-    function GetRaiseExceptionOn500: Boolean;
-    function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
-    function GetTimeout: Integer;
-    function SetTimeout(const ATimeout: Integer): IRequest;
-    function GetMethod: TRESTRequestMethod;
-    function GetResourceSuffix: string;
-    function GetResource: string;
-    function GetBaseURL: string;
-    function GetDataSetAdapter: TDataSet;
-    function GetToken: string;
+    function AcceptEncoding: string; overload;
+    function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
+    function AcceptCharset: string; overload;
+    function AcceptCharset(const AAcceptCharset: string): IRequest; overload;
+    function Accept: string; overload;
+    function Accept(const AAccept: string): IRequest; overload;
+    function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
+    function DataSetAdapter: TDataSet; overload;
+    function BaseURL(const ABaseURL: string): IRequest; overload;
+    function BaseURL: string; overload;
+    function Resource(const AResource: string): IRequest; overload;
+    function Resource: string; overload;
+    function ResourceSuffix(const AResourceSuffix: string): IRequest; overload;
+    function ResourceSuffix: string; overload;
+    function Method(const AMethod: TRESTRequestMethod): IRequest; overload;
+    function Method: TRESTRequestMethod; overload;
+    function Token(const AToken: string): IRequest; overload;
+    function Token: string; overload;
+    function Timeout(const ATimeout: Integer): IRequest; overload;
+    function Timeout: Integer; overload;
+    function RaiseExceptionOn500(const ARaiseException: Boolean): IRequest; overload;
+    function RaiseExceptionOn500: Boolean; overload;
+    function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function Get: IRequest;
     function Post: IRequest;
     function Put: IRequest;
@@ -183,7 +183,7 @@ end;
 function TRequest.Delete: IRequest;
 begin
   Result := Self;
-  Self.SetMethod(TRESTRequestMethod.rmDELETE);
+  Self.Method(TRESTRequestMethod.rmDELETE);
   Self.Execute;
 end;
 
@@ -233,66 +233,66 @@ end;
 function TRequest.Get: IRequest;
 begin
   Result := Self;
-  Self.SetMethod(TRESTRequestMethod.rmGET);
+  Self.Method(TRESTRequestMethod.rmGET);
   Self.Execute;
 end;
 
-function TRequest.GetAccept: string;
+function TRequest.Accept: string;
 begin
   Result := FRESTRequest.Accept;
 end;
 
-function TRequest.GetAcceptCharset: string;
+function TRequest.AcceptCharset: string;
 begin
   Result := FRESTRequest.AcceptCharset;
 end;
 
-function TRequest.GetAcceptEncoding: string;
+function TRequest.AcceptEncoding: string;
 begin
   Result := FRESTRequest.AcceptEncoding;
 end;
 
-function TRequest.GetBaseURL: string;
+function TRequest.BaseURL: string;
 begin
   Result := FRESTClient.BaseURL;
 end;
 
-function TRequest.GetDataSetAdapter: TDataSet;
+function TRequest.DataSetAdapter: TDataSet;
 begin
   Result := FDataSetAdapter;
 end;
 
-function TRequest.GetFullRequestURL(const AIncludeParams: Boolean): string;
+function TRequest.FullRequestURL(const AIncludeParams: Boolean): string;
 begin
   Result := FRESTRequest.GetFullRequestURL(AIncludeParams);
 end;
 
-function TRequest.GetMethod: TRESTRequestMethod;
+function TRequest.Method: TRESTRequestMethod;
 begin
   Result := FRESTRequest.Method;
 end;
 
-function TRequest.GetRaiseExceptionOn500: Boolean;
+function TRequest.RaiseExceptionOn500: Boolean;
 begin
   Result := FRESTClient.RaiseExceptionOn500;
 end;
 
-function TRequest.GetResource: string;
+function TRequest.Resource: string;
 begin
   Result := FRESTRequest.Resource;
 end;
 
-function TRequest.GetResourceSuffix: string;
+function TRequest.ResourceSuffix: string;
 begin
   Result := FRESTRequest.ResourceSuffix;
 end;
 
-function TRequest.GetTimeout: Integer;
+function TRequest.Timeout: Integer;
 begin
   Result := FRESTRequest.Timeout;
 end;
 
-function TRequest.GetToken: string;
+function TRequest.Token: string;
 begin
   Result := FToken;
 end;
@@ -310,14 +310,14 @@ end;
 function TRequest.Post: IRequest;
 begin
   Result := Self;
-  Self.SetMethod(TRESTRequestMethod.rmPOST);
+  Self.Method(TRESTRequestMethod.rmPOST);
   Self.Execute;
 end;
 
 function TRequest.Put: IRequest;
 begin
   Result := Self;
-  Self.SetMethod(TRESTRequestMethod.rmPUT);
+  Self.Method(TRESTRequestMethod.rmPUT);
   Self.Execute;
 end;
 
@@ -326,7 +326,7 @@ begin
   Result := FResponse;
 end;
 
-function TRequest.SetAccept(const AAccept: string): IRequest;
+function TRequest.Accept(const AAccept: string): IRequest;
 const
   REQUEST_DEFAULT_ACCEPT =
     CONTENTTYPE_APPLICATION_JSON + ', ' +
@@ -339,7 +339,7 @@ begin
     FRESTRequest.Accept := AAccept;
 end;
 
-function TRequest.SetAcceptCharset(const AAcceptCharset: string): IRequest;
+function TRequest.AcceptCharset(const AAcceptCharset: string): IRequest;
 const
   REQUEST_DEFAULT_ACCEPT_CHARSET = 'utf-8, *;q=0.8';
 begin
@@ -349,25 +349,25 @@ begin
     FRESTRequest.AcceptCharset := AAcceptCharset;
 end;
 
-function TRequest.SetAcceptEncoding(const AAcceptEncoding: string): IRequest;
+function TRequest.AcceptEncoding(const AAcceptEncoding: string): IRequest;
 begin
   Result := Self;
   FRESTRequest.AcceptEncoding := AAcceptEncoding;
 end;
 
-function TRequest.SetBaseURL(const ABaseURL: string = ''): IRequest;
+function TRequest.BaseURL(const ABaseURL: string): IRequest;
 begin
   Result := Self;
   FRESTClient.BaseURL := ABaseURL;
 end;
 
-function TRequest.SetDataSetAdapter(const ADataSet: TDataSet): IRequest;
+function TRequest.DataSetAdapter(const ADataSet: TDataSet): IRequest;
 begin
   Result := Self;
   FDataSetAdapter := ADataSet;
 end;
 
-function TRequest.SetMethod(const AMethod: TRESTRequestMethod): IRequest;
+function TRequest.Method(const AMethod: TRESTRequestMethod): IRequest;
 begin
   Result := Self;
   FRESTRequest.Method := AMethod;
@@ -375,31 +375,31 @@ begin
     Self.FBody.Clear;
 end;
 
-function TRequest.SetRaiseExceptionOn500(const ARaiseException: Boolean = True): IRequest;
+function TRequest.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
 begin
   Result := Self;
   FRESTClient.RaiseExceptionOn500 := ARaiseException;
 end;
 
-function TRequest.SetResource(const AResource: string = ''): IRequest;
+function TRequest.Resource(const AResource: string): IRequest;
 begin
   Result := Self;
   FRESTRequest.Resource := AResource;
 end;
 
-function TRequest.SetResourceSuffix(const AResourceSuffix: string = ''): IRequest;
+function TRequest.ResourceSuffix(const AResourceSuffix: string): IRequest;
 begin
   Result := Self;
   FRESTRequest.ResourceSuffix := AResourceSuffix;
 end;
 
-function TRequest.SetTimeout(const ATimeout: Integer): IRequest;
+function TRequest.Timeout(const ATimeout: Integer): IRequest;
 begin
   Result := Self;
   FRESTRequest.Timeout := ATimeout;
 end;
 
-function TRequest.SetToken(const AToken: string): IRequest;
+function TRequest.Token(const AToken: string): IRequest;
 begin
   Result := Self;
   FToken := AToken;

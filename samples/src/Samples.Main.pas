@@ -171,36 +171,36 @@ end;
 
 procedure TFrmMain.btnGetBaseURLClick(Sender: TObject);
 begin
-  ShowMessage(Request.GetBaseURL);
+  ShowMessage(Request.BaseURL);
 end;
 
 procedure TFrmMain.btnGetDatasetAdapterClick(Sender: TObject);
 var
   LMemTable: TFDMemTable;
 begin
-  LMemTable := Request.GetDataSetAdapter as TFDMemTable;
+  LMemTable := Request.DataSetAdapter as TFDMemTable;
 end;
 
 procedure TFrmMain.btnGetFullRequestURLClick(Sender: TObject);
 begin
-  ShowMessage(Request.GetFullRequestURL(True));
+  ShowMessage(Request.FullRequestURL(True));
 end;
 
 procedure TFrmMain.btnGetMethodClick(Sender: TObject);
 var
   LMethod: TRESTRequestMethod;
 begin
-  LMethod := Request.GetMethod;
+  LMethod := Request.Method;
 end;
 
 procedure TFrmMain.btnGetResourceClick(Sender: TObject);
 begin
-  ShowMessage(Request.GetResource);
+  ShowMessage(Request.Resource);
 end;
 
 procedure TFrmMain.btnGetResourceSuffixClick(Sender: TObject);
 begin
-  ShowMessage(Request.GetResourceSuffix);
+  ShowMessage(Request.ResourceSuffix);
 end;
 
 procedure TFrmMain.btnGetStatusCodeClick(Sender: TObject);
@@ -217,39 +217,39 @@ end;
 
 procedure TFrmMain.btnSetBaseURLClick(Sender: TObject);
 begin
-  Request.SetBaseURL('http://localhost:8080/datasnap/rest');
+  Request.BaseURL('http://localhost:8080/datasnap/rest');
 end;
 
 procedure TFrmMain.btnSetDatasetAdapterClick(Sender: TObject);
 begin
-  Request.SetDataSetAdapter(FDMemTable);
+  Request.DataSetAdapter(FDMemTable);
 end;
 
 procedure TFrmMain.btnSetMethodClick(Sender: TObject);
 begin
-  Request.SetMethod(rmGET);
+  Request.Method(rmGET);
 end;
 
 procedure TFrmMain.btnSetResourceClick(Sender: TObject);
 begin
-  Request.SetResource('servermethods');
+  Request.Resource('servermethods');
 end;
 
 procedure TFrmMain.btnSetResourceSuffixClick(Sender: TObject);
 begin
-  Request.SetResourceSuffix('method');
+  Request.ResourceSuffix('method');
 end;
 
 procedure TFrmMain.Button10Click(Sender: TObject);
 var
   LRaiseException: Boolean;
 begin
-  LRaiseException := Request.GetRaiseExceptionOn500;
+  LRaiseException := Request.RaiseExceptionOn500;
 end;
 
 procedure TFrmMain.Button11Click(Sender: TObject);
 begin
-  Request.SetRaiseExceptionOn500(False);
+  Request.RaiseExceptionOn500(False);
 end;
 
 procedure TFrmMain.Button12Click(Sender: TObject);
@@ -282,14 +282,14 @@ end;
 
 procedure TFrmMain.Button16Click(Sender: TObject);
 begin
-  Request.SetToken('token');
+  Request.Token('token');
 end;
 
 procedure TFrmMain.Button17Click(Sender: TObject);
 var
   LToken: string;
 begin
-  LToken := Request.GetToken;
+  LToken := Request.Token;
 end;
 
 procedure TFrmMain.Button18Click(Sender: TObject);
@@ -306,48 +306,48 @@ procedure TFrmMain.Button2Click(Sender: TObject);
 var
   LTimeout: Integer;
 begin
-  LTimeout := Request.GetTimeout;
+  LTimeout := Request.Timeout;
 end;
 
 procedure TFrmMain.Button3Click(Sender: TObject);
 begin
-  Request.SetTimeout(30000);
+  Request.Timeout(30000);
 end;
 
 procedure TFrmMain.Button4Click(Sender: TObject);
 var
   LAccept: string;
 begin
-  LAccept := Request.GetAccept;
+  LAccept := Request.Accept;
 end;
 
 procedure TFrmMain.Button5Click(Sender: TObject);
 begin
-  Request.SetAccept(CONTENTTYPE_APPLICATION_JSON);
+  Request.Accept(CONTENTTYPE_APPLICATION_JSON);
 end;
 
 procedure TFrmMain.Button6Click(Sender: TObject);
 var
   LAcceptCharset: string;
 begin
-  LAcceptCharset := Request.GetAcceptCharset;
+  LAcceptCharset := Request.AcceptCharset;
 end;
 
 procedure TFrmMain.Button7Click(Sender: TObject);
 begin
-  Request.SetAcceptCharset('utf-8');
+  Request.AcceptCharset('utf-8');
 end;
 
 procedure TFrmMain.Button8Click(Sender: TObject);
 begin
-  Request.SetAcceptEncoding('gzip, deflate');
+  Request.AcceptEncoding('gzip, deflate');
 end;
 
 procedure TFrmMain.Button9Click(Sender: TObject);
 var
   LAcceptEncoding: string;
 begin
-  LAcceptEncoding := Request.GetAcceptEncoding;
+  LAcceptEncoding := Request.AcceptEncoding;
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);

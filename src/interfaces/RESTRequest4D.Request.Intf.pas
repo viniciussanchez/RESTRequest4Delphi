@@ -17,7 +17,7 @@ type
     /// <returns>
     ///   Accepted encoding.
     /// </returns>
-    function GetAcceptEncoding: string;
+    function AcceptEncoding: string; overload;
     /// <summary>
     ///   Specifies the accepted encoding.
     /// </summary>
@@ -31,14 +31,14 @@ type
     ///   Defaults to empty string, which means "identity encoding".
     ///   To allow for compressed responses set to "gzip, deflate".
     /// </remarks>
-    function SetAcceptEncoding(const AAcceptEncoding: string): IRequest;
+    function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
     /// <summary>
     ///   Get defined charset that the response is expected to be encoded in.
     /// </summary>
     /// <returns>
     ///   Charset that the response is expected to be encoded in.
     /// </returns>
-    function GetAcceptCharset: string;
+    function AcceptCharset: string; overload;
     /// <summary>
     ///   Specifies the charset that the response is expected to be encoded in.
     /// </summary>
@@ -51,14 +51,14 @@ type
     /// <remarks>
     ///   Defaults to UTF-8.
     /// </remarks>
-    function SetAcceptCharset(const AAcceptCharset: string): IRequest;
+    function AcceptCharset(const AAcceptCharset: string): IRequest; overload;
     /// <summary>
     ///   Get difined content-type that is accepted for the response.
     /// </summary>
     /// <returns>
     ///   Content-Type that is accepted for the response.
     /// </returns>
-    function GetAccept: string;
+    function Accept: string; overload;
     /// <summary>
     ///   <para>
     ///     Specifies the Content-Type that is accepted for the response.
@@ -76,14 +76,14 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function SetAccept(const AAccept: string): IRequest;
+    function Accept(const AAccept: string): IRequest; overload;
     /// <summary>
     ///   Get defined request timeout.
     /// </summary>
     /// <returns>
     ///   Request timeout.
     /// </returns>
-    function GetTimeout: Integer;
+    function Timeout: Integer; overload;
     /// <summary>
     ///   Defines a new timeout for request.
     /// </summary>
@@ -93,7 +93,7 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function SetTimeout(const ATimeout: Integer): IRequest;
+    function Timeout(const ATimeout: Integer): IRequest; overload;
     /// <summary>
     ///   Defines a DataSet that will be assigned to an adapter to respond to requests.
     /// </summary>
@@ -103,14 +103,14 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function SetDataSetAdapter(const ADataSet: TDataSet): IRequest;
+    function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
     /// <summary>
     ///   Get defined dataset adapter.
     /// </summary>
     /// <returns>
     ///   Dataset Adapter.
     /// </returns>
-    function GetDataSetAdapter: TDataSet;
+    function DataSetAdapter: TDataSet; overload;
     /// <summary>
     ///   Sets the base URL of access to resources to be consumed.
     /// </summary>
@@ -120,14 +120,14 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function SetBaseURL(const ABaseURL: string = ''): IRequest;
+    function BaseURL(const ABaseURL: string): IRequest; overload;
     /// <summary>
     ///   Get defined base URL.
     /// </summary>
     /// <returns>
     ///   Base URL.
     /// </returns>
-    function GetBaseURL: string;
+    function BaseURL: string; overload;
     /// <summary>
     ///   Sets the resource to be consumed.
     /// </summary>
@@ -137,14 +137,14 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function SetResource(const AResource: string = ''): IRequest;
+    function Resource(const AResource: string): IRequest; overload;
     /// <summary>
     ///   Get defined value if the component needs to raise an exception on server status code return 500.
     /// </summary>
     /// <returns>
     ///   Defined raise exception on error 500.
     /// </returns>
-    function GetRaiseExceptionOn500: Boolean;
+    function RaiseExceptionOn500: Boolean; overload;
     /// <summary>
     ///   Defines if the component needs to raise an exception on server status code return 500.
     /// </summary>
@@ -154,17 +154,14 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    /// <remarks>
-    ///   Default is True.
-    /// </remarks>
-    function SetRaiseExceptionOn500(const ARaiseException: Boolean = True): IRequest;
+    function RaiseExceptionOn500(const ARaiseException: Boolean): IRequest; overload;
     /// <summary>
     ///   Get defined resource.
     /// </summary>
     /// <returns>
     ///   Resource.
     /// </returns>
-    function GetResource: string;
+    function Resource: string; overload;
     /// <summary>
     ///   Sets the suffix of the resource to be consumed.
     /// </summary>
@@ -174,14 +171,14 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function SetResourceSuffix(const AResourceSuffix: string = ''): IRequest;
+    function ResourceSuffix(const AResourceSuffix: string): IRequest; overload;
     /// <summary>
     ///   Get defined resource suffix.
     /// </summary>
     /// <returns>
     ///   Resource suffix.
     /// </returns>
-    function GetResourceSuffix: string;
+    function ResourceSuffix: string; overload;
     /// <summary>
     ///   Defines an HTTP verb for the request.
     /// </summary>
@@ -194,7 +191,7 @@ type
     /// <remarks>
     ///   Uses REST.Types.
     /// </remarks>
-    function SetMethod(const AMethod: TRESTRequestMethod = rmGET): IRequest;
+    function Method(const AMethod: TRESTRequestMethod): IRequest; overload;
     /// <summary>
     ///   Get defined method.
     /// </summary>
@@ -204,7 +201,7 @@ type
     /// <remarks>
     ///   Uses REST.Types.
     /// </remarks>
-    function GetMethod: TRESTRequestMethod;
+    function Method: TRESTRequestMethod; overload;
     /// <summary>
     ///   Defines an token to the request.
     /// </summary>
@@ -214,7 +211,14 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function SetToken(const AToken: string): IRequest;
+    function Token(const AToken: string): IRequest; overload;
+    /// <summary>
+    ///   Get defined token.
+    /// </summary>
+    /// <returns>
+    ///   The token value.
+    /// </returns>
+    function Token: string; overload;
     /// <summary>
     ///   Calls the Execute function, using the GET method.
     /// </summary>
@@ -244,13 +248,6 @@ type
     /// </returns>
     function Delete: IRequest;
     /// <summary>
-    ///   Get defined token.
-    /// </summary>
-    /// <returns>
-    ///   The token value.
-    /// </returns>
-    function GetToken: string;
-    /// <summary>
     ///   Get the full URL.
     /// </summary>
     /// <param name="AIncludeParams">
@@ -259,7 +256,7 @@ type
     /// <returns>
     ///   Full URL.
     /// </returns>
-    function GetFullRequestURL(const AIncludeParams: Boolean = True): string;
+    function FullRequestURL(const AIncludeParams: Boolean = True): string;
     /// <summary>
     ///   Execute the request.
     /// </summary>
