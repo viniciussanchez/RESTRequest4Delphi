@@ -83,7 +83,7 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <DCC_UnitSearchPath>..\modules\dataset-serialize\src\types;..\modules\dataset-serialize\src\providers;..\modules\dataset-serialize\src\helpers;..\modules\dataset-serialize\src\core;..\modules\dataset-serialize\src\singletons;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\modules\dataset-serialize\src\providers;..\..\modules\dataset-serialize\src\helpers;..\..\modules\dataset-serialize\src\core;..\..\modules\dataset-serialize\src\types;..\..\modules\dataset-serialize\src\singletons;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -105,18 +105,18 @@
             <Form>FrmMain</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\src\core\RESTRequest4D.Request.Authentication.pas"/>
-        <DCCReference Include="..\src\core\RESTRequest4D.Request.Body.pas"/>
-        <DCCReference Include="..\src\core\RESTRequest4D.Request.Params.pas"/>
-        <DCCReference Include="..\src\core\RESTRequest4D.Request.pas"/>
-        <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Authentication.Intf.pas"/>
-        <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Body.Intf.pas"/>
-        <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Intf.pas"/>
-        <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Params.Intf.pas"/>
-        <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Headers.Intf.pas"/>
-        <DCCReference Include="..\src\core\RESTRequest4D.Request.Headers.pas"/>
-        <DCCReference Include="..\src\interfaces\RESTRequest4D.Request.Response.Intf.pas"/>
-        <DCCReference Include="..\src\core\RESTRequest4D.Request.Response.pas"/>
+        <DCCReference Include="..\..\src\core\RESTRequest4D.Request.Authentication.pas"/>
+        <DCCReference Include="..\..\src\core\RESTRequest4D.Request.Body.pas"/>
+        <DCCReference Include="..\..\src\core\RESTRequest4D.Request.Params.pas"/>
+        <DCCReference Include="..\..\src\core\RESTRequest4D.Request.pas"/>
+        <DCCReference Include="..\..\src\interfaces\RESTRequest4D.Request.Authentication.Intf.pas"/>
+        <DCCReference Include="..\..\src\interfaces\RESTRequest4D.Request.Body.Intf.pas"/>
+        <DCCReference Include="..\..\src\interfaces\RESTRequest4D.Request.Intf.pas"/>
+        <DCCReference Include="..\..\src\interfaces\RESTRequest4D.Request.Params.Intf.pas"/>
+        <DCCReference Include="..\..\src\interfaces\RESTRequest4D.Request.Headers.Intf.pas"/>
+        <DCCReference Include="..\..\src\core\RESTRequest4D.Request.Headers.pas"/>
+        <DCCReference Include="..\..\src\interfaces\RESTRequest4D.Request.Response.Intf.pas"/>
+        <DCCReference Include="..\..\src\core\RESTRequest4D.Request.Response.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
