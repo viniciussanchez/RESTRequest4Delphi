@@ -1,11 +1,11 @@
-unit RESTRequest4D.Request.Response;
+unit RESTRequest4D.Response;
 
 interface
 
-uses RESTRequest4D.Request.Response.Intf, REST.Client, System.SysUtils, System.JSON;
+uses RESTRequest4D.Response.Intf, REST.Client, System.SysUtils, System.JSON;
 
 type
-  TRequestResponse = class(TInterfacedObject, IRequestResponse)
+  TResponse = class(TInterfacedObject, IResponse)
   private
     FRESTResponse: TRESTResponse;
     function Content: string;
@@ -21,44 +21,42 @@ type
 
 implementation
 
-{ TRequestResponse }
-
-constructor TRequestResponse.Create(const ARESTResponse: TRESTResponse);
+constructor TResponse.Create(const ARESTResponse: TRESTResponse);
 begin
   FRESTResponse := ARESTResponse;
 end;
 
-function TRequestResponse.Content: string;
+function TResponse.Content: string;
 begin
   Result := FRESTResponse.Content;
 end;
 
-function TRequestResponse.ContentEncoding: string;
+function TResponse.ContentEncoding: string;
 begin
   Result := FRESTResponse.ContentEncoding;
 end;
 
-function TRequestResponse.ContentLength: Cardinal;
+function TResponse.ContentLength: Cardinal;
 begin
   Result := FRESTResponse.ContentLength;
 end;
 
-function TRequestResponse.ContentType: string;
+function TResponse.ContentType: string;
 begin
   Result := FRESTResponse.ContentType;
 end;
 
-function TRequestResponse.JSONValue: TJSONValue;
+function TResponse.JSONValue: TJSONValue;
 begin
   Result := FRESTResponse.JSONValue;
 end;
 
-function TRequestResponse.RawBytes: TBytes;
+function TResponse.RawBytes: TBytes;
 begin
   Result := FRESTResponse.RawBytes;
 end;        
 
-function TRequestResponse.StatusCode: Integer;
+function TResponse.StatusCode: Integer;
 begin
   Result := FRESTResponse.StatusCode;
 end;

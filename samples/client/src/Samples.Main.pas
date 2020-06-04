@@ -51,7 +51,7 @@ uses RESTRequest4D.Request, REST.Types;
 
 procedure TFrmMain.btnDELETEClick(Sender: TObject);
 var
-  LResponse: IRequestResponse;
+  LResponse: IResponse;
 begin
   LResponse := TRequest.New.BaseURL(edtBaseURL.Text)
     .Accept(edtAccept.Text)
@@ -63,7 +63,7 @@ end;
 
 procedure TFrmMain.btnGETClick(Sender: TObject);
 var
-  LResponse: IRequestResponse;
+  LResponse: IResponse;
 begin
   LResponse := TRequest.New.BaseURL(edtBaseURL.Text)
     .Accept(edtAccept.Text)
@@ -75,7 +75,7 @@ end;
 
 procedure TFrmMain.btnPOSTClick(Sender: TObject);
 var
-  LResponse: IRequestResponse;
+  LResponse: IResponse;
 begin
   LResponse := TRequest.New.BaseURL(edtBaseURL.Text)
     .Accept(edtAccept.Text)
@@ -88,7 +88,7 @@ end;
 
 procedure TFrmMain.btnPUTClick(Sender: TObject);
 var
-  LResponse: IRequestResponse;
+  LResponse: IResponse;
 begin
   LResponse := TRequest.New.BaseURL(edtBaseURL.Text)
     .Accept(edtAccept.Text)

@@ -2,25 +2,19 @@ unit RESTRequest4D.Request;
 
 interface
 
-uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, RESTRequest4D.Request.Params.Intf, REST.Types,
-  RESTRequest4D.Request.Body.Intf, RESTRequest4D.Request.Authentication.Intf, System.SysUtils, RESTRequest4D.Request.Headers.Intf,
-  RESTRequest4D.Request.Response.Intf, System.JSON;
+uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
+  RESTRequest4D.Response.Intf, System.JSON, REST.Authenticator.Basic;
 
 type
-  IRequestAuthentication = RESTRequest4D.Request.Authentication.Intf.IRequestAuthentication;
-  IRequestBody = RESTRequest4D.Request.Body.Intf.IRequestBody;
-  IRequestHeaders = RESTRequest4D.Request.Headers.Intf.IRequestHeaders;
   IRequest = RESTRequest4D.Request.Intf.IRequest;
-  IRequestParams = RESTRequest4D.Request.Params.Intf.IRequestParams;
-  IRequestResponse = RESTRequest4D.Request.Response.Intf.IRequestResponse;
+  IResponse = RESTRequest4D.Response.Intf.IResponse;
 
   TRequest = class(TInterfacedObject, IRequest)
   private
-    FBody: IRequestBody;
-    FParams: IRequestParams;
-    FResponse: IRequestResponse;
-    FHeaders: IRequestHeaders;
-    FAuthentication: IRequestAuthentication;
+    FParams: TStrings;
+    FResponse: IResponse;
+    FHeaders: TStrings;
+    FHTTPBasicAuthenticator: THTTPBasicAuthenticator;
     FRESTRequest: TRESTRequest;
     FDataSetAdapter: TDataSet;
     FRESTResponse: TRESTResponse;
@@ -42,19 +36,17 @@ type
     function Resource: string; overload;
     function ResourceSuffix(const AResourceSuffix: string): IRequest; overload;
     function ResourceSuffix: string; overload;
-    function Method(const AMethod: TRESTRequestMethod): IRequest; overload;
-    function Method: TRESTRequestMethod; overload;
-    function Token(const AToken: string): IRequest;
     function Timeout(const ATimeout: Integer): IRequest; overload;
     function Timeout: Integer; overload;
     function RaiseExceptionOn500(const ARaiseException: Boolean): IRequest; overload;
     function RaiseExceptionOn500: Boolean; overload;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
-    function Get: IRequestResponse;
-    function Post: IRequestResponse;
-    function Put: IRequestResponse;
-    function Delete: IRequestResponse;
-    function Execute: Integer;
+    function Token(const AToken: string): IRequest;
+    function BasicAuthentication(const AUsername, APassword: string): IRequest;
+    function Get: IResponse;
+    function Post: IResponse;
+    function Put: IResponse;
+    function Delete: IResponse;
     function ClearBody: IRequest;
     function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
@@ -62,8 +54,14 @@ type
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
-    function Params: IRequestParams;
-    function BasicAuthentication(const AUsername, APassword: string): IRequest;
+    function ClearParams: IRequest;
+    {$IFDEF VER320}
+      function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkGETorPOST): IRequest;
+    {$ELSE}
+      function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequest;
+      function AddFile(const AName: string; const AValue: TStream): IRequest;
+    {$ENDIF}
+    function AddText(const AName: string; const AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequest;
     function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True; ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
     constructor Create;
@@ -73,11 +71,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Request.Body, RESTRequest4D.Request.Params, RESTRequest4D.Request.Authentication, DataSet.Serialize,
-  RESTRequest4D.Request.Headers, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
-  RESTRequest4D.Request.Response;
-
-{ TRequest }
+uses DataSet.Serialize, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client, RESTRequest4D.Response;
 
 procedure TRequest.ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean = True);
 var
@@ -105,51 +99,128 @@ end;
 function TRequest.AddBody(const AContent: string; const AContentType: TRESTContentType): IRequest;
 begin
   Result := Self;
-  FBody.Add(AContent);
+  if not AContent.Trim.IsEmpty then
+    FRESTRequest.Body.Add(AContent, AContentType);
 end;
 
 function TRequest.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
-  FBody.Add(AContent, AOwns);
+  if Assigned(AContent) then
+  begin
+    FRESTRequest.Body.Add(AContent);
+    if AOwns then
+      AContent.Free;
+  end;
 end;
 
 function TRequest.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
-  FBody.Add(AContent, AOwns);
+  if Assigned(AContent) then
+  begin
+    Self.AddBody(AContent.ToString);
+    if AOwns then
+      AContent.Free;
+  end;
 end;
 
 function TRequest.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
-  FBody.Add(AContent, AOwns);
+  if Assigned(AContent) then
+  begin
+    FRESTRequest.Body.Add(AContent);
+    if AOwns then
+      AContent.Free;
+  end;
 end;
+
+{$IFNDEF VER320}
+function TRequest.AddFile(const AName: string; const AValue: TStream): IRequest;
+begin
+  Result := Self;
+  if not Assigned(AValue) then
+    Exit;
+  with FRESTRequest.Params.AddItem do
+  begin
+    Name := AName;
+    SetStream(AValue);
+    Value := AValue.ToString;
+    Kind := TRESTRequestParameterKind.pkFILE;
+    ContentType := TRESTContentType.ctAPPLICATION_OCTET_STREAM;
+  end;
+end;
+{$ENDIF}
 
 function TRequest.AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions): IRequest;
 begin
   Result := Self;
-  FHeaders.Add(AName, AValue, AOptions);
+  if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
+  begin
+    if (FHeaders.IndexOf(AName) < 0) then
+      FHeaders.Add(AName);
+    FRESTRequest.Params.AddHeader(AName, AValue);
+    FRESTRequest.Params.ParameterByName(AName).Options := AOptions;
+  end;
+end;
+
+function TRequest.AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind): IRequest;
+begin
+  Result := Self;
+  if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
+  begin
+    FParams.Add(AName);
+    FRESTRequest.AddParameter(AName, AValue, AKind);
+  end;
+end;
+
+function TRequest.AddText(const AName, AValue: string; const AContentType: TRESTContentType): IRequest;
+begin
+  Result := Self;
+  with FRESTRequest.Params.AddItem do
+  begin
+    Name := AName;
+    Value := AValue;
+    Kind := TRESTRequestParameterKind.pkREQUESTBODY;
+    ContentType := AContentType;
+  end;
 end;
 
 function TRequest.BasicAuthentication(const AUsername, APassword: string): IRequest;
 begin
   Result := Self;
-  if not Assigned(FAuthentication) then
-    FAuthentication := TRequestAuthentication.Create(FRESTClient);
-  FAuthentication.Username(AUsername).Password(APassword);
+  if not Assigned(FHTTPBasicAuthenticator) then
+  begin
+    FHTTPBasicAuthenticator := THTTPBasicAuthenticator.Create(nil);
+    FRESTClient.Authenticator := FHTTPBasicAuthenticator;
+  end;
+  FHTTPBasicAuthenticator.Username := AUsername;
+  FHTTPBasicAuthenticator.Password := APassword;
 end;
 
 function TRequest.ClearBody: IRequest;
 begin
   Result := Self;
-  FBody.Clear;
+  FRESTRequest.ClearBody;
 end;
 
 function TRequest.ClearHeaders: IRequest;
+var
+  I: Integer;
 begin
   Result := Self;
-  FHeaders.Clear;
+  for I := 0 to Pred(FHeaders.Count) do
+    FRESTRequest.Params.Delete(FRESTRequest.Params.ParameterByName(FHeaders[I]));
+end;
+
+function TRequest.ClearParams: IRequest;
+var
+  I: Integer;
+begin
+  Result := Self;
+  for I := 0 to Pred(FParams.Count) do
+    FRESTRequest.Params.Delete(FRESTRequest.Params.ParameterByName(FParams[I]));
 end;
 
 constructor TRequest.Create;
@@ -158,10 +229,9 @@ begin
   FRESTClient := TRESTClient.Create(nil);
   FRESTRequest := TRESTRequest.Create(nil);
 
-  FBody := TRequestBody.Create(FRESTRequest);
-  FParams := TRequestParams.Create(FRESTRequest);
-  FHeaders := TRequestHeaders.Create(FRESTRequest);
-  FResponse := TRequestResponse.Create(FRESTResponse);
+  FParams := TStringList.Create;
+  FHeaders := TStringList.Create;
+  FResponse := TResponse.Create(FRESTResponse);
 
   FRESTRequest.OnAfterExecute := DoAfterExecute;
   DoJoinComponents;
@@ -169,19 +239,19 @@ begin
   FRESTClient.RaiseExceptionOn500 := False;
 end;
 
-function TRequest.Delete: IRequestResponse;
+function TRequest.Delete: IResponse;
 begin
   Result := FResponse;
-  Self.Method(TRESTRequestMethod.rmDELETE);
-  Self.Execute;
+  FRESTRequest.Method := TRESTRequestMethod.rmDELETE;
+  FRESTRequest.Execute;
 end;
 
 destructor TRequest.Destroy;
 begin
-  FBody := nil;
-  FAuthentication := nil;
-  FParams := nil;
-  FHeaders := nil;
+  if Assigned(FHTTPBasicAuthenticator) then
+    FreeAndNil(FHTTPBasicAuthenticator);
+  FreeAndNil(FParams);
+  FreeAndNil(FHeaders);
   FreeAndNil(FRESTRequest);
   FreeAndNil(FRESTClient);
   FreeAndNil(FRESTResponse);
@@ -203,23 +273,17 @@ begin
   FRESTRequest.Response := FRESTResponse;
 end;
 
-function TRequest.Execute: Integer;
-begin
-  FRESTRequest.Execute;
-  Result := FRESTResponse.StatusCode;
-end;
-
 function TRequest.ExecuteAsync(ACompletionHandler: TProc; ASynchronized, AFreeThread: Boolean;
   ACompletionHandlerWithError: TProc<TObject>): TRESTExecutionThread;
 begin
   Result := FRESTRequest.ExecuteAsync(ACompletionHandler, ASynchronized, AFreeThread, ACompletionHandlerWithError);
 end;
 
-function TRequest.Get: IRequestResponse;
+function TRequest.Get: IResponse;
 begin
   Result := FResponse;
-  Self.Method(TRESTRequestMethod.rmGET);
-  Self.Execute;
+  FRESTRequest.Method := TRESTRequestMethod.rmGET;
+  FRESTRequest.Execute;
 end;
 
 function TRequest.Accept: string;
@@ -252,11 +316,6 @@ begin
   Result := FRESTRequest.GetFullRequestURL(AIncludeParams);
 end;
 
-function TRequest.Method: TRESTRequestMethod;
-begin
-  Result := FRESTRequest.Method;
-end;
-
 function TRequest.RaiseExceptionOn500: Boolean;
 begin
   Result := FRESTClient.RaiseExceptionOn500;
@@ -282,23 +341,18 @@ begin
   Result := TRequest.Create;
 end;
 
-function TRequest.Params: IRequestParams;
-begin
-  Result := FParams;
-end;
-
-function TRequest.Post: IRequestResponse;
+function TRequest.Post: IResponse;
 begin
   Result := FResponse;
-  Self.Method(TRESTRequestMethod.rmPOST);
-  Self.Execute;
+  FRESTRequest.Method := TRESTRequestMethod.rmPOST;
+  FRESTRequest.Execute;
 end;
 
-function TRequest.Put: IRequestResponse;
+function TRequest.Put: IResponse;
 begin
   Result := FResponse;
-  Self.Method(TRESTRequestMethod.rmPUT);
-  Self.Execute;
+  FRESTRequest.Method := TRESTRequestMethod.rmPUT;
+  FRESTRequest.Execute;
 end;
 
 function TRequest.Accept(const AAccept: string): IRequest;
@@ -342,14 +396,6 @@ begin
   FDataSetAdapter := ADataSet;
 end;
 
-function TRequest.Method(const AMethod: TRESTRequestMethod): IRequest;
-begin
-  Result := Self;
-  FRESTRequest.Method := AMethod;
-  if AMethod = TRESTRequestMethod.rmGET then
-    Self.FBody.Clear;
-end;
-
 function TRequest.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
 begin
   Result := Self;
@@ -377,7 +423,7 @@ end;
 function TRequest.Token(const AToken: string): IRequest;
 begin
   Result := Self;
-  FHeaders.Add('Authorization', AToken, [poDoNotEncode]);
+  Self.AddHeader('Authorization', AToken, [poDoNotEncode]);
 end;
 
 end.

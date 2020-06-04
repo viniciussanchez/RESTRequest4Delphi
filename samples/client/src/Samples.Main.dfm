@@ -5094,21 +5094,20 @@ object FrmMain: TFrmMain
           Left = 976
           Top = 2
           Width = 3
-          Height = 20
+          Height = 15
           Margins.Left = 5
           Margins.Top = 2
           Margins.Right = 5
           Margins.Bottom = 0
           Align = alRight
           Alignment = taRightJustify
-          ExplicitHeight = 15
         end
         object Label3: TLabel
           AlignWithMargins = True
           Left = 903
           Top = 2
           Width = 68
-          Height = 20
+          Height = 15
           Margins.Left = 0
           Margins.Top = 2
           Margins.Right = 0
@@ -5116,8 +5115,6 @@ object FrmMain: TFrmMain
           Align = alRight
           Alignment = taRightJustify
           Caption = 'Status code:'
-          ExplicitLeft = 848
-          ExplicitHeight = 15
         end
       end
       object PageControl2: TPageControl
@@ -5137,6 +5134,10 @@ object FrmMain: TFrmMain
         object TabSheet6: TTabSheet
           Caption = 'Body'
           ImageIndex = 1
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object mmBody: TMemo
             Left = 0
             Top = 0
@@ -5196,7 +5197,10 @@ object FrmMain: TFrmMain
         TabOrder = 1
         object TabSheet1: TTabSheet
           Caption = 'Request'
+          ExplicitLeft = 0
           ExplicitTop = 24
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           DesignSize = (
             976
             157)
