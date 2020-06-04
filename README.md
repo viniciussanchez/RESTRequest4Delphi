@@ -1,184 +1,111 @@
-# REST Request for Delphi
+<p align="center">
+  <a href="https://github.com/viniciussanchez/RESTRequest4Delphi/blob/master/img/logo.png">
+    <img alt="Horse" height="150" src="https://github.com/viniciussanchez/RESTRequest4Delphi/blob/master/img/logo.png">
+  </a>  
+</p><br>
+<p align="center">
+  <b>RESTRequest4Delphi</b> is a API to consume <a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> services written in <b>any</b> programming language.<br>Designed to facilitate development, in a <b>simple</b> and <b>minimalist</b> way.
  
-RESTRequest4Delphi is a REST request facilitator made for applications built in Delphi. With it, we eliminate the TRESTClient components: TRESTResponse, THTTPBasicAuthenticator and TRESTRequest. For ease of use, RESTRequest4Delphi uses the Fluent Interface / Fluent API (how to name methods to be used with the impression that you are writing a text).
+</p><br>
+<p align="center">
+  <img src="https://img.shields.io/github/v/release/viniciussanchez/RESTRequest4Delphi?style=flat-square">
+  <img src="https://img.shields.io/github/stars/viniciussanchez/RESTRequest4Delphi?style=flat-square">
+</p>
  
 ## Prerequisites
  * [**dataset-serialize**](https://github.com/viniciussanchez/dataset-serialize) - This is a DataSet serializer for Delphi
- * `[Optional]` For ease I recommend using the Boss for installation
-   * [**Boss**](https://github.com/HashLoad/boss) - Dependency Manager for Delphi
  
-## Installation using Boss (dependency manager for Delphi applications)
+## ⚙️ Installation 
+Installation using Boss (dependency manager for Delphi applications):
 ```
 boss install github.com/viniciussanchez/RESTRequest4Delphi
 ```
+#### Manual installation
 
-## Manual Installation
 Add the following folders to your project, in *Project > Options > Resource Compiler > Directories and Conditionals > Include file search path*
 ```
 ../RESTRequest4Delphi/src/core
 ../RESTRequest4Delphi/src/interfaces
 ```
 
-## Getting Started
-You need to use RESTRequest4D.Request.Intf and RESTRequest4D.Request
+## ⚡️ Quickstart
+
+You need to use RESTRequest4D.Request
+
 ```pascal
 uses RESTRequest4D.Request;
 ```
 
-#### Method
-
-Use `Request.GetMethod` method to get the method set. `rmGET` is default parameter.
+* **GET**
 
 ```pascal
 begin
-  Request.SetMethod(rmGET); // Use REST.Types
+  TRequest.New.BaseURL('http://localhost:8888/users')
+    .Accept('application/json')
+    .Get;
 end;
 ``` 
 
-#### URL
-
-You can set the URL in several ways. Use the one that suits you.
+* **GET AS DATASET**
 
 ```pascal
 begin
-  Request.SetBaseURL('http://localhost:8080/datasnap/rest/servermethods/method');
-  Request.SetBaseURL('http://localhost:8080/datasnap/rest').SetResource('servermethods/method');
-  Request.SetBaseURL('http://localhost:8080/datasnap/rest').SetResource('servermethods').SetResourceSuffix('method');
+  TRequest.New.BaseURL('http://localhost:8888/users')
+    .Accept('application/json')
+    .DataSetAdapter(FDMemTable)
+    .Get;
 end;
 ``` 
 
-To get the values set use:
+* **POST**
 
 ```pascal
 begin
-  Request.GetBaseURL;
-  Request.GetResource;
-  Request.GetResourceSuffix;
-  Request.GetFullRequestURL(True);
+  TRequest.New.BaseURL('http://localhost:8888/users')
+    .Accept('application/json')
+    .AddBody('{"name":"Vinicius","lastName":"Sanchez","email":"viniciuss.sanchez@gmail.com"}')
+    .Post;
 end;
 ```
 
-In the `GetFullRequestURL` method the parameter indicates whether to add the parameters. Default is `True`.
-
-#### Body
-
-You can assign the request body with different types of parameters (strings, JSON and objects). To clear the body of a request, simply use `Request.ClearBody`. The second parameter indicates who is responsible for destroying the object. Default is `True`. See the samples:
+* **PUT**
 
 ```pascal
 begin
-  Request.AddBody('Any thing');  
-  Request.AddBody(TJSONObject.Create);  
-  Request.AddBody(TObject.Create);  
+  TRequest.New.BaseURL('http://localhost:8888/users/1')
+    .Accept('application/json')
+    .AddBody('{"name":"Vinicius","lastName":"Scandelai Sanchez","email":"viniciuss.sanchez@gmail.com"}')
+    .Put;
 end;
-```
+``` 
 
-#### DataSet Adapter
-
-You can add a dataset to adapter. The contents of the request will be loaded into the dataset. We recommend using TFDMemTable.
+* **DELETE**
 
 ```pascal
 begin
-  Request.SetDataSetAdapter(FDMemTable);
+  TRequest.New.BaseURL('http://localhost:8888/users/1')
+    .Accept('application/json')
+    .Delete;
 end;
 ```
 
-You can get the dataset as follows:
+## Authentication
 
-```pascal
-var
-  LMemTable: TFDMemTable;
-begin
-  LMemTable := Request.GetDataSetAdapter as TFDMemTable;
-end;
-```
-
-#### Headers
-
-You can add headers. To clear the headers, use the `Request.ClearHeaders`. When you add a headers with the same name, its value changes. See the samples:
-
-```pascal
-begin
-  Request.AddHeader('Accept-Encoding', 'gzip');
-end;
-```
-
-#### Parameters
-
-You can add parameters. To clear the parameters, use the `Request.Params.Clear`. When you add a parameter with the same name, its value changes. See the samples:
-
-```pascal
-begin
-  Request.Params.Add('country', 'Brazil');
-end;
-```
-
-#### Basic Authentication
-
-You can add a basic authentication to the request.
+You can set credentials using the `BasicAuthentication` or `Token` method before making the first request:
 
 ```pascal
 begin
   Request.BasicAuthentication('username', 'password');
-end;
-```
-
-#### JWT - JSON Web Tokens
-
-Here's an example of how to add the token generated by JWT in your request. To generate the JWT token, see the [**delphi-jose-jwt**](https://github.com/paolo-rossi/delphi-jose-jwt) repository
-
-```pascal
-begin
-  Request.AddHeader('Authorization', 'JWT Token', [poDoNotEncode]);
-end;
-```
-
-#### Execute
-
-The Execute method will return the Status code. See more in [**HTTP Status Codes**](https://httpstatuses.com/)
-
-```pascal
-begin
-  Request.Execute;
   // or
-  Request.Get;
-  Request.Post;
-  Request.Put;
-  Request.Delete;
+  Request.Token('bearer token');
 end;
 ```
-
-#### Execute asynchronous
-
-Executes a request asynchronously, i.e. run it in its own thread. There is no automatic serialization o property access though, which means that while the execution thread runs, properties of all involved TCustomRESTClient and TCustomRESTRequest instances should not be touched from other threads (including the main thread) 
-
-Using ExecuteAsync is strongly recommended on mobile platforms. iOS (and likely Android) willterminate an application if it considers the main thread to be unresponsive, which would be the case if there is a running request which takes more than a second or two to return. 
-
-The idea behind this is that the UI runs in the main thread and mobile devices should respond to user interaction basically immediately. Sluggish behaviour (caused by blocking the main thread) is considered unacceptable on these small devices.
-
-You can pass parameter:
- * `ACompletionHandler`: An anonymous method that will be run after the execution completed.
- * `ASynchronized`: Specifies if ACompletioHandler will be run in the main thread's (True) or execution thread's (False) context.
- * `AFreeThread`: If True, then the execution thread will be freed after it completed.
- * `ACompletionHandlerWithError`: An anonymous method that will be run if an exception is raised during execution.
-
-```pascal
-type
-  TMyCompletionHandlerWithError = TProc<TObject>;
-
-implementation
-
-var
-  LMyCompletionHandlerWithError: TMyCompletionHandlerWithError;
-begin
-  LMyCompletionHandlerWithError := procedure(AObject: TObject)
-    begin
-      if Assigned(AObject) and (AObject is Exception) then
-        raise Exception(AObject); // or whatever you want!
-    end;
-  Request.ExecuteAsync(nil, True, True, LMyCompletionHandlerWithError);
-end;
-```
+You can set it once and it will be used for every request.
 
 ## Samples
 
-![RESTRequest4D](samples/img/Screenshot_1.png)
+![samples](https://github.com/viniciussanchez/RESTRequest4Delphi/blob/master/samples/client/img/client.png)
+
+## ⚠️ License
+
+`RESTRequest4Delphi` is free and open-source software licensed under the [MIT License](https://github.com/viniciussanchez/RESTRequest4Delphi/blob/master/LICENSE). 
