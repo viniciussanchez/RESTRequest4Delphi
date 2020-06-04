@@ -62,7 +62,6 @@ type
       function AddFile(const AName: string; const AValue: TStream): IRequest;
     {$ENDIF}
     function AddText(const AName: string; const AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequest;
-    function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True; ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   public
     constructor Create;
     class function New: IRequest;
@@ -271,12 +270,6 @@ procedure TRequest.DoJoinComponents;
 begin
   FRESTRequest.Client := FRESTClient;
   FRESTRequest.Response := FRESTResponse;
-end;
-
-function TRequest.ExecuteAsync(ACompletionHandler: TProc; ASynchronized, AFreeThread: Boolean;
-  ACompletionHandlerWithError: TProc<TObject>): TRESTExecutionThread;
-begin
-  Result := FRESTRequest.ExecuteAsync(ACompletionHandler, ASynchronized, AFreeThread, ACompletionHandlerWithError);
 end;
 
 function TRequest.Get: IResponse;

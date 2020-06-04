@@ -47,7 +47,6 @@ type
       function AddFile(const AName: string; const AValue: TStream): IRequest;
     {$ENDIF}
     function AddText(const AName: string; const AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequest;
-    function ExecuteAsync(ACompletionHandler: TProc = nil; ASynchronized: Boolean = True; AFreeThread: Boolean = True; ACompletionHandlerWithError: TProc<TObject> = nil): TRESTExecutionThread;
   end;
 
 implementation
