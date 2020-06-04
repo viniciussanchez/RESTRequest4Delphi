@@ -12,20 +12,21 @@
   <img src="https://img.shields.io/github/stars/viniciussanchez/RESTRequest4Delphi?style=flat-square">
 </p>
  
-## Prerequisites
- * [**dataset-serialize**](https://github.com/viniciussanchez/dataset-serialize) - This is a DataSet serializer for Delphi
- 
 ## ⚙️ Installation 
-Installation using Boss (dependency manager for Delphi applications):
-```
-boss install github.com/viniciussanchez/RESTRequest4Delphi
-```
-#### Manual installation
 
-Add the following folders to your project, in *Project > Options > Resource Compiler > Directories and Conditionals > Include file search path*
+*Prerequisites*: [**DataSet-Serialize**](https://github.com/viniciussanchez/dataset-serialize) - This is a DataSet serializer for Delphi
+
+* **Manual installation**: Add the following folders to your project, in *Project > Options > Resource Compiler > Directories and Conditionals > Include file search path*
+
 ```
 ../RESTRequest4Delphi/src/core
 ../RESTRequest4Delphi/src/interfaces
+```
+
+* Installation using the [**Boss**](https://github.com/HashLoad/boss):
+
+```
+boss install github.com/viniciussanchez/RESTRequest4Delphi
 ```
 
 ## ⚡️ Quickstart
@@ -89,22 +90,38 @@ begin
 end;
 ```
 
-## Authentication
+## 🔒 Authentication
 
 You can set credentials using the `BasicAuthentication` or `Token` method before making the first request:
 
 ```pascal
 begin
   Request.BasicAuthentication('username', 'password');
-  // or
   Request.Token('bearer token');
 end;
 ```
 You can set it once and it will be used for every request.
 
-## Samples
+## 📝 Samples
 
-![samples](https://github.com/viniciussanchez/RESTRequest4Delphi/blob/master/samples/client/img/client.png)
+Two projects were developed within the examples folder:
+
+* **client**: Windows VCL application consuming a REST API developed in Node.js
+
+To run the project, you need to install its dependencies ([**DataSet-Serialize**](https://github.com/viniciussanchez/dataset-serialize)). To install using [**Boss**](https://github.com/HashLoad/boss), open a terminal and type:
+
+```
+boss install
+```
+If you prefer, you can manually download the `DataSet-Serialize` and add it to `Search Path`.
+
+* **server-node**: REST server developed with [**Node.js**](https://nodejs.org/en/) and [**Express**](https://expressjs.com/). 
+
+To run the server you will need [**Node.js**](https://nodejs.org/en/) and [**NPM**](https://www.npmjs.com/). With everything installed, open a terminal, install the dependencies and run the server:
+```
+npm install
+node server.js
+```
 
 ## ⚠️ License
 
