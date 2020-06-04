@@ -26,8 +26,7 @@ app.post('/users', (req, resp) => {
     if (req.body) {
         let user = req.body;
         user.id = parseInt(Math.random() * 10000);
-
-        users.push({ id: user.id, nome: user.nome, sobrenome: user.sobrenome, email: user.email });
+        users.push({ id: user.id, name: user.name, lastName: user.lastName, email: user.email });
         resp.status(201).send(user);
         return;
     }
@@ -41,16 +40,13 @@ app.put('/users/:id', (req, resp) => {
         if (index !== -1 && req.body) {
             let user = req.body;
             let userStored = users[index];
-
             userStored = {
                 id: userStored.id,
-                nome: user.nome ? user.nome : userStored.nome,
-                sobrenome: user.sobrenome ? user.sobrenome : userStored.sobrenome,
+                name: user.name ? user.name : userStored.name,
+                lastName: user.lastName ? user.lastName : userStored.lastName,
                 email: user.email ? user.email : userStored.email
             };
-
             users[index] = userStored;
-
             resp.status(200).send(userStored);
             return;
         }

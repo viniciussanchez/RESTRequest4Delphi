@@ -26,7 +26,7 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function Add(const AContent: string; const AContentType: TRESTContentType = ctNone): IRequestBody; overload;
+    function Add(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequestBody; overload;
     /// <summary>
     ///   Adds content to the body of the request.
     /// </summary>

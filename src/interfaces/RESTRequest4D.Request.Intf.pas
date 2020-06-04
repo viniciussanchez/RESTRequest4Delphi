@@ -309,7 +309,7 @@ type
     /// <returns>
     ///   Returns the instance itself following the fluent API pattern.
     /// </returns>
-    function AddBody(const AContent: string; const AContentType: TRESTContentType = ctNone): IRequest; overload;
+    function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
     /// <summary>
     ///   Adds content to the body of the request.
     /// </summary>
