@@ -31,6 +31,7 @@ type
     function Post: IResponse;
     function Put: IResponse;
     function Delete: IResponse;
+    function Patch: IResponse;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;

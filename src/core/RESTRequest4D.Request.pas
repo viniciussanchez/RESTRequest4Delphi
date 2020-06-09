@@ -47,6 +47,7 @@ type
     function Post: IResponse;
     function Put: IResponse;
     function Delete: IResponse;
+    function Patch: IResponse;
     function ClearBody: IRequest;
     function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
@@ -332,6 +333,13 @@ end;
 class function TRequest.New: IRequest;
 begin
   Result := TRequest.Create;
+end;
+
+function TRequest.Patch: IResponse;
+begin
+  Result := FResponse;
+  FRESTRequest.Method := TRESTRequestMethod.rmPATCH;
+  FRESTRequest.Execute;
 end;
 
 function TRequest.Post: IResponse;
