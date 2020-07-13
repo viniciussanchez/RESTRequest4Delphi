@@ -2,7 +2,7 @@ unit RESTRequest4D.Response;
 
 interface
 
-uses RESTRequest4D.Response.Intf, REST.Client, System.SysUtils, System.JSON,System.Classes;
+uses RESTRequest4D.Response.Intf, REST.Client, System.SysUtils, System.JSON, System.Classes;
 
 type
   TResponse = class(TInterfacedObject, IResponse)
@@ -15,7 +15,7 @@ type
     function StatusCode: Integer;
     function RawBytes: TBytes;
     function JSONValue: TJSONValue;
-    function Headers :TStrings;
+    function Headers: TStrings;
   public
     constructor Create(const ARESTResponse: TRESTResponse);
   end;
@@ -35,7 +35,6 @@ end;
 function TResponse.Headers: TStrings;
 begin
   Result := FRESTResponse.Headers;
-   //Content;
 end;
 
 function TResponse.ContentEncoding: string;
