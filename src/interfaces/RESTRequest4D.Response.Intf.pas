@@ -14,7 +14,7 @@ type
     function StatusCode: Integer;
     function RawBytes: TBytes;
     function JSONValue: TJSONValue;
-    function Headers :TStrings;
+    function Headers: TStrings;
   end;
 
 implementation
