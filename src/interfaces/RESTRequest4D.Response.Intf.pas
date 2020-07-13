@@ -2,7 +2,7 @@ unit RESTRequest4D.Response.Intf;
 
 interface
 
-uses System.SysUtils, System.JSON;
+uses System.SysUtils, System.JSON,System.Classes;
 
 type
   IResponse = interface
@@ -14,6 +14,7 @@ type
     function StatusCode: Integer;
     function RawBytes: TBytes;
     function JSONValue: TJSONValue;
+    function Headers :TStrings;
   end;
 
 implementation
