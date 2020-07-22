@@ -56,6 +56,7 @@ type
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function ClearParams: IRequest;
+	function UserAgent(const AName: string): IRequest;
     {$IF COMPILERVERSION < 33}
       function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkGETorPOST): IRequest;
     {$ELSE}
@@ -221,6 +222,13 @@ begin
   Result := Self;
   for I := 0 to Pred(FParams.Count) do
     FRESTRequest.Params.Delete(FRESTRequest.Params.ParameterByName(FParams[I]));
+end;
+
+function TRequest.UserAgent(const AName: string): IRequest;
+begin
+  Result := Self;  
+  if not AName.Trim.IsEmpty then
+	FRESTRequest.Client.UserAgent := AName;
 end;
 
 constructor TRequest.Create;
