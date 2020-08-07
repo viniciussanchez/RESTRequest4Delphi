@@ -101,7 +101,11 @@ function TRequest.AddBody(const AContent: string; const AContentType: TRESTConte
 begin
   Result := Self;
   if not AContent.Trim.IsEmpty then
-    FRESTRequest.Body.Add(AContent, AContentType);
+    {$IF COMPILERVERSION <= 29}
+      FRESTRequest.AddBody(AContent, AContentType);
+    {$ELSE}
+      FRESTRequest.Body.Add(AContent, AContentType);
+    {$ENDIF}
 end;
 
 function TRequest.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
@@ -109,7 +113,11 @@ begin
   Result := Self;
   if Assigned(AContent) then
   begin
-    FRESTRequest.Body.Add(AContent);
+    {$IF COMPILERVERSION <= 29}
+      FRESTRequest.AddBody(AContent);
+    {$ELSE}
+      FRESTRequest.Body.Add(AContent);
+    {$ENDIF}
     if AOwns then
       AContent.Free;
   end;
@@ -131,13 +139,17 @@ begin
   Result := Self;
   if Assigned(AContent) then
   begin
-    FRESTRequest.Body.Add(AContent);
+    {$IF COMPILERVERSION <= 29}
+      FRESTRequest.AddBody(AContent);
+    {$ELSE}
+      FRESTRequest.Body.Add(AContent);
+    {$ENDIF}
     if AOwns then
       AContent.Free;
   end;
 end;
 
-{$IFNDEF VER320}
+{$IF COMPILERVERSION >= 33}
 function TRequest.AddFile(const AName: string; const AValue: TStream): IRequest;
 begin
   Result := Self;
