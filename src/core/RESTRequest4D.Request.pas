@@ -3,7 +3,8 @@ unit RESTRequest4D.Request;
 interface
 
 uses RESTRequest4D.Request.Intf, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
-  RESTRequest4D.Response.Intf, System.JSON, REST.Authenticator.Basic;
+  RESTRequest4D.Response.Intf, System.JSON, REST.Authenticator.Basic
+  {$if CompilerVersion <= 32.0} ,IPPeerClient {$endif};
 
 type
   IRequest = RESTRequest4D.Request.Intf.IRequest;
