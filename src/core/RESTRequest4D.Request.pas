@@ -42,6 +42,7 @@ type
     function RaiseExceptionOn500(const ARaiseException: Boolean): IRequest; overload;
     function RaiseExceptionOn500: Boolean; overload;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
+    function Cookies(const ACookies: TStrings): IRequest;
     function Token(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Get: IResponse;
@@ -446,6 +447,15 @@ function TRequest.Token(const AToken: string): IRequest;
 begin
   Result := Self;
   Self.AddHeader('Authorization', AToken, [poDoNotEncode]);
+end;
+
+function TRequest.Cookies(const ACookies: TStrings): IRequest;
+var
+  I: Integer;
+begin
+  Result := Self;
+  for I := 0 to Pred(ACookies.Count) do
+    Self.AddParam(ACookies.Names[I], ACookies.Values[ACookies.Names[I]], TRESTRequestParameterKind.pkCOOKIE);
 end;
 
 end.

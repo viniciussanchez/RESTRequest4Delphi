@@ -25,6 +25,7 @@ type
     function Resource: string; overload;
     function ResourceSuffix(const AResourceSuffix: string): IRequest; overload;
     function ResourceSuffix: string; overload;
+    function Cookies(const ACookies: TStrings): IRequest;
     function Token(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Get: IResponse;
