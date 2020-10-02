@@ -39,6 +39,7 @@ type
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
+    function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function ClearParams: IRequest;

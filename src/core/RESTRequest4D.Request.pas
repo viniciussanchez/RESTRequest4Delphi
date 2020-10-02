@@ -55,6 +55,7 @@ type
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
+    function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function ClearParams: IRequest;
@@ -456,6 +457,14 @@ begin
   Result := Self;
   for I := 0 to Pred(ACookies.Count) do
     Self.AddParam(ACookies.Names[I], ACookies.Values[ACookies.Names[I]], TRESTRequestParameterKind.pkCOOKIE);
+end;
+
+function TRequest.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
+begin
+  Result := Self;
+  FRESTRequest.Body.Add(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
+  if AOwns then
+    AContent.Free;
 end;
 
 end.
