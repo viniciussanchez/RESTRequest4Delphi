@@ -86,6 +86,7 @@
         <DCC_UnitSearchPath>..\..\modules\dataset-serialize\src\providers;..\..\modules\dataset-serialize\src\helpers;..\..\modules\dataset-serialize\src\core;..\..\modules\dataset-serialize\src\types;..\..\modules\dataset-serialize\src\singletons;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_Define>RR4D_INDY;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -105,10 +106,13 @@
             <Form>FrmMain</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\src\core\RESTRequest4D.Request.pas"/>
-        <DCCReference Include="..\..\src\interfaces\RESTRequest4D.Request.Intf.pas"/>
-        <DCCReference Include="..\..\src\interfaces\RESTRequest4D.Response.Intf.pas"/>
-        <DCCReference Include="..\..\src\core\RESTRequest4D.Response.pas"/>
+        <DCCReference Include="..\..\src\RESTRequest4D.Request.Contract.pas"/>
+        <DCCReference Include="..\..\src\RESTRequest4D.Request.Client.pas"/>
+        <DCCReference Include="..\..\src\RESTRequest4D.Response.Contract.pas"/>
+        <DCCReference Include="..\..\src\RESTRequest4D.Response.Client.pas"/>
+        <DCCReference Include="..\..\src\RESTRequest4D.Request.Indy.pas"/>
+        <DCCReference Include="..\..\src\RESTRequest4D.Response.Indy.pas"/>
+        <DCCReference Include="..\..\src\RESTRequest4D.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

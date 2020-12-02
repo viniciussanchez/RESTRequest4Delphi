@@ -1,4 +1,4 @@
-unit RESTRequest4D.Response.Intf;
+unit RESTRequest4D.Response.Contract;
 
 interface
 

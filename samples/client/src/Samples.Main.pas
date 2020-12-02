@@ -47,7 +47,7 @@ implementation
 
 {$R *.dfm}
 
-uses RESTRequest4D.Request, REST.Types;
+uses RESTRequest4D, REST.Types;
 
 procedure TFrmMain.btnDELETEClick(Sender: TObject);
 var
