@@ -34,7 +34,7 @@ boss install github.com/viniciussanchez/RESTRequest4Delphi
 You need to use RESTRequest4D.Request
 
 ```pascal
-uses RESTRequest4D.Request;
+uses RESTRequest4D;
 ```
 
 * **GET**
