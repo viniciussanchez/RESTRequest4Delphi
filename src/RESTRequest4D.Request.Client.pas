@@ -452,6 +452,8 @@ end;
 function TRequestClient.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
+  if not Assigned(AContent) then
+    Exit;
   {$IF COMPILERVERSION <= 29}
     FRESTRequest.AddBody(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
   {$ELSE}

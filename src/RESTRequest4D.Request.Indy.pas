@@ -67,7 +67,7 @@ type
 
 implementation
 
-uses System.SysUtils, RESTRequest4D.Response.Indy, REST.Json;
+uses System.SysUtils, RESTRequest4D.Response.Indy, REST.Json, IdURI;
 
 function TRequestIndy.RaiseExceptionOn500: Boolean;
 begin
@@ -94,37 +94,82 @@ begin
   raise Exception.Create('Not implemented');
 end;
 
-function TRequestIndy.Get: IResponse;
-begin
-  raise Exception.Create('Not implemented');
-end;
-
-function TRequestIndy.Patch: IResponse;
-begin
-  raise Exception.Create('Not implemented');
-end;
-
-function TRequestIndy.Post: IResponse;
-begin
-  raise Exception.Create('Not implemented');
-end;
-
-function TRequestIndy.Put: IResponse;
-begin
-  raise Exception.Create('Not implemented');
-end;
-
-function TRequestIndy.Delete: IResponse;
-begin
-  raise Exception.Create('Not implemented');
-end;
-
 {$IF COMPILERVERSION >= 33}
 function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
 begin
   raise Exception.Create('Not implemented');
 end;
 {$ENDIF}
+
+function TRequestIndy.Patch: IResponse;
+var
+  FStreamResult : TStringStream;
+begin
+  Result := FResponse;
+  FStreamResult := TStringStream.Create;
+  try
+    FIdHTTP.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+  finally
+    FStreamResult.Free;
+  end;
+end;
+
+function TRequestIndy.Put: IResponse;
+var
+  FStreamResult : TStringStream;
+begin
+  Result := FResponse;
+  FStreamResult := TStringStream.Create;
+  try
+    FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+  finally
+    FStreamResult.Free;
+  end;
+end;
+
+function TRequestIndy.Post: IResponse;
+var
+  FStreamResult : TStringStream;
+begin
+  Result := FResponse;
+  FStreamResult := TStringStream.Create;
+  try
+    FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+  finally
+    FStreamResult.Free;
+  end;
+end;
+
+function TRequestIndy.Get: IResponse;
+var
+  FStreamResult : TStringStream;
+begin
+  Result := FResponse;
+  FStreamResult := TStringStream.Create;
+  try
+    FIdHTTP.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
+    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+  finally
+    FStreamResult.Free;
+  end;
+end;
+
+function TRequestIndy.Delete: IResponse;
+var
+  FStreamResult : TStringStream;
+begin
+  Result := FResponse;
+  FStreamResult := TStringStream.Create;
+  try
+    FIdHTTP.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
+    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+  finally
+    FStreamResult.Free;
+  end;
+end;
 
 function TRequestIndy.AddBody(const AContent: string): IRequest;
 begin
