@@ -158,9 +158,9 @@ begin
   if Assigned(AContent) then
   begin
     {$IF COMPILERVERSION <= 29}
-    FRESTRequest.AddBody(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
+      FRESTRequest.AddBody(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
     {$ELSE}
-    FRESTRequest.Body.Add(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
+      FRESTRequest.Body.Add(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
     {$ENDIF}
     if AOwns then
       AContent.Free;
