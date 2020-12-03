@@ -3,8 +3,7 @@ unit RESTRequest4D.Request.Client;
 interface
 
 uses RESTRequest4D.Request.Contract, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
-  RESTRequest4D.Response.Contract, System.JSON, REST.Authenticator.Basic
-  {$if CompilerVersion <= 32.0} ,IPPeerClient {$endif};
+  RESTRequest4D.Response.Contract, System.JSON, REST.Authenticator.Basic {$if CompilerVersion <= 32.0} ,IPPeerClient {$endif};
 
 type
   TRequestClient = class(TInterfacedObject, IRequest)
@@ -19,7 +18,6 @@ type
     FRESTClient: TRESTClient;
     procedure DoJoinComponents;
     procedure DoAfterExecute(Sender: TCustomRESTRequest);
-    procedure ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean = True);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
     function AcceptCharset: string; overload;
@@ -70,30 +68,8 @@ type
 
 implementation
 
-uses DataSet.Serialize, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client, RESTRequest4D.Response.Client;
-
-procedure TRequestClient.ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean = True);
-var
-  LDataSet: TDataSet;
-  LDataSetDetails: TList<TDataSet>;
-begin
-  LDataSetDetails := TList<TDataSet>.Create;
-  try
-    if ADataSet is TFDMemTable then
-    begin
-      if not AActive then
-        TFDMemTable(ADataSet).Close;
-      TFDMemTable(ADataSet).CachedUpdates := AActive;
-      if AActive and (not TFDMemTable(ADataSet).Active) and (TFDMemTable(ADataSet).FieldCount > 0) then
-        TFDMemTable(ADataSet).Open;
-    end;
-    ADataSet.GetDetailDataSets(LDataSetDetails);
-    for LDataSet in LDataSetDetails do
-      ActiveCachedUpdates(LDataSet, AActive);
-  finally
-    LDataSetDetails.Free;
-  end;
-end;
+uses DataSet.Serialize, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client, RESTRequest4D.Response.Client,
+  RESTRequest4D.Utils;
 
 function TRequestClient.AddBody(const AContent: string): IRequest;
 begin
@@ -282,9 +258,9 @@ procedure TRequestClient.DoAfterExecute(Sender: TCustomRESTRequest);
 begin
   if not Assigned(FDataSetAdapter) then
     Exit;  
-  ActiveCachedUpdates(FDataSetAdapter, False);
+  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter, False);
   FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
-  ActiveCachedUpdates(FDataSetAdapter);
+  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
 end;
 
 procedure TRequestClient.DoJoinComponents;

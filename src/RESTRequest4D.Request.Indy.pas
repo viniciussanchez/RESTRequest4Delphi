@@ -2,10 +2,8 @@ unit RESTRequest4D.Request.Indy;
 
 interface
 
-uses
-  RESTRequest4D.Request.Contract, Data.DB, System.Classes,
-  RESTRequest4D.Response.Contract, System.JSON, REST.Types,
-  IdHTTP, IdSSLOpenSSL;
+uses RESTRequest4D.Request.Contract, Data.DB, System.Classes, RESTRequest4D.Response.Contract, System.JSON, REST.Types, IdHTTP,
+  IdSSLOpenSSL;
 
 type
   TRequestIndy = class(TInterfacedObject, IRequest)
@@ -64,6 +62,7 @@ type
     {$ENDIF}
     function AddText(const AName: string; const AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequest;
     function MakeURL(const AIncludeParams: Boolean = True): string;
+    procedure DoAfterExecute;
   public
     constructor Create;
     destructor Destroy; override;
@@ -71,7 +70,7 @@ type
 
 implementation
 
-uses System.SysUtils, RESTRequest4D.Response.Indy, REST.Json, IdURI;
+uses System.SysUtils, RESTRequest4D.Response.Indy, REST.Json, IdURI, DataSet.Serialize, RESTRequest4D.Utils;
 
 function TRequestIndy.RaiseExceptionOn500: Boolean;
 begin
@@ -105,6 +104,15 @@ begin
 end;
 {$ENDIF}
 
+procedure TRequestIndy.DoAfterExecute;
+begin
+  if not Assigned(FDataSetAdapter) then
+    Exit;
+  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter, False);
+  FDataSetAdapter.LoadFromJSON(FResponse.Content);
+  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
+end;
+
 function TRequestIndy.Patch: IResponse;
 var
   FStreamResult : TStringStream;
@@ -114,6 +122,7 @@ begin
   try
     FIdHTTP.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
     TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+    Self.DoAfterExecute;
   finally
     FStreamResult.Free;
   end;
@@ -128,6 +137,7 @@ begin
   try
     FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
     TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+    Self.DoAfterExecute;
   finally
     FStreamResult.Free;
   end;
@@ -142,6 +152,7 @@ begin
   try
     FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
     TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+    Self.DoAfterExecute;
   finally
     FStreamResult.Free;
   end;
@@ -156,6 +167,7 @@ begin
   try
     FIdHTTP.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
     TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+    Self.DoAfterExecute;
   finally
     FStreamResult.Free;
   end;
@@ -170,6 +182,7 @@ begin
   try
     FIdHTTP.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
     TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
+    Self.DoAfterExecute;
   finally
     FStreamResult.Free;
   end;
