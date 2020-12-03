@@ -152,6 +152,21 @@ begin
   end;
 end;
 
+function TRequest.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
+begin
+  Result := Self;
+  if Assigned(AContent) then
+  begin
+    {$IF COMPILERVERSION <= 29}
+    FRESTRequest.AddBody(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
+    {$ELSE}
+    FRESTRequest.Body.Add(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
+    {$ENDIF}
+    if AOwns then
+      AContent.Free;
+  end;
+end;
+
 {$IF COMPILERVERSION >= 33}
 function TRequest.AddFile(const AName: string; const AValue: TStream): IRequest;
 begin
@@ -457,14 +472,6 @@ begin
   Result := Self;
   for I := 0 to Pred(ACookies.Count) do
     Self.AddParam(ACookies.Names[I], ACookies.Values[ACookies.Names[I]], TRESTRequestParameterKind.pkCOOKIE);
-end;
-
-function TRequest.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
-begin
-  Result := Self;
-  FRESTRequest.Body.Add(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
-  if AOwns then
-    AContent.Free;
 end;
 
 end.
