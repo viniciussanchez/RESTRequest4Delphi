@@ -2,7 +2,10 @@ unit RESTRequest4D.Request.Indy;
 
 interface
 
-uses RESTRequest4D.Request.Contract, Data.DB, System.Classes, RESTRequest4D.Response.Contract, System.JSON, REST.Types, IdHTTP;
+uses
+  RESTRequest4D.Request.Contract, Data.DB, System.Classes,
+  RESTRequest4D.Response.Contract, System.JSON, REST.Types,
+  IdHTTP, IdSSLOpenSSL;
 
 type
   TRequestIndy = class(TInterfacedObject, IRequest)
@@ -10,6 +13,7 @@ type
     FHeaders: TStrings;
     FParams: TStrings;
     FIdHTTP: TIdHTTP;
+    FIdSSLIOHandlerSocketOpenSSL: TIdSSLIOHandlerSocketOpenSSL;
     FBaseURL: string;
     FResource: string;
     FResourceSuffix: string;
@@ -322,6 +326,10 @@ begin
   FIdHTTP.Request.UserAgent := 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36';
   FIdHTTP.HandleRedirects := True;
 
+  FIdSSLIOHandlerSocketOpenSSL := TIdSSLIOHandlerSocketOpenSSL.Create;
+  FIdHTTP.IOHandler := FIdSSLIOHandlerSocketOpenSSL;
+  FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions := [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
+
   FHeaders := TStringList.Create;
   FResponse := TResponseIndy.Create(FIdHTTP);
   FParams := TStringList.Create;
@@ -331,6 +339,7 @@ end;
 
 destructor TRequestIndy.Destroy;
 begin
+  FreeAndNil(FIdSSLIOHandlerSocketOpenSSL);
   FreeAndNil(FIdHTTP);
   if Assigned(FStreamSend) then
     FreeAndNil(FStreamSend);
