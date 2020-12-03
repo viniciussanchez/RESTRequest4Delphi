@@ -452,7 +452,11 @@ end;
 function TRequestClient.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
-  FRESTRequest.Body.Add(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
+  {$IF COMPILERVERSION <= 29}
+    FRESTRequest.AddBody(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
+  {$ELSE}
+    FRESTRequest.Body.Add(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
+  {$ENDIF}
   if AOwns then
     AContent.Free;
 end;
