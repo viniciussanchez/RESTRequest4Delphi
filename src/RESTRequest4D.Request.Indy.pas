@@ -69,20 +69,23 @@ implementation
 
 uses System.SysUtils, RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, RESTRequest4D.Utils, IdCookieManager, REST.Json;
 
+function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
+begin
+  raise Exception.Create('Not implemented');
+end;
+
 function TRequestIndy.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
   try
-    raise Exception.Create('Not implemented');
+    if not Assigned(FStreamSend) then
+      FStreamSend := TStringStream.Create;
+    TStringStream(FStreamSend).CopyFrom(AContent, AContent.Size);
+    FStreamSend.Position := 0;
   finally
     if AOwns then
       AContent.Free;
   end;
-end;
-
-function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
-begin
-  raise Exception.Create('Not implemented');
 end;
 
 function TRequestIndy.AddCookies(const ACookies: TStrings): IRequest;
