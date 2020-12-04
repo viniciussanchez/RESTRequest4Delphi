@@ -7,7 +7,7 @@ uses RESTRequest4D.Response.Contract, System.SysUtils, System.JSON, System.Class
 type
   TResponseIndy = class(TInterfacedObject, IResponse)
   private
-    FContent: string;
+    FContent: TStringStream;
     FIdHTTP: TIdHTTP;
     function Content: string;
     function ContentLength: Cardinal;
@@ -18,7 +18,7 @@ type
     function JSONValue: TJSONValue;
     function Headers: TStrings;
   public
-    procedure SetContent(const AContent: string);
+    procedure SetContent(const AContent: TStringStream);
     constructor Create(const AIdHTTP: TIdHTTP);
   end;
 
@@ -31,12 +31,12 @@ end;
 
 function TResponseIndy.RawBytes: TBytes;
 begin
-  raise Exception.Create('Not implemented');
+  Result := FContent.Bytes;
 end;
 
 function TResponseIndy.Content: string;
 begin
-  Result := FContent;
+  Result := FContent.DataString;
 end;
 
 function TResponseIndy.Headers: TStrings;
@@ -70,7 +70,7 @@ begin
   FIdHTTP := AIdHTTP;
 end;
 
-procedure TResponseIndy.SetContent(const AContent: string);
+procedure TResponseIndy.SetContent(const AContent: TStringStream);
 begin
   FContent := AContent;
 end;

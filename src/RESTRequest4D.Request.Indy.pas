@@ -18,6 +18,7 @@ type
     FDataSetAdapter: TDataSet;
     FResponse: IResponse;
     FStreamSend: TStringStream;
+    FStreamResult: TStringStream;
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
     function AcceptCharset: string; overload;
@@ -70,24 +71,9 @@ type
 
 implementation
 
-uses System.SysUtils, RESTRequest4D.Response.Indy, REST.Json, IdURI, DataSet.Serialize, RESTRequest4D.Utils;
-
-function TRequestIndy.RaiseExceptionOn500: Boolean;
-begin
-  raise Exception.Create('Not implemented');
-end;
-
-function TRequestIndy.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
-begin
-  raise Exception.Create('Not implemented');
-end;
+uses System.SysUtils, RESTRequest4D.Response.Indy, REST.Json, IdURI, DataSet.Serialize, RESTRequest4D.Utils, IdCookieManager;
 
 function TRequestIndy.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
-begin
-  raise Exception.Create('Not implemented');
-end;
-
-function TRequestIndy.AddCookies(const ACookies: TStrings): IRequest;
 begin
   raise Exception.Create('Not implemented');
 end;
@@ -104,6 +90,36 @@ begin
 end;
 {$ENDIF}
 
+function TRequestIndy.AddCookies(const ACookies: TStrings): IRequest;
+var
+  LURI: TIdURI;
+begin
+  Result := Self;
+  LURI := TIdURI.Create(MakeURL(False));
+  try
+    if not Assigned(FIdHTTP.CookieManager) then
+      FIdHTTP.CookieManager := TIdCookieManager.Create(FIdHTTP);
+    FIdHTTP.CookieManager.AddServerCookies(ACookies, LURI);
+  finally
+    ACookies.Free;
+    LURI.Free;
+  end;
+end;
+
+function TRequestIndy.RaiseExceptionOn500: Boolean;
+begin
+  Result := not (hoNoProtocolErrorException in FIdHTTP.HTTPOptions);
+end;
+
+function TRequestIndy.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
+begin
+  Result := Self;
+  if ARaiseException then
+    FIdHTTP.HTTPOptions := FIdHTTP.HTTPOptions - [hoNoProtocolErrorException]
+  else
+    FIdHTTP.HTTPOptions := FIdHTTP.HTTPOptions + [hoNoProtocolErrorException];
+end;
+
 procedure TRequestIndy.DoAfterExecute;
 begin
   if not Assigned(FDataSetAdapter) then
@@ -114,78 +130,38 @@ begin
 end;
 
 function TRequestIndy.Patch: IResponse;
-var
-  FStreamResult : TStringStream;
 begin
   Result := FResponse;
-  FStreamResult := TStringStream.Create;
-  try
-    FIdHTTP.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
-    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
-    Self.DoAfterExecute;
-  finally
-    FStreamResult.Free;
-  end;
+  FIdHTTP.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+  Self.DoAfterExecute;
 end;
 
 function TRequestIndy.Put: IResponse;
-var
-  FStreamResult : TStringStream;
 begin
   Result := FResponse;
-  FStreamResult := TStringStream.Create;
-  try
-    FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
-    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
-    Self.DoAfterExecute;
-  finally
-    FStreamResult.Free;
-  end;
+  FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+  Self.DoAfterExecute;
 end;
 
 function TRequestIndy.Post: IResponse;
-var
-  FStreamResult : TStringStream;
 begin
   Result := FResponse;
-  FStreamResult := TStringStream.Create;
-  try
-    FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
-    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
-    Self.DoAfterExecute;
-  finally
-    FStreamResult.Free;
-  end;
+  FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+  Self.DoAfterExecute;
 end;
 
 function TRequestIndy.Get: IResponse;
-var
-  FStreamResult : TStringStream;
 begin
   Result := FResponse;
-  FStreamResult := TStringStream.Create;
-  try
-    FIdHTTP.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
-    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
-    Self.DoAfterExecute;
-  finally
-    FStreamResult.Free;
-  end;
+  FIdHTTP.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
+  Self.DoAfterExecute;
 end;
 
 function TRequestIndy.Delete: IResponse;
-var
-  FStreamResult : TStringStream;
 begin
   Result := FResponse;
-  FStreamResult := TStringStream.Create;
-  try
-    FIdHTTP.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
-    TResponseIndy(FResponse).SetContent(FStreamResult.DataString);
-    Self.DoAfterExecute;
-  finally
-    FStreamResult.Free;
-  end;
+  FIdHTTP.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
+  Self.DoAfterExecute;
 end;
 
 function TRequestIndy.AddBody(const AContent: string): IRequest;
@@ -392,6 +368,9 @@ begin
   FResponse := TResponseIndy.Create(FIdHTTP);
   FParams := TStringList.Create;
 
+  FStreamResult := TStringStream.Create;
+  TResponseIndy(FResponse).SetContent(FStreamResult);
+
   Self.ContentType('application/json');
 end;
 
@@ -403,6 +382,7 @@ begin
     FreeAndNil(FStreamSend);
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
+  FreeAndNil(FStreamResult);
   inherited;
 end;
 

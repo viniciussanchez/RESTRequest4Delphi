@@ -23,7 +23,6 @@ object FrmMain: TFrmMain
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 861
     object Image1: TImage
       AlignWithMargins = True
       Left = 10
@@ -5047,8 +5046,6 @@ object FrmMain: TFrmMain
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 861
-    ExplicitHeight = 334
     object Splitter1: TSplitter
       Left = 0
       Top = 209
@@ -5068,7 +5065,6 @@ object FrmMain: TFrmMain
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 215
       object Panel6: TPanel
         Left = 0
         Top = 0
@@ -5087,27 +5083,26 @@ object FrmMain: TFrmMain
         ParentBackground = False
         ParentFont = False
         TabOrder = 0
-        ExplicitTop = 8
-        ExplicitWidth = 861
         object lblStatusCode: TLabel
           AlignWithMargins = True
           Left = 976
           Top = 2
           Width = 3
-          Height = 15
+          Height = 20
           Margins.Left = 5
           Margins.Top = 2
           Margins.Right = 5
           Margins.Bottom = 0
           Align = alRight
           Alignment = taRightJustify
+          ExplicitHeight = 15
         end
         object Label3: TLabel
           AlignWithMargins = True
           Left = 903
           Top = 2
           Width = 68
-          Height = 15
+          Height = 20
           Margins.Left = 0
           Margins.Top = 2
           Margins.Right = 0
@@ -5115,6 +5110,7 @@ object FrmMain: TFrmMain
           Align = alRight
           Alignment = taRightJustify
           Caption = 'Status code:'
+          ExplicitHeight = 15
         end
       end
       object PageControl2: TPageControl
@@ -5134,10 +5130,6 @@ object FrmMain: TFrmMain
         object TabSheet6: TTabSheet
           Caption = 'Body'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object mmBody: TMemo
             Left = 0
             Top = 0
@@ -5145,10 +5137,6 @@ object FrmMain: TFrmMain
             Height = 214
             Align = alClient
             TabOrder = 0
-            ExplicitLeft = 400
-            ExplicitTop = 64
-            ExplicitWidth = 185
-            ExplicitHeight = 89
           end
         end
       end
@@ -5179,7 +5167,6 @@ object FrmMain: TFrmMain
         ParentBackground = False
         ParentFont = False
         TabOrder = 0
-        ExplicitWidth = 861
       end
       object PageControl1: TPageControl
         Left = 0
@@ -5197,10 +5184,6 @@ object FrmMain: TFrmMain
         TabOrder = 1
         object TabSheet1: TTabSheet
           Caption = 'Request'
-          ExplicitLeft = 0
-          ExplicitTop = 24
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           DesignSize = (
             976
             157)
