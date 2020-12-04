@@ -7,6 +7,7 @@ uses RESTRequest4D.Response.Contract, System.SysUtils, System.JSON, System.Class
 type
   TResponseIndy = class(TInterfacedObject, IResponse)
   private
+    FJSONValue: TJSONValue;
     FContent: TStringStream;
     FIdHTTP: TIdHTTP;
     function Content: string;
@@ -20,13 +21,26 @@ type
   public
     procedure SetContent(const AContent: TStringStream);
     constructor Create(const AIdHTTP: TIdHTTP);
+    destructor Destroy; override;
   end;
 
 implementation
 
 function TResponseIndy.JSONValue: TJSONValue;
+var
+  LContent: string;
 begin
-  raise Exception.Create('Not implemented');
+  if not(Assigned(FJSONValue)) then
+  begin
+    LContent := FContent.DataString.Trim;
+    if LContent.StartsWith('{') then
+      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
+    else if LContent.StartsWith('[') then
+      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
+    else
+      raise Exception.Create('The return content is not a valid JSON value.');
+  end;
+  Result := FJSONValue;
 end;
 
 function TResponseIndy.RawBytes: TBytes;
@@ -68,6 +82,13 @@ end;
 constructor TResponseIndy.Create(const AIdHTTP: TIdHTTP);
 begin
   FIdHTTP := AIdHTTP;
+end;
+
+destructor TResponseIndy.Destroy;
+begin
+  if Assigned(FJSONValue) then
+    FJSONValue.Free;
+  inherited;
 end;
 
 procedure TResponseIndy.SetContent(const AContent: TStringStream);
