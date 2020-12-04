@@ -2,7 +2,7 @@ unit RESTRequest4D.Request.Contract;
 
 interface
 
-uses Data.DB, System.SysUtils, RESTRequest4D.Response.Contract, System.JSON, System.Classes, REST.Types;
+uses System.SysUtils, System.JSON, System.Classes, RESTRequest4D.Response.Contract, Data.DB;
 
 type
   IRequest = interface
@@ -46,10 +46,7 @@ type
     function ContentType(const AContentType: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
-    {$IF COMPILERVERSION >= 33}
-      function AddFile(const AName: string; const AValue: TStream): IRequest;
-    {$ENDIF}
-    function AddText(const AName: string; const AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequest;
+    function AddFile(const AName: string; const AValue: TStream): IRequest;
   end;
 
 implementation

@@ -2,8 +2,7 @@ unit RESTRequest4D.Request.Indy;
 
 interface
 
-uses RESTRequest4D.Request.Contract, Data.DB, System.Classes, RESTRequest4D.Response.Contract, System.JSON, REST.Types, IdHTTP,
-  IdSSLOpenSSL;
+uses RESTRequest4D.Request.Contract, Data.DB, System.Classes, RESTRequest4D.Response.Contract, System.JSON, IdHTTP, IdSSLOpenSSL;
 
 type
   TRequestIndy = class(TInterfacedObject, IRequest)
@@ -58,10 +57,7 @@ type
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
-    {$IF COMPILERVERSION >= 33}
-      function AddFile(const AName: string; const AValue: TStream): IRequest;
-    {$ENDIF}
-    function AddText(const AName: string; const AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequest;
+    function AddFile(const AName: string; const AValue: TStream): IRequest;
     function MakeURL(const AIncludeParams: Boolean = True): string;
     procedure DoAfterExecute;
   public
@@ -71,24 +67,17 @@ type
 
 implementation
 
-uses System.SysUtils, RESTRequest4D.Response.Indy, REST.Json, IdURI, DataSet.Serialize, RESTRequest4D.Utils, IdCookieManager;
+uses System.SysUtils, RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, RESTRequest4D.Utils, IdCookieManager, REST.Json;
 
 function TRequestIndy.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
 begin
   raise Exception.Create('Not implemented');
 end;
 
-function TRequestIndy.AddText(const AName, AValue: string; const AContentType: TRESTContentType): IRequest;
-begin
-  raise Exception.Create('Not implemented');
-end;
-
-{$IF COMPILERVERSION >= 33}
 function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
 begin
   raise Exception.Create('Not implemented');
 end;
-{$ENDIF}
 
 function TRequestIndy.AddCookies(const ACookies: TStrings): IRequest;
 var

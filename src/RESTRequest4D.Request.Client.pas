@@ -57,10 +57,7 @@ type
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
-    {$IF COMPILERVERSION >= 33}
-      function AddFile(const AName: string; const AValue: TStream): IRequest;
-    {$ENDIF}
-    function AddText(const AName: string; const AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequest;
+    function AddFile(const AName: string; const AValue: TStream): IRequest;
   public
     constructor Create;
     destructor Destroy; override;
@@ -121,12 +118,12 @@ begin
     AContent.Free;
 end;
 
-{$IF COMPILERVERSION >= 33}
 function TRequestClient.AddFile(const AName: string; const AValue: TStream): IRequest;
 begin
   Result := Self;
   if not Assigned(AValue) then
     Exit;
+  {$IF COMPILERVERSION >= 33}
   with FRESTRequest.Params.AddItem do
   begin
     Name := AName;
@@ -135,8 +132,8 @@ begin
     Kind := TRESTRequestParameterKind.pkFILE;
     ContentType := TRESTContentType.ctAPPLICATION_OCTET_STREAM;
   end;
+  {$ENDIF}
 end;
-{$ENDIF}
 
 function TRequestClient.AddHeader(const AName, AValue: string): IRequest;
 begin
@@ -155,18 +152,6 @@ begin
     Exit;
   FParams.Add(AName);
   FRESTRequest.AddParameter(AName, AValue, {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF});
-end;
-
-function TRequestClient.AddText(const AName, AValue: string; const AContentType: TRESTContentType): IRequest;
-begin
-  Result := Self;
-  with FRESTRequest.Params.AddItem do
-  begin
-    Name := AName;
-    Value := AValue;
-    Kind := TRESTRequestParameterKind.pkREQUESTBODY;
-    ContentType := AContentType;
-  end;
 end;
 
 function TRequestClient.BasicAuthentication(const AUsername, APassword: string): IRequest;
