@@ -19,8 +19,7 @@
 * **Manual installation**: Add the following folders to your project, in *Project > Options > Resource Compiler > Directories and Conditionals > Include file search path*
 
 ```
-../RESTRequest4Delphi/src/core
-../RESTRequest4Delphi/src/interfaces
+../RESTRequest4Delphi/src
 ```
 
 * Installation using the [**Boss**](https://github.com/HashLoad/boss):
@@ -28,6 +27,10 @@
 ```
 boss install github.com/viniciussanchez/RESTRequest4Delphi
 ```
+
+## 🔰 Engines
+
+By default, the components TRESTRequest, TRESTResponse and TRESTClient are used to make requests. You can choose to use Indy to make requests. To do this, simply define in: *Project > Options > Delphi Compiler > Conditional defines* the compiler directive `RRD4_INDY`
 
 ## ⚡️ Quickstart
 
