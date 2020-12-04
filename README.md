@@ -34,7 +34,7 @@ By default, the components TRESTRequest, TRESTResponse and TRESTClient are used 
 
 ## ⚡️ Quickstart
 
-You need to use RESTRequest4D.Request
+You need to use RESTRequest4D
 
 ```pascal
 uses RESTRequest4D;
