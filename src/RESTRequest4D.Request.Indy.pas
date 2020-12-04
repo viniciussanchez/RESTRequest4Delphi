@@ -16,7 +16,7 @@ type
     FResourceSuffix: string;
     FDataSetAdapter: TDataSet;
     FResponse: IResponse;
-    FStreamSend: TStringStream;
+    FStreamSend: TStream;
     FStreamResult: TStringStream;
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -71,7 +71,13 @@ uses System.SysUtils, RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, RES
 
 function TRequestIndy.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  try
+    raise Exception.Create('Not implemented');
+  finally
+    if AOwns then
+      AContent.Free;
+  end;
 end;
 
 function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
@@ -156,7 +162,10 @@ end;
 function TRequestIndy.AddBody(const AContent: string): IRequest;
 begin
   Result := Self;
-  FStreamSend := TStringStream.Create(AContent, TEncoding.UTF8);
+  if not Assigned(FStreamSend) then
+    FStreamSend := TStringStream.Create(AContent, TEncoding.UTF8)
+  else
+    TStringStream(FStreamSend).WriteString(AContent);
   FStreamSend.Position := 0;
 end;
 
@@ -235,10 +244,9 @@ function TRequestIndy.AddBody(const AContent: TObject; const AOwns: Boolean): IR
 var
   LJSONObject: TJSONObject;
 begin
-  Result := Self;
   LJSONObject := TJson.ObjectToJsonObject(AContent);
   try
-    Self.AddBody(LJSONObject, False);
+    Result := Self.AddBody(LJSONObject, False);
   finally
     LJSONObject.Free;
     if AOwns then
@@ -255,18 +263,14 @@ end;
 
 function TRequestIndy.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
 begin
-  Result := Self;
-  FStreamSend := TStringStream.Create(AContent.ToJSON, TEncoding.UTF8);
-  FStreamSend.Position := 0;
+  Result := Self.AddBody(AContent.ToJSON);
   if AOwns then
     AContent.Free;
 end;
 
 function TRequestIndy.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
 begin
-  Result := Self;
-  FStreamSend := TStringStream.Create(AContent.ToJSON, TEncoding.UTF8);
-  FStreamSend.Position := 0;
+  Result := Self.AddBody(AContent.ToJSON);
   if AOwns then
     AContent.Free;
 end;
