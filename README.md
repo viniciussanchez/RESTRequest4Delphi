@@ -30,7 +30,7 @@ boss install github.com/viniciussanchez/RESTRequest4Delphi
 
 ## 🔰 Engines
 
-By default, the components TRESTRequest, TRESTResponse and TRESTClient are used to make requests. You can choose to use Indy to make requests. To do this, simply define in: *Project > Options > Delphi Compiler > Conditional defines* the compiler directive `RRD4_INDY`
+By default, the components TRESTRequest, TRESTResponse and TRESTClient are used to make requests. You can choose to use Indy to make requests. To do this, simply define in: *Project > Options > Delphi Compiler > Conditional defines* the compiler directive `RR4D_INDY`
 
 ## ⚡️ Quickstart
 
