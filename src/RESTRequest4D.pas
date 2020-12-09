@@ -18,6 +18,8 @@ implementation
 uses
 {$IF DEFINED(RR4D_INDY)}
   RESTRequest4D.Request.Indy;
+{$ELSEIF DEFINED(RR4D_NETHTTP)}
+  RESTRequest4D.Request.NetHTTP;
 {$ELSE}
   RESTRequest4D.Request.Client;
 {$ENDIF}
@@ -26,6 +28,8 @@ class function TRequest.New: IRequest;
 begin
 {$IF DEFINED(RR4D_INDY)}
   Result := TRequestIndy.Create;
+{$ELSEIF DEFINED(RR4D_NETHTTP)}
+  Result := TRequestNetHTTP.Create;
 {$ELSE}
   Result := TRequestClient.Create;
 {$ENDIF}
