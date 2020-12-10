@@ -4,7 +4,7 @@ interface
 
 uses System.Net.Mime, System.Net.HttpClientComponent, System.Net.HttpClient, RESTRequest4D.Request.Contract, System.Classes,
   Data.DB, System.JSON, System.SysUtils, REST.Json, IdURI, System.NetEncoding, RESTRequest4D.Utils, DataSet.Serialize,
-  RESTRequest4D.Response.NetHTTP, RESTRequest4D.Response.Contract;
+  RESTRequest4D.Response.NetHTTP, RESTRequest4D.Response.Contract, System.Net.URLClient;
 
 type
   TRequestNetHTTP = class(TInterfacedObject, IRequest)
@@ -273,6 +273,8 @@ begin
     FNetHTTPClient.Free;
   if Assigned(FParams) then
     FParams.Free;
+  if Assigned(FStreamSend) then
+    FStreamSend.Free;
   if Assigned(FStreamResult) then
     FStreamResult.Free;
   inherited;
