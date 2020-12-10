@@ -2,8 +2,14 @@ unit RESTRequest4D.Request.Contract;
 
 interface
 
-uses System.SysUtils, System.JSON, System.Classes, RESTRequest4D.Response.Contract, Data.DB;
-
+uses
+  RESTRequest4D.Response.Contract
+  {$IFDEF FPC}
+    ,SysUtils, fpjson, Classes, DB
+  {$ELSE}
+    ,System.SysUtils, System.JSON, System.Classes, RESTRequest4D.Response.Contract, Data.DB
+  {$ENDIF}
+  ;
 type
   IRequest = interface
     ['{2C882459-F4C3-4854-8F7A-F68E8F8DE98E}']
