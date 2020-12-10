@@ -2,7 +2,13 @@ unit RESTRequest4D.Response.Contract;
 
 interface
 
-uses System.SysUtils, System.JSON,System.Classes;
+uses
+  {$IFDEF FPC}
+    SysUtils, Classes, fpjson
+  {$ELSE}
+    System.SysUtils, System.JSON,System.Classes
+  {$ENDIF}
+  ;
 
 type
   IResponse = interface
@@ -13,7 +19,7 @@ type
     function ContentEncoding: string;
     function StatusCode: Integer;
     function RawBytes: TBytes;
-    function JSONValue: TJSONValue;
+    function JSONValue: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF};
     function Headers: TStrings;
   end;
 

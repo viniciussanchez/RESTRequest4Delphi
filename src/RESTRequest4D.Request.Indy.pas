@@ -1,8 +1,16 @@
 unit RESTRequest4D.Request.Indy;
 
+{$IFDEF FPC} {$mode delphi} {$ENDIF}
+
 interface
 
-uses RESTRequest4D.Request.Contract, Data.DB, System.Classes, RESTRequest4D.Response.Contract, System.JSON, IdHTTP, IdSSLOpenSSL;
+uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL
+  {$IFDEF FPC}
+    ,DB, Classes, fpjson, jsonparser, fpjsonrtti
+  {$ELSE}
+    ,Data.DB, System.Classes, System.JSON
+  {$ENDIF}
+  ;
 
 type
   TRequestIndy = class(TInterfacedObject, IRequest)
@@ -67,7 +75,14 @@ type
 
 implementation
 
-uses System.SysUtils, RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, RESTRequest4D.Utils, IdCookieManager, REST.Json;
+uses
+  RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, RESTRequest4D.Utils, IdCookieManager
+  {$IFDEF FPC}
+    ,SysUtils
+  {$ELSE}
+    ,System.SysUtils, REST.Json
+  {$ENDIF}
+  ;
 
 function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
 begin
@@ -246,11 +261,22 @@ end;
 function TRequestIndy.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
 var
   LJSONObject: TJSONObject;
+  {$IFDEF FPC}
+  LJSONStreamer : TJSONStreamer;
+  {$ENDIF}
 begin
-  LJSONObject := TJson.ObjectToJsonObject(AContent);
+  {$IFDEF FPC}
+    LJSONStreamer := TJSONStreamer.Create(NIL);
+    LJSONObject := LJSONStreamer.ObjectToJSON(AContent);
+  {$ELSE}
+    LJSONObject := TJson.ObjectToJsonObject(AContent);
+  {$ENDIF}
   try
     Result := Self.AddBody(LJSONObject, False);
   finally
+    {$IFDEF FPC}
+      LJSONStreamer.Free;
+    {$ENDIF}
     LJSONObject.Free;
     if AOwns then
       AContent.Free;
@@ -266,14 +292,22 @@ end;
 
 function TRequestIndy.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
 begin
+  {$IFDEF FPC}
+  Result := Self.AddBody(AContent.AsJSON);
+  {$else}
   Result := Self.AddBody(AContent.ToJSON);
+  {$ENDIF}
   if AOwns then
     AContent.Free;
 end;
 
 function TRequestIndy.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
 begin
+  {$IFDEF FPC}
+  Result := Self.AddBody(AContent.AsJSON);
+  {$else}
   Result := Self.AddBody(AContent.ToJSON);
+  {$ENDIF}
   if AOwns then
     AContent.Free;
 end;
@@ -365,7 +399,6 @@ begin
   FParams := TStringList.Create;
 
   FStreamResult := TStringStream.Create;
-  TResponseIndy(FResponse).SetContent(FStreamResult);
 
   Self.ContentType('application/json');
 end;

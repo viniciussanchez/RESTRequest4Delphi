@@ -1,14 +1,24 @@
 unit RESTRequest4D.Response.Indy;
 
+{$IFDEF FPC} {$mode delphi} {$ENDIF}
+
 interface
 
-uses RESTRequest4D.Response.Contract, System.SysUtils, System.JSON, System.Classes, IdHTTP;
+uses RESTRequest4D.Response.Contract, IdHTTP
+  {$IFDEF FPC}
+    ,SysUtils, fpjson, Classes, jsonparser
+  {$ELSE}
+    ,System.SysUtils, System.JSON, System.Classes
+  {$ENDIF}
+  ;
 
 type
+
+  { TResponseIndy }
+
   TResponseIndy = class(TInterfacedObject, IResponse)
   private
-    FJSONValue: TJSONValue;
-    FContent: TStringStream;
+    FJSONValue: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF};
     FIdHTTP: TIdHTTP;
     function Content: string;
     function ContentLength: Cardinal;
@@ -16,41 +26,57 @@ type
     function ContentEncoding: string;
     function StatusCode: Integer;
     function RawBytes: TBytes;
-    function JSONValue: TJSONValue;
+    function JSONValue: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF};
     function Headers: TStrings;
   public
-    procedure SetContent(const AContent: TStringStream);
     constructor Create(const AIdHTTP: TIdHTTP);
     destructor Destroy; override;
   end;
 
 implementation
 
-function TResponseIndy.JSONValue: TJSONValue;
+function TResponseIndy.JSONValue: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF};
 var
   LContent: string;
+  {$IFDEF FPC}
+  LJSONParser : TJSONParser;
+  {$ENDIF}
 begin
   if not(Assigned(FJSONValue)) then
   begin
-    LContent := FContent.DataString.Trim;
+    LContent := Content.Trim;
+    {$IFDEF FPC}
+    LJSONParser := TJSONParser.Create(LContent, False);
+    try
+      if LContent.StartsWith('{') then
+        FJSONValue := LJSONParser.Parse as TJSONObject
+      else if LContent.StartsWith('[') then
+        FJSONValue := LJSONParser.Parse as TJSONArray
+      else
+        raise Exception.Create('The return content is not a valid JSON value.');
+    finally
+      LJSONParser.Free;
+    end;
+    {$ELSE}
     if LContent.StartsWith('{') then
       FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
     else if LContent.StartsWith('[') then
       FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
     else
       raise Exception.Create('The return content is not a valid JSON value.');
+    {$ENDIF}
   end;
   Result := FJSONValue;
 end;
 
 function TResponseIndy.RawBytes: TBytes;
 begin
-  Result := FContent.Bytes;
+  Result := TStringStream(FIdHTTP.Response.ContentStream).Bytes;
 end;
 
 function TResponseIndy.Content: string;
 begin
-  Result := FContent.DataString;
+  Result := TStringStream(FIdHTTP.Response.ContentStream).DataString;
 end;
 
 function TResponseIndy.Headers: TStrings;
@@ -89,11 +115,6 @@ begin
   if Assigned(FJSONValue) then
     FJSONValue.Free;
   inherited;
-end;
-
-procedure TResponseIndy.SetContent(const AContent: TStringStream);
-begin
-  FContent := AContent;
 end;
 
 function TResponseIndy.StatusCode: Integer;

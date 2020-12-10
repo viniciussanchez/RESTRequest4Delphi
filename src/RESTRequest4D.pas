@@ -2,7 +2,8 @@ unit RESTRequest4D;
 
 interface
 
-uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract;
+uses
+  RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract;
 
 type
   IRequest = RESTRequest4D.Request.Contract.IRequest;
