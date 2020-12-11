@@ -44,7 +44,8 @@ end;
 
 function TResponseNetHTTP.ContentType: string;
 begin
-  Result := FHTTPResponse.ContentLanguage;
+  if FHTTPResponse.ContainsHeader('Content-Type') then
+    Result := FHTTPResponse.HeaderValue['Content-Type'];
 end;
 
 destructor TResponseNetHTTP.Destroy;
