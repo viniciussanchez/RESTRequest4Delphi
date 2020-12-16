@@ -3,11 +3,11 @@ unit RESTRequest4D.Request.Contract;
 interface
 
 uses
-  RESTRequest4D.Response.Contract
+	RESTRequest4D.Response.Contract,
   {$IFDEF FPC}
-    ,SysUtils, fpjson, Classes, DB
+    SysUtils, fpjson, Classes, DB, 
   {$ELSE}
-    ,System.SysUtils, System.JSON, System.Classes, RESTRequest4D.Response.Contract, Data.DB
+    System.SysUtils, System.JSON, System.Classes, Data.DB
   {$ENDIF}
   ;
 type

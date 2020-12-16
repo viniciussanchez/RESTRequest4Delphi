@@ -379,6 +379,7 @@ end;
 function TRequestIndy.BasicAuthentication(const AUsername, APassword: string): IRequest;
 begin
   Result := Self;
+  FIdHTTP.Request.BasicAuthentication := True;
   FIdHTTP.Request.Username := AUsername;
   FIdHTTP.Request.Password := APassword;
 end;
