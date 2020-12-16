@@ -4,7 +4,7 @@ interface
 
 uses
   {$IFDEF FPC}
-    SysUtils, fpjson, Classes, DB,
+    SysUtils, fpjson, Classes, DB, RESTRequest4D.Response.Contract,
   {$ELSE}
     System.SysUtils, System.JSON, System.Classes, RESTRequest4D.Response.Contract, Data.DB
   {$ENDIF}
