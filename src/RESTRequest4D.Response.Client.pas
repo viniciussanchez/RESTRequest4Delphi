@@ -8,16 +8,19 @@ type
   TResponseClient = class(TInterfacedObject, IResponse)
   private
     FRESTResponse: TRESTResponse;
+    FStreamValue: TMemoryStream;
     function Content: string;
     function ContentLength: Cardinal;
     function ContentType: string;
     function ContentEncoding: string;
+    function ContentStream: TStream;
     function StatusCode: Integer;
     function RawBytes: TBytes;
     function JSONValue: TJSONValue;
     function Headers: TStrings;
   public
     constructor Create(const ARESTResponse: TRESTResponse);
+    destructor Destroy; override;
   end;
 
 implementation
@@ -25,6 +28,13 @@ implementation
 constructor TResponseClient.Create(const ARESTResponse: TRESTResponse);
 begin
   FRESTResponse := ARESTResponse;
+end;
+
+destructor TResponseClient.Destroy;
+begin
+  if Assigned(FStreamValue) then
+    FreeAndNil(FStreamValue);
+  inherited;
 end;
 
 function TResponseClient.Content: string;
@@ -45,6 +55,16 @@ end;
 function TResponseClient.ContentLength: Cardinal;
 begin
   Result := FRESTResponse.ContentLength;
+end;
+
+function TResponseClient.ContentStream: TStream;
+begin
+  if Assigned(FStreamValue) then
+    FreeAndNil(FStreamValue);
+  FStreamValue := TMemoryStream.Create;
+  if (Length(FRESTResponse.RawBytes) > 0) then
+    FStreamValue.WriteBuffer(FRESTResponse.RawBytes[0], Length(FRESTResponse.RawBytes));
+  Result := FStreamValue;
 end;
 
 function TResponseClient.ContentType: string;

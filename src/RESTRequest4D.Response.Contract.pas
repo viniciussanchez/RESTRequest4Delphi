@@ -4,11 +4,10 @@ interface
 
 uses
   {$IFDEF FPC}
-    SysUtils, Classes, fpjson
+    SysUtils, Classes, fpjson;
   {$ELSE}
-    System.SysUtils, System.JSON,System.Classes
+    System.SysUtils, System.JSON,System.Classes;
   {$ENDIF}
-  ;
 
 type
   IResponse = interface
@@ -17,9 +16,14 @@ type
     function ContentLength: Cardinal;
     function ContentType: string;
     function ContentEncoding: string;
+    function ContentStream: TStream;
     function StatusCode: Integer;
     function RawBytes: TBytes;
-    function JSONValue: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF};
+  {$IFDEF FPC}
+    function JSONValue: TJSONData;
+  {$ELSE}
+    function JSONValue: TJSONValue;
+  {$ENDIF}
     function Headers: TStrings;
   end;
 

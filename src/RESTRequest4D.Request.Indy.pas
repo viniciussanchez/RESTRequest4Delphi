@@ -4,13 +4,12 @@ unit RESTRequest4D.Request.Indy;
 
 interface
 
-uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL
+uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL,
   {$IFDEF FPC}
-    ,DB, Classes, fpjson, jsonparser, fpjsonrtti
+    DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
   {$ELSE}
-    ,Data.DB, System.Classes, System.JSON
+    Data.DB, System.Classes, System.JSON, System.SysUtils, REST.Json;
   {$ENDIF}
-  ;
 
 type
   TRequestIndy = class(TInterfacedObject, IRequest)
@@ -75,14 +74,7 @@ type
 
 implementation
 
-uses
-  RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, RESTRequest4D.Utils, IdCookieManager
-  {$IFDEF FPC}
-    ,SysUtils
-  {$ELSE}
-    ,System.SysUtils, REST.Json
-  {$ENDIF}
-  ;
+uses RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, RESTRequest4D.Utils, IdCookieManager;
 
 function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
 begin
@@ -261,22 +253,22 @@ end;
 function TRequestIndy.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
 var
   LJSONObject: TJSONObject;
-  {$IFDEF FPC}
+{$IFDEF FPC}
   LJSONStreamer : TJSONStreamer;
-  {$ENDIF}
+{$ENDIF}
 begin
-  {$IFDEF FPC}
-    LJSONStreamer := TJSONStreamer.Create(NIL);
-    LJSONObject := LJSONStreamer.ObjectToJSON(AContent);
-  {$ELSE}
-    LJSONObject := TJson.ObjectToJsonObject(AContent);
-  {$ENDIF}
+{$IFDEF FPC}
+  LJSONStreamer := TJSONStreamer.Create(NIL);
+  LJSONObject := LJSONStreamer.ObjectToJSON(AContent);
+{$ELSE}
+  LJSONObject := TJson.ObjectToJsonObject(AContent);
+{$ENDIF}
   try
     Result := Self.AddBody(LJSONObject, False);
   finally
-    {$IFDEF FPC}
-      LJSONStreamer.Free;
-    {$ENDIF}
+  {$IFDEF FPC}
+    LJSONStreamer.Free;
+  {$ENDIF}
     LJSONObject.Free;
     if AOwns then
       AContent.Free;
@@ -292,22 +284,22 @@ end;
 
 function TRequestIndy.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
 begin
-  {$IFDEF FPC}
+{$IFDEF FPC}
   Result := Self.AddBody(AContent.AsJSON);
-  {$else}
+{$ELSE}
   Result := Self.AddBody(AContent.ToJSON);
-  {$ENDIF}
+{$ENDIF}
   if AOwns then
     AContent.Free;
 end;
 
 function TRequestIndy.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
 begin
-  {$IFDEF FPC}
+{$IFDEF FPC}
   Result := Self.AddBody(AContent.AsJSON);
-  {$else}
+{$ELSE}
   Result := Self.AddBody(AContent.ToJSON);
-  {$ENDIF}
+{$ENDIF}
   if AOwns then
     AContent.Free;
 end;

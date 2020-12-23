@@ -2,8 +2,8 @@ unit RESTRequest4D.Response.NetHTTP;
 
 interface
 
-uses RESTRequest4D.Response.Contract, System.SysUtils, System.JSON, System.Classes, System.Net.HttpClientComponent,
-  System.Net.HttpClient, System.Net.URLClient;
+uses RESTRequest4D.Response.Contract, System.Net.HttpClientComponent, System.Net.HttpClient, System.Net.URLClient,
+  System.SysUtils, System.JSON, System.Classes;
 
 type
   TResponseNetHTTP = class(TInterfacedObject, IResponse)
@@ -15,6 +15,7 @@ type
     function ContentLength: Cardinal;
     function ContentType: string;
     function ContentEncoding: string;
+    function ContentStream: TStream;
     function StatusCode: Integer;
     function RawBytes: TBytes;
     function JSONValue: TJSONValue;
@@ -26,6 +27,23 @@ type
   end;
 
 implementation
+
+function TResponseNetHTTP.JSONValue: TJSONValue;
+var
+  LContent: string;
+begin
+  if not(Assigned(FJSONValue)) then
+  begin
+    LContent := FHTTPResponse.ContentAsString.Trim;
+    if LContent.StartsWith('{') then
+      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
+    else if LContent.StartsWith('[') then
+      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
+    else
+      raise Exception.Create('The return content is not a valid JSON value.');
+  end;
+  Result := FJSONValue;
+end;
 
 function TResponseNetHTTP.Content: string;
 begin
@@ -40,6 +58,11 @@ end;
 function TResponseNetHTTP.ContentLength: Cardinal;
 begin
   Result := FHTTPResponse.ContentLength
+end;
+
+function TResponseNetHTTP.ContentStream: TStream;
+begin
+  Result := FHTTPResponse.ContentStream;
 end;
 
 function TResponseNetHTTP.ContentType: string;
@@ -63,23 +86,6 @@ begin
   Result := TStringList.Create;
   for LHeader in FHTTPResponse.Headers do
     Result.Add(LHeader.Name + '=' + LHeader.Value);
-end;
-
-function TResponseNetHTTP.JSONValue: TJSONValue;
-var
-  LContent: string;
-begin
-  if not(Assigned(FJSONValue)) then
-  begin
-    LContent := FHTTPResponse.ContentAsString.Trim;
-    if LContent.StartsWith('{') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
-    else if LContent.StartsWith('[') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
-    else
-      raise Exception.Create('The return content is not a valid JSON value.');
-  end;
-  Result := FJSONValue;
 end;
 
 function TResponseNetHTTP.RawBytes: TBytes;
