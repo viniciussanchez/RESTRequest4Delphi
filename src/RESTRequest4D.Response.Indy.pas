@@ -4,29 +4,35 @@ unit RESTRequest4D.Response.Indy;
 
 interface
 
-uses RESTRequest4D.Response.Contract, IdHTTP
+uses RESTRequest4D.Response.Contract, IdHTTP,
   {$IFDEF FPC}
-    ,SysUtils, fpjson, Classes, jsonparser
+    SysUtils, fpjson, Classes, jsonparser;
   {$ELSE}
-    ,System.SysUtils, System.JSON, System.Classes
+    System.SysUtils, System.JSON, System.Classes;
   {$ENDIF}
-  ;
+
 
 type
-
-  { TResponseIndy }
-
   TResponseIndy = class(TInterfacedObject, IResponse)
   private
-    FJSONValue: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF};
+  {$IFDEF FPC}
+    FJSONValue: TJSONData;
+  {$ELSE}
+    FJSONValue: TJSONValue;
+  {$ENDIF}
     FIdHTTP: TIdHTTP;
     function Content: string;
     function ContentLength: Cardinal;
     function ContentType: string;
     function ContentEncoding: string;
+    function ContentStream: TStream;
     function StatusCode: Integer;
     function RawBytes: TBytes;
-    function JSONValue: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF};
+  {$IFDEF FPC}
+    function JSONValue: TJSONData;
+  {$ELSE}
+    function JSONValue: TJSONValue;
+  {$ENDIF}
     function Headers: TStrings;
   public
     constructor Create(const AIdHTTP: TIdHTTP);
@@ -35,17 +41,15 @@ type
 
 implementation
 
-function TResponseIndy.JSONValue: {$IFDEF FPC} TJSONData {$ELSE} TJSONValue {$ENDIF};
+{$IFDEF FPC}
+function TResponseIndy.JSONValue: TJSONData;
 var
   LContent: string;
-  {$IFDEF FPC}
   LJSONParser : TJSONParser;
-  {$ENDIF}
 begin
   if not(Assigned(FJSONValue)) then
   begin
     LContent := Content.Trim;
-    {$IFDEF FPC}
     LJSONParser := TJSONParser.Create(LContent, False);
     try
       if LContent.StartsWith('{') then
@@ -57,17 +61,27 @@ begin
     finally
       LJSONParser.Free;
     end;
-    {$ELSE}
+  end;
+  Result := FJSONValue;
+end;
+{$ELSE}
+function TResponseIndy.JSONValue: TJSONValue;
+var
+  LContent: string;
+begin
+  if not(Assigned(FJSONValue)) then
+  begin
+    LContent := Content.Trim;
     if LContent.StartsWith('{') then
       FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
     else if LContent.StartsWith('[') then
       FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
     else
       raise Exception.Create('The return content is not a valid JSON value.');
-    {$ENDIF}
   end;
   Result := FJSONValue;
 end;
+{$ENDIF}
 
 function TResponseIndy.RawBytes: TBytes;
 begin
@@ -98,6 +112,11 @@ end;
 function TResponseIndy.ContentLength: Cardinal;
 begin
   Result := FIdHTTP.Response.ContentLength;
+end;
+
+function TResponseIndy.ContentStream: TStream;
+begin
+  Result := FIdHTTP.Response.ContentStream;
 end;
 
 function TResponseIndy.ContentType: string;

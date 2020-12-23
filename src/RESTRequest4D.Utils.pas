@@ -16,11 +16,11 @@ implementation
 
 uses
   {$IFDEF FPC}
-    Generics.Collections
+    Generics.Collections;
   {$ELSE}
-    System.Generics.Collections, FireDAC.Comp.Client
+    System.Generics.Collections, FireDAC.Comp.Client;
   {$ENDIF}
-  ;
+
 class procedure TRESTRequest4DelphiUtils.ActiveCachedUpdates(const ADataSet: TDataSet; const AActive: Boolean);
 var
   LDataSet: TDataSet;
