@@ -1,8 +1,13 @@
-unit RESTRequest4D.Request.Intf;
+unit RESTRequest4D.Request.Contract;
 
 interface
 
-uses Data.DB, REST.Client, REST.Types, System.SysUtils, RESTRequest4D.Response.Intf, System.JSON, System.Classes;
+uses RESTRequest4D.Response.Contract,
+  {$IFDEF FPC}
+    SysUtils, fpjson, Classes, DB;
+  {$ELSE}
+    System.SysUtils, System.JSON, System.Classes, Data.DB;
+  {$ENDIF}
 
 type
   IRequest = interface
@@ -25,7 +30,6 @@ type
     function Resource: string; overload;
     function ResourceSuffix(const AResourceSuffix: string): IRequest; overload;
     function ResourceSuffix: string; overload;
-    function Cookies(const ACookies: TStrings): IRequest;
     function Token(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Get: IResponse;
@@ -35,22 +39,19 @@ type
     function Patch: IResponse;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
-    function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
+    function AddBody(const AContent: string): IRequest; overload;
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
     function ClearHeaders: IRequest;
-    function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
+    function AddHeader(const AName, AValue: string): IRequest;
     function ClearParams: IRequest;
     function UserAgent(const AName: string): IRequest;
-    {$IF COMPILERVERSION < 33}
-      function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkGETorPOST): IRequest;
-    {$ELSE}
-      function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = TRESTRequestParameterKind.pkQUERY): IRequest;
-      function AddFile(const AName: string; const AValue: TStream): IRequest;
-    {$ENDIF}
-    function AddText(const AName: string; const AValue: string; const AContentType: TRESTContentType = TRESTContentType.ctAPPLICATION_JSON): IRequest;
+    function ContentType(const AContentType: string): IRequest;
+    function AddCookies(const ACookies: TStrings): IRequest;
+    function AddParam(const AName, AValue: string): IRequest;
+    function AddFile(const AName: string; const AValue: TStream): IRequest;
   end;
 
 implementation
