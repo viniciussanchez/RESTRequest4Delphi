@@ -1,6 +1,8 @@
 unit RESTRequest4D.Utils;
 
-{$IFDEF FPC} {$mode delphi} {$ENDIF}
+{$IFDEF FPC}
+  {$mode delphi}
+{$ENDIF}
 
 interface
 

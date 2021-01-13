@@ -1,6 +1,8 @@
 unit RESTRequest4D.Response.Indy;
 
-{$IFDEF FPC} {$mode delphi} {$ENDIF}
+{$IFDEF FPC}
+  {$mode delphi}
+{$ENDIF}
 
 interface
 
@@ -10,7 +12,6 @@ uses RESTRequest4D.Response.Contract, IdHTTP,
   {$ELSE}
     System.SysUtils, System.JSON, System.Classes;
   {$ENDIF}
-
 
 type
   TResponseIndy = class(TInterfacedObject, IResponse)

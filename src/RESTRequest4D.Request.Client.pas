@@ -3,7 +3,7 @@ unit RESTRequest4D.Request.Client;
 interface
 
 uses RESTRequest4D.Request.Contract, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
-  RESTRequest4D.Response.Contract, System.JSON, REST.Authenticator.Basic {$if CompilerVersion <= 32.0} ,IPPeerClient {$endif};
+  RESTRequest4D.Response.Contract, System.JSON, REST.Authenticator.Basic{$if CompilerVersion <= 32.0}, IPPeerClient{$endif};
 
 type
   TRequestClient = class(TInterfacedObject, IRequest)

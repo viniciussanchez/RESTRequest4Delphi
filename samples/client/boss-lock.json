@@ -1,11 +1,11 @@
 {
-	"hash": "d41d8cd98f00b204e9800998ecf8427e",
-	"updated": "2020-12-23T10:45:53.9408555-03:00",
+	"hash": "62608e08adc29a8d6dbc9754e659f125",
+	"updated": "2021-01-13T08:33:15.3750583-03:00",
 	"installedModules": {
 		"github.com/viniciussanchez/dataset-serialize": {
 			"name": "dataset-serialize",
-			"version": "v2.2.1",
-			"hash": "646b2573e09830d31dbccd05531e50ed",
+			"version": "v2.2.4",
+			"hash": "781da47b70e4045751523b84eea6bdcb",
 			"artifacts": {},
 			"failed": false,
 			"changed": false

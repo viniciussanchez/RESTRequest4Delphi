@@ -1,6 +1,8 @@
 unit RESTRequest4D.Request.Indy;
 
-{$IFDEF FPC} {$mode delphi} {$ENDIF}
+{$IFDEF FPC}
+  {$mode delphi}
+{$ENDIF}
 
 interface
 
@@ -266,9 +268,9 @@ begin
   try
     Result := Self.AddBody(LJSONObject, False);
   finally
-  {$IFDEF FPC}
-    LJSONStreamer.Free;
-  {$ENDIF}
+    {$IFDEF FPC}
+      LJSONStreamer.Free;
+    {$ENDIF}
     LJSONObject.Free;
     if AOwns then
       AContent.Free;
