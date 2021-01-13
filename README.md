@@ -30,7 +30,9 @@ boss install github.com/viniciussanchez/RESTRequest4Delphi
 
 ## 🔰 Engines
 
-By default, the components TRESTRequest, TRESTResponse and TRESTClient are used to make requests. You can choose to use Indy to make requests. To do this, simply define in: *Project > Options > Delphi Compiler > Conditional defines* the compiler directive `RR4D_INDY`
+By default, the components **TRESTRequest**, **TRESTResponse** and **TRESTClient** are used to make requests when your using Delphi. If you use Lazarus, the **Indy** components are used by default. The RESTRequest4Delphi has support to three enginies to make requests: RESTClient, Indy and NetHTTP. You can change the engine to make requests. To do this, simply define in: *Project > Options > Delphi Compiler > Conditional defines* the compiler directive `RR4D_INDY` or `RR4D_NETHTTP`
+
+***Note**: for Lazarus, only the engine using Indy is available and it is already the default. You don't need to define directive.*
 
 ## ⚡️ Quickstart
 
