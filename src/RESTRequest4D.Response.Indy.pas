@@ -96,11 +96,11 @@ end;
 
 function TResponseIndy.Headers: TStrings;
 var
-  i:Integer;
+  I: Integer;
 begin
   Result := TStringList.Create;
-  for i := 0 to FIdHTTP.Response.RawHeaders.Count - 1 do
-    Result.Values[FIdHTTP.Response.RawHeaders.Names[i]] := FIdHTTP.Response.RawHeaders.Values[FIdHTTP.Response.RawHeaders.Names[i]];
+  for I := 0 to Pred(FIdHTTP.Response.RawHeaders.Count) do
+    Result.Values[FIdHTTP.Response.RawHeaders.Names[I]] := FIdHTTP.Response.RawHeaders.Values[FIdHTTP.Response.RawHeaders.Names[I]];
 end;
 
 function TResponseIndy.ContentEncoding: string;
