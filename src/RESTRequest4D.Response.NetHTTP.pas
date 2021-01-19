@@ -63,6 +63,7 @@ end;
 function TResponseNetHTTP.ContentStream: TStream;
 begin
   Result := FHTTPResponse.ContentStream;
+  Result.Position := 0;
 end;
 
 function TResponseNetHTTP.ContentType: string;

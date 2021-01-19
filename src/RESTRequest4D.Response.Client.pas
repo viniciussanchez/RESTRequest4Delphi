@@ -65,6 +65,7 @@ begin
   if (Length(FRESTResponse.RawBytes) > 0) then
     FStreamValue.WriteBuffer(FRESTResponse.RawBytes[0], Length(FRESTResponse.RawBytes));
   Result := FStreamValue;
+  Result.Position := 0;
 end;
 
 function TResponseClient.ContentType: string;

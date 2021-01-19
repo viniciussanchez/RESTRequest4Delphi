@@ -116,6 +116,7 @@ end;
 function TResponseIndy.ContentStream: TStream;
 begin
   Result := FIdHTTP.Response.ContentStream;
+  Result.Position := 0;
 end;
 
 function TResponseIndy.ContentType: string;
