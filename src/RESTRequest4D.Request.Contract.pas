@@ -3,6 +3,9 @@ unit RESTRequest4D.Request.Contract;
 interface
 
 uses RESTRequest4D.Response.Contract,
+  {$IF NOT (DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP))}
+    REST.Types,
+  {$ENDIF}
   {$IFDEF FPC}
     SysUtils, fpjson, Classes, DB;
   {$ELSE}
@@ -39,7 +42,13 @@ type
     function Patch: IResponse;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
+    {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP)}
+    function AddParam(const AName, AValue: string): IRequest;
     function AddBody(const AContent: string): IRequest; overload;
+    {$ELSE}
+    function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}): IRequest;
+    function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
+    {$ENDIF}
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
@@ -50,7 +59,6 @@ type
     function UserAgent(const AName: string): IRequest;
     function ContentType(const AContentType: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
-    function AddParam(const AName, AValue: string): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
   end;
 

@@ -45,7 +45,8 @@ type
     function Delete: IResponse;
     function Patch: IResponse;
     function ClearBody: IRequest;
-    function AddBody(const AContent: string): IRequest; overload;
+    function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}): IRequest;
+    function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
@@ -56,7 +57,6 @@ type
     function ContentType(const AContentType: string): IRequest;
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
-    function AddParam(const AName, AValue: string): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
   public
     constructor Create;
@@ -68,15 +68,15 @@ implementation
 uses DataSet.Serialize, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client, RESTRequest4D.Response.Client,
   RESTRequest4D.Utils;
 
-function TRequestClient.AddBody(const AContent: string): IRequest;
+function TRequestClient.AddBody(const AContent: string; const AContentType: TRESTContentType): IRequest;
 begin
   Result := Self;
   if AContent.Trim.IsEmpty then
     Exit;
   {$IF COMPILERVERSION <= 29}
-    FRESTRequest.AddBody(AContent);
+    FRESTRequest.AddBody(AContent, AContentType);
   {$ELSE}
-    FRESTRequest.Body.Add(AContent);
+    FRESTRequest.Body.Add(AContent, AContentType);
   {$ENDIF}
 end;
 
@@ -145,13 +145,13 @@ begin
   FRESTRequest.Params.AddHeader(AName, AValue);
 end;
 
-function TRequestClient.AddParam(const AName, AValue: string): IRequest;
+function TRequestClient.AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind): IRequest;
 begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
   FParams.Add(AName);
-  FRESTRequest.AddParameter(AName, AValue, {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF});
+  FRESTRequest.AddParameter(AName, AValue, AKind);
 end;
 
 function TRequestClient.BasicAuthentication(const AUsername, APassword: string): IRequest;
