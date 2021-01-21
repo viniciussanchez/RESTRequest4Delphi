@@ -45,10 +45,16 @@ uses RESTRequest4D;
 * **GET**
 
 ```pascal
+var
+  LResponse: IResponse;
 begin
-  TRequest.New.BaseURL('http://localhost:8888/users')
+  LResponse := TRequest.New.BaseURL('http://localhost:8888/users')
+    .AddHeader('HeaderName', 'HeaderValue')
+    .AddParam('ParameterName', 'ParameterValue')
     .Accept('application/json')
     .Get;
+  if LResponse.StatusCode = 200 then
+    ShowMessage(LResponse.Content);
 end;
 ``` 
 
