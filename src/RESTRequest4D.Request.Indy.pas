@@ -6,7 +6,7 @@ unit RESTRequest4D.Request.Indy;
 
 interface
 
-uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL,
+uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL, IdCTypes, IdSSLOpenSSLHeaders,
   {$IFDEF FPC}
     DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
   {$ELSE}
@@ -72,6 +72,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    procedure OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: String);
   end;
 
 implementation
@@ -233,6 +234,11 @@ begin
   end;
 end;
 
+procedure TRequestIndy.OnStatusInfoEx(ASender: TObject;const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: String);
+begin
+  SSL_set_tlsext_host_name(AsslSocket, FIdHTTP.URL.Host);
+end;
+
 function TRequestIndy.AddParam(const AName, AValue: string): IRequest;
 begin
   Result := Self;
@@ -388,6 +394,7 @@ begin
   FIdSSLIOHandlerSocketOpenSSL := TIdSSLIOHandlerSocketOpenSSL.Create;
   FIdHTTP.IOHandler := FIdSSLIOHandlerSocketOpenSSL;
   FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions := [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
+  FIdSSLIOHandlerSocketOpenSSL.OnStatusInfoEx := OnStatusInfoEx;
 
   FHeaders := TStringList.Create;
   FResponse := TResponseIndy.Create(FIdHTTP);
