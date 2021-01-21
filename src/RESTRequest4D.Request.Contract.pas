@@ -45,7 +45,9 @@ type
     {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP)}
     function AddParam(const AName, AValue: string): IRequest;
     function AddBody(const AContent: string): IRequest; overload;
+    function AddHeader(const AName, AValue: string): IRequest;
     {$ELSE}
+    function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}): IRequest;
     function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
     {$ENDIF}
@@ -54,7 +56,6 @@ type
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
     function ClearHeaders: IRequest;
-    function AddHeader(const AName, AValue: string): IRequest;
     function ClearParams: IRequest;
     function UserAgent(const AName: string): IRequest;
     function ContentType(const AContentType: string): IRequest;

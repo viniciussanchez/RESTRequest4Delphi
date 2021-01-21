@@ -52,7 +52,7 @@ type
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
     function ClearHeaders: IRequest;
-    function AddHeader(const AName, AValue: string): IRequest;
+    function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function ClearParams: IRequest;
     function ContentType(const AContentType: string): IRequest;
     function UserAgent(const AName: string): IRequest;
@@ -135,7 +135,7 @@ begin
   {$ENDIF}
 end;
 
-function TRequestClient.AddHeader(const AName, AValue: string): IRequest;
+function TRequestClient.AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions): IRequest;
 begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
@@ -143,6 +143,7 @@ begin
   if FHeaders.IndexOf(AName) < 0 then
     FHeaders.Add(AName);
   FRESTRequest.Params.AddHeader(AName, AValue);
+  FRESTRequest.Params.ParameterByName(AName).Options := AOptions;
 end;
 
 function TRequestClient.AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind): IRequest;
