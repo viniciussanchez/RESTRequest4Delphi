@@ -68,16 +68,16 @@ type
     function AddParam(const AName, AValue: string): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
     function MakeURL(const AIncludeParams: Boolean = True): string;
+    procedure OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
     procedure DoAfterExecute;
   public
     constructor Create;
     destructor Destroy; override;
-    procedure OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: String);
   end;
 
 implementation
 
-uses RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, RESTRequest4D.Utils, IdCookieManager;
+uses RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, {$IFNDEF FPC}RESTRequest4D.Utils,{$ENDIF} IdCookieManager;
 
 function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
 begin
@@ -132,9 +132,13 @@ procedure TRequestIndy.DoAfterExecute;
 begin
   if not Assigned(FDataSetAdapter) then
     Exit;
+  {$IF DEFINED(FPC)}
+  FDataSetAdapter.LoadFromJSON(FResponse.Content);
+  {$ELSE}
   TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter, False);
   FDataSetAdapter.LoadFromJSON(FResponse.Content);
   TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
+  {$ENDIF}
 end;
 
 function TRequestIndy.Patch: IResponse;
@@ -234,7 +238,7 @@ begin
   end;
 end;
 
-procedure TRequestIndy.OnStatusInfoEx(ASender: TObject;const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: String);
+procedure TRequestIndy.OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
 begin
   SSL_set_tlsext_host_name(AsslSocket, FIdHTTP.URL.Host);
 end;
@@ -394,7 +398,7 @@ begin
   FIdSSLIOHandlerSocketOpenSSL := TIdSSLIOHandlerSocketOpenSSL.Create;
   FIdHTTP.IOHandler := FIdSSLIOHandlerSocketOpenSSL;
   FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions := [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
-  FIdSSLIOHandlerSocketOpenSSL.OnStatusInfoEx := OnStatusInfoEx;
+  FIdSSLIOHandlerSocketOpenSSL.OnStatusInfoEx := Self.OnStatusInfoEx;
 
   FHeaders := TStringList.Create;
   FResponse := TResponseIndy.Create(FIdHTTP);
