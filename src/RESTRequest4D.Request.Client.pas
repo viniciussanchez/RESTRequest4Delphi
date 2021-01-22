@@ -194,7 +194,7 @@ end;
 function TRequestClient.ContentType(const AContentType: string): IRequest;
 begin
   Result := Self;
-  Self.AddHeader('Content-Type', AContentType);
+  Self.AddHeader('Content-Type', AContentType, [poDoNotEncode]);
 end;
 
 function TRequestClient.UserAgent(const AName: string): IRequest;
