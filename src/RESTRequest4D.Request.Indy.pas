@@ -400,7 +400,7 @@ begin
   FResponse := TResponseIndy.Create(FIdHTTP);
   FParams := TStringList.Create;
 
-  FStreamResult := TStringStream.Create;
+  FStreamResult := TStringStream.Create('');
 
   Self.ContentType('application/json');
 end;

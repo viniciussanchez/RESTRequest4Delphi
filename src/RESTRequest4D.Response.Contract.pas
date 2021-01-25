@@ -18,11 +18,11 @@ type
     function ContentEncoding: string;
     function ContentStream: TStream;
     function StatusCode: Integer;
-    function RawBytes: TBytes;
   {$IFDEF FPC}
     function JSONValue: TJSONData;
   {$ELSE}
     function JSONValue: TJSONValue;
+	function RawBytes: TBytes;
   {$ENDIF}
     function Headers: TStrings;
   end;
