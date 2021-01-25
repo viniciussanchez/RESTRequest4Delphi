@@ -32,7 +32,7 @@ type
     function JSONValue: TJSONData;
   {$ELSE}
     function JSONValue: TJSONValue;
-	function RawBytes: TBytes;
+	  function RawBytes: TBytes;
   {$ENDIF}
     function Headers: TStrings;
   public
@@ -84,10 +84,12 @@ begin
 end;
 {$ENDIF}
 
+{$IFNDEF FPC}
 function TResponseIndy.RawBytes: TBytes;
 begin
   Result := TStringStream(FIdHTTP.Response.ContentStream).Bytes;
 end;
+{$ENDIF}
 
 function TResponseIndy.Content: string;
 begin

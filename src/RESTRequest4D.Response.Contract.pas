@@ -22,7 +22,7 @@ type
     function JSONValue: TJSONData;
   {$ELSE}
     function JSONValue: TJSONValue;
-	function RawBytes: TBytes;
+	  function RawBytes: TBytes;
   {$ENDIF}
     function Headers: TStrings;
   end;
