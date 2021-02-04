@@ -43,7 +43,7 @@ type
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP)}
-    function AddParam(const AName, AValue: string): IRequest;
+    function AddParam(const AName, AValue: string; Aurl:Boolean=True): IRequest;
     function AddBody(const AContent: string): IRequest; overload;
     function AddHeader(const AName, AValue: string): IRequest;
     {$ELSE}

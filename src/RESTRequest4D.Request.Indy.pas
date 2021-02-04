@@ -6,7 +6,7 @@ unit RESTRequest4D.Request.Indy;
 
 interface
 
-uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL, IdCTypes, IdSSLOpenSSLHeaders,
+uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL, IdCTypes, IdSSLOpenSSLHeaders, IdMultipartFormData,
   {$IFDEF FPC}
     DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
   {$ELSE}
@@ -19,6 +19,7 @@ type
     FHeaders: TStrings;
     FParams: TStrings;
     FIdHTTP: TIdHTTP;
+    FFormData: TIdMultipartFormDataStream;
     FIdSSLIOHandlerSocketOpenSSL: TIdSSLIOHandlerSocketOpenSSL;
     FBaseURL: string;
     FResource: string;
@@ -65,7 +66,7 @@ type
     function ContentType(const AContentType: string): IRequest;
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
-    function AddParam(const AName, AValue: string): IRequest;
+    function AddParam(const AName, AValue: string; Aurl:Boolean=True): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
     function MakeURL(const AIncludeParams: Boolean = True): string;
     procedure DoAfterExecute;
@@ -154,7 +155,10 @@ end;
 function TRequestIndy.Post: IResponse;
 begin
   Result := FResponse;
-  FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+  if FFormData.Size > 0 then
+    FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FFormData, FStreamResult)
+  else
+    FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
   Self.DoAfterExecute;
 end;
 
@@ -239,11 +243,16 @@ begin
   SSL_set_tlsext_host_name(AsslSocket, FIdHTTP.URL.Host);
 end;
 
-function TRequestIndy.AddParam(const AName, AValue: string): IRequest;
+function TRequestIndy.AddParam(const AName, AValue: string; Aurl:Boolean=True): IRequest;
 begin
   Result := Self;
-  if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
-    FParams.Add(AName + '=' + AValue);
+  if Aurl then
+  begin
+    if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
+      FParams.Add(AName + '=' + AValue);
+  end
+  else
+    FFormData.AddFormField(AName, AValue);
 end;
 
 function TRequestIndy.ClearParams: IRequest;
@@ -396,9 +405,10 @@ begin
   FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions := [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
   FIdSSLIOHandlerSocketOpenSSL.OnStatusInfoEx := OnStatusInfoEx;
 
-  FHeaders := TStringList.Create;
+  FHeaders  := TStringList.Create;
   FResponse := TResponseIndy.Create(FIdHTTP);
-  FParams := TStringList.Create;
+  FParams   := TStringList.Create;
+  FFormData := TIdMultipartFormDataStream.Create;
 
   FStreamResult := TStringStream.Create('');
 
@@ -414,6 +424,7 @@ begin
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
   FreeAndNil(FStreamResult);
+  FreeAndNil(FFormData);
   inherited;
 end;
 
