@@ -62,7 +62,9 @@ type
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
   protected
-    procedure DoAfterExecute; virtual;
+    procedure DoAfterExecute(const Sender: TObject; const AResponse: IHTTPResponse); virtual;
+    procedure DoBeforeExecute(const Sender: TNetHTTPClient); virtual;
+    procedure DoHTTPProtocolError(const Sender: TObject; const AError: string); virtual;
   public
     constructor Create;
     destructor Destroy; override;
@@ -252,6 +254,8 @@ begin
   FNetHTTPClient.AcceptEncoding := 'utf-8';
   FNetHTTPClient.HandleRedirects := True;
   FNetHTTPClient.ContentType := 'application/json';
+  FNetHTTPClient.OnRequestError := DoHTTPProtocolError;
+  FNetHTTPClient.OnRequestCompleted := DoAfterExecute;
 
   FParams := TStringList.Create;
 
@@ -282,8 +286,8 @@ end;
 function TRequestNetHTTP.Delete: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FNetHTTPClient);
   TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Delete(TIdURI.URLEncode(MakeURL), FStreamResult));
-  Self.DoAfterExecute;
 end;
 
 destructor TRequestNetHTTP.Destroy;
@@ -299,13 +303,23 @@ begin
   inherited;
 end;
 
-procedure TRequestNetHTTP.DoAfterExecute;
+procedure TRequestNetHTTP.DoAfterExecute(const Sender: TObject; const AResponse: IHTTPResponse);
 begin
   if not Assigned(FDataSetAdapter) then
     Exit;
   TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter, False);
   FDataSetAdapter.LoadFromJSON(FResponse.Content);
   TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
+end;
+
+procedure TRequestNetHTTP.DoBeforeExecute(const Sender: TNetHTTPClient);
+begin
+  // virtual method
+end;
+
+procedure TRequestNetHTTP.DoHTTPProtocolError(const Sender: TObject; const AError: string);
+begin
+  // virtual method
 end;
 
 function TRequestNetHTTP.FullRequestURL(const AIncludeParams: Boolean): string;
@@ -316,8 +330,8 @@ end;
 function TRequestNetHTTP.Get: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FNetHTTPClient);
   TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Get(TIdURI.URLEncode(MakeURL), FStreamResult));
-  Self.DoAfterExecute;
 end;
 
 function TRequestNetHTTP.MakeURL(const AIncludeParams: Boolean): string;
@@ -354,15 +368,15 @@ end;
 function TRequestNetHTTP.Patch: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FNetHTTPClient);
   TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult));
-  Self.DoAfterExecute;
 end;
 
 function TRequestNetHTTP.Post: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FNetHTTPClient);
   TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult));
-  Self.DoAfterExecute;
 end;
 
 function TRequestNetHTTP.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -374,8 +388,8 @@ end;
 function TRequestNetHTTP.Put: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FNetHTTPClient);
   TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult));
-  Self.DoAfterExecute;
 end;
 
 function TRequestNetHTTP.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
