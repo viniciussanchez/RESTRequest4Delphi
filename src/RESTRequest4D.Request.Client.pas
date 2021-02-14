@@ -17,7 +17,6 @@ type
     FRESTResponse: TRESTResponse;
     FRESTClient: TRESTClient;
     procedure DoJoinComponents;
-    procedure DoAfterExecute(Sender: TCustomRESTRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
     function AcceptCharset: string; overload;
@@ -58,6 +57,10 @@ type
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
+    function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+    function DeactivateProxy: IRequest;
+  protected
+    procedure DoAfterExecute(Sender: TCustomRESTRequest); virtual;
   public
     constructor Create;
     destructor Destroy; override;
@@ -221,6 +224,15 @@ begin
   Self.ContentType('application/json');
 end;
 
+function TRequestClient.DeactivateProxy: IRequest;
+begin
+  Result := Self;
+  FRESTClient.ProxyPassword := '';
+  FRESTClient.ProxyServer := '';
+  FRESTClient.ProxyUsername := '';
+  FRESTClient.ProxyPort := 0;
+end;
+
 function TRequestClient.Delete: IResponse;
 begin
   Result := FResponse;
@@ -319,6 +331,15 @@ begin
   Result := FResponse;
   FRESTRequest.Method := TRESTRequestMethod.rmPOST;
   FRESTRequest.Execute;
+end;
+
+function TRequestClient.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+begin
+  Result := Self;
+  FRESTClient.ProxyPassword := APassword;
+  FRESTClient.ProxyServer := AServer;
+  FRESTClient.ProxyUsername := AUsername;
+  FRESTClient.ProxyPort := APort;
 end;
 
 function TRequestClient.Put: IResponse;

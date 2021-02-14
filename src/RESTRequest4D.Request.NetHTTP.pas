@@ -59,7 +59,10 @@ type
     function AddParam(const AName, AValue: string): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
     function MakeURL(const AIncludeParams: Boolean = True): string;
-    procedure DoAfterExecute;
+    function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+    function DeactivateProxy: IRequest;
+  protected
+    procedure DoAfterExecute; virtual;
   public
     constructor Create;
     destructor Destroy; override;
@@ -270,6 +273,12 @@ begin
   FDataSetAdapter := ADataSet;
 end;
 
+function TRequestNetHTTP.DeactivateProxy: IRequest;
+begin
+  Result := Self;
+  FNetHTTPClient.ProxySettings := TProxySettings.Create('', 0);
+end;
+
 function TRequestNetHTTP.Delete: IResponse;
 begin
   Result := FResponse;
@@ -354,6 +363,12 @@ begin
   Result := FResponse;
   TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult));
   Self.DoAfterExecute;
+end;
+
+function TRequestNetHTTP.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+begin
+  Result := Self;
+  FNetHTTPClient.ProxySettings := TProxySettings.Create(AServer, APort, AUsername, APassword);
 end;
 
 function TRequestNetHTTP.Put: IResponse;
