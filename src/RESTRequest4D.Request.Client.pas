@@ -17,7 +17,6 @@ type
     FRESTResponse: TRESTResponse;
     FRESTClient: TRESTClient;
     procedure DoJoinComponents;
-    procedure DoAfterExecute(Sender: TCustomRESTRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
     function AcceptCharset: string; overload;
@@ -58,8 +57,14 @@ type
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
+    function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+    function DeactivateProxy: IRequest;
+  protected
+    procedure DoAfterExecute(Sender: TCustomRESTRequest); virtual;
+    procedure DoBeforeExecute(Sender: TCustomRESTRequest); virtual;
+    procedure DoHTTPProtocolError(Sender: TCustomRESTRequest); virtual;
   public
-    constructor Create;
+    constructor Create; virtual;
     destructor Destroy; override;
   end;
 
@@ -215,15 +220,26 @@ begin
   FResponse := TResponseClient.Create(FRESTResponse);
 
   FRESTRequest.OnAfterExecute := DoAfterExecute;
+  FRESTRequest.OnHTTPProtocolError := DoHTTPProtocolError;
   DoJoinComponents;
 
   FRESTClient.RaiseExceptionOn500 := False;
   Self.ContentType('application/json');
 end;
 
+function TRequestClient.DeactivateProxy: IRequest;
+begin
+  Result := Self;
+  FRESTClient.ProxyPassword := '';
+  FRESTClient.ProxyServer := '';
+  FRESTClient.ProxyUsername := '';
+  FRESTClient.ProxyPort := 0;
+end;
+
 function TRequestClient.Delete: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmDELETE;
   FRESTRequest.Execute;
 end;
@@ -249,6 +265,16 @@ begin
   TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
 end;
 
+procedure TRequestClient.DoBeforeExecute(Sender: TCustomRESTRequest);
+begin
+  // virtual method
+end;
+
+procedure TRequestClient.DoHTTPProtocolError(Sender: TCustomRESTRequest);
+begin
+  // virtual method
+end;
+
 procedure TRequestClient.DoJoinComponents;
 begin
   FRESTRequest.Client := FRESTClient;
@@ -258,6 +284,7 @@ end;
 function TRequestClient.Get: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmGET;
   FRESTRequest.Execute;
 end;
@@ -310,6 +337,7 @@ end;
 function TRequestClient.Patch: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmPATCH;
   FRESTRequest.Execute;
 end;
@@ -317,13 +345,24 @@ end;
 function TRequestClient.Post: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmPOST;
   FRESTRequest.Execute;
+end;
+
+function TRequestClient.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+begin
+  Result := Self;
+  FRESTClient.ProxyPassword := APassword;
+  FRESTClient.ProxyServer := AServer;
+  FRESTClient.ProxyUsername := AUsername;
+  FRESTClient.ProxyPort := APort;
 end;
 
 function TRequestClient.Put: IResponse;
 begin
   Result := FResponse;
+  DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmPUT;
   FRESTRequest.Execute;
 end;

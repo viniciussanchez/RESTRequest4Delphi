@@ -69,7 +69,10 @@ type
     function AddFile(const AName: string; const AValue: TStream): IRequest;
     function MakeURL(const AIncludeParams: Boolean = True): string;
     procedure OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
-    procedure DoAfterExecute;
+	  function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+    function DeactivateProxy: IRequest;
+  protected
+    procedure DoAfterExecute; virtual;
   public
     constructor Create;
     destructor Destroy; override;
@@ -162,11 +165,29 @@ begin
   Self.DoAfterExecute;
 end;
 
+function TRequestIndy.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+begin
+  Result := Self;
+  FIdHTTP.ProxyParams.ProxyServer := AServer;
+  FIdHTTP.ProxyParams.ProxyPassword := APassword;
+  FIdHTTP.ProxyParams.ProxyUsername := AUsername;
+  FIdHTTP.ProxyParams.ProxyPort := APort;
+end;
+
 function TRequestIndy.Get: IResponse;
 begin
   Result := FResponse;
   FIdHTTP.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
   Self.DoAfterExecute;
+end;
+
+function TRequestIndy.DeactivateProxy: IRequest;
+begin
+  Result := Self;
+  FIdHTTP.ProxyParams.ProxyServer := '';
+  FIdHTTP.ProxyParams.ProxyPassword := '';
+  FIdHTTP.ProxyParams.ProxyUsername := '';
+  FIdHTTP.ProxyParams.ProxyPort := 0;
 end;
 
 function TRequestIndy.Delete: IResponse;
@@ -394,6 +415,7 @@ begin
   FIdHTTP.Request.Connection := 'Keep-Alive';
   FIdHTTP.Request.UserAgent := 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36';
   FIdHTTP.HandleRedirects := True;
+
 
   FIdSSLIOHandlerSocketOpenSSL := TIdSSLIOHandlerSocketOpenSSL.Create;
   FIdHTTP.IOHandler := FIdSSLIOHandlerSocketOpenSSL;
