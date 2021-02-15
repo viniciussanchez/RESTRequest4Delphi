@@ -230,9 +230,9 @@ end;
 function TRequestClient.DeactivateProxy: IRequest;
 begin
   Result := Self;
-  FRESTClient.ProxyPassword := '';
-  FRESTClient.ProxyServer := '';
-  FRESTClient.ProxyUsername := '';
+  FRESTClient.ProxyPassword := EmptyStr;
+  FRESTClient.ProxyServer := EmptyStr;
+  FRESTClient.ProxyUsername := EmptyStr;
   FRESTClient.ProxyPort := 0;
 end;
 

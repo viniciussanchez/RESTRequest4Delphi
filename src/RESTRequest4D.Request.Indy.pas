@@ -68,9 +68,9 @@ type
     function AddParam(const AName, AValue: string): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
     function MakeURL(const AIncludeParams: Boolean = True): string;
-    procedure OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
 	  function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
+    procedure OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
   protected
     procedure DoAfterExecute; virtual;
   public
@@ -184,9 +184,9 @@ end;
 function TRequestIndy.DeactivateProxy: IRequest;
 begin
   Result := Self;
-  FIdHTTP.ProxyParams.ProxyServer := '';
-  FIdHTTP.ProxyParams.ProxyPassword := '';
-  FIdHTTP.ProxyParams.ProxyUsername := '';
+  FIdHTTP.ProxyParams.ProxyServer := EmptyStr;
+  FIdHTTP.ProxyParams.ProxyPassword := EmptyStr;
+  FIdHTTP.ProxyParams.ProxyUsername := EmptyStr;
   FIdHTTP.ProxyParams.ProxyPort := 0;
 end;
 
@@ -416,7 +416,6 @@ begin
   FIdHTTP.Request.UserAgent := 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36';
   FIdHTTP.HandleRedirects := True;
 
-
   FIdSSLIOHandlerSocketOpenSSL := TIdSSLIOHandlerSocketOpenSSL.Create;
   FIdHTTP.IOHandler := FIdSSLIOHandlerSocketOpenSSL;
   FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions := [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
@@ -427,7 +426,6 @@ begin
   FParams := TStringList.Create;
 
   FStreamResult := TStringStream.Create;
-
   Self.ContentType('application/json');
 end;
 

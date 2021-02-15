@@ -280,7 +280,7 @@ end;
 function TRequestNetHTTP.DeactivateProxy: IRequest;
 begin
   Result := Self;
-  FNetHTTPClient.ProxySettings := TProxySettings.Create('', 0);
+  FNetHTTPClient.ProxySettings := TProxySettings.Create(EmptyStr, 0);
 end;
 
 function TRequestNetHTTP.Delete: IResponse;
