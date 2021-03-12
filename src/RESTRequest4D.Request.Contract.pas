@@ -42,11 +42,15 @@ type
     function Patch: IResponse;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
+    {$IF DEFINED(RR4D_NETHTTP)}
+    function Asynchronous(const AValue: Boolean): IRequest;
+    {$ENDIF}
     {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP)}
     function AddParam(const AName, AValue: string): IRequest;
     function AddBody(const AContent: string): IRequest; overload;
     function AddHeader(const AName, AValue: string): IRequest;
     {$ELSE}
+    function SynchronizedEvents(const AValue: Boolean): IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}): IRequest;
     function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;

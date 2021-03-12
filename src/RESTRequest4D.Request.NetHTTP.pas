@@ -58,6 +58,7 @@ type
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
+    function Asynchronous(const AValue: Boolean): IRequest;
     function MakeURL(const AIncludeParams: Boolean = True): string;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
@@ -194,6 +195,11 @@ begin
     FParams.Add(AName + '=' + AValue);
 end;
 
+function TRequestNetHTTP.Asynchronous(const AValue: Boolean): IRequest;
+begin
+  FNetHTTPClient.Asynchronous := AValue;
+end;
+
 function TRequestNetHTTP.BaseURL(const ABaseURL: string): IRequest;
 begin
   Result := Self;
@@ -256,6 +262,7 @@ begin
   FNetHTTPClient.ContentType := 'application/json';
   FNetHTTPClient.OnRequestError := DoHTTPProtocolError;
   FNetHTTPClient.OnRequestCompleted := DoAfterExecute;
+  FNetHTTPClient.Asynchronous := False;
 
   FParams := TStringList.Create;
 

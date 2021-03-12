@@ -50,6 +50,7 @@ type
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
+    function SynchronizedEvents(const AValue: Boolean): IRequest;
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function ClearParams: IRequest;
@@ -212,8 +213,12 @@ end;
 constructor TRequestClient.Create;
 begin
   FRESTResponse := TRESTResponse.Create(nil);
+
   FRESTClient := TRESTClient.Create(nil);
+  FRESTClient.SynchronizedEvents := False;
+
   FRESTRequest := TRESTRequest.Create(nil);
+  FRESTRequest.SynchronizedEvents := False;
 
   FParams := TStringList.Create;
   FHeaders := TStringList.Create;
@@ -327,6 +332,12 @@ end;
 function TRequestClient.ResourceSuffix: string;
 begin
   Result := FRESTRequest.ResourceSuffix;
+end;
+
+function TRequestClient.SynchronizedEvents(const AValue: Boolean): IRequest;
+begin
+  FRESTClient.SynchronizedEvents := AValue;
+  FRESTRequest.SynchronizedEvents := AValue;
 end;
 
 function TRequestClient.Timeout: Integer;
