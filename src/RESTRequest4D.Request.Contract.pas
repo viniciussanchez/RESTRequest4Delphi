@@ -59,6 +59,7 @@ type
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
+    function AddUrlSegment(const AName, AValue: string): IRequest;
     function ClearHeaders: IRequest;
     function ClearParams: IRequest;
     function UserAgent(const AName: string): IRequest;

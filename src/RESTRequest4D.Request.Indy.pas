@@ -18,6 +18,7 @@ type
   private
     FHeaders: TStrings;
     FParams: TStrings;
+    FUrlSegments: TStrings;
     FIdHTTP: TIdHTTP;
     FIdSSLIOHandlerSocketOpenSSL: TIdSSLIOHandlerSocketOpenSSL;
     FBaseURL: string;
@@ -59,6 +60,7 @@ type
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
+    function AddUrlSegment(const AName, AValue: string): IRequest;
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string): IRequest;
     function ClearParams: IRequest;
@@ -245,6 +247,13 @@ begin
       Result := Result + '/';
     Result := Result + FResourceSuffix;
   end;
+  if FUrlSegments.Count > 0 then
+  begin
+    for I := 0 to Pred(FUrlSegments.Count) do
+    begin
+      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I] ,[rfReplaceAll,rfIgnoreCase]);
+    end;
+  end;
   if not AIncludeParams then
     Exit;
   if FParams.Count > 0 then
@@ -269,6 +278,15 @@ begin
   Result := Self;
   if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
     FParams.Add(AName + '=' + AValue);
+end;
+
+function TRequestIndy.AddUrlSegment(const AName, AValue: string): IRequest;
+begin
+  Result := Self;
+  if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
+    Exit;
+  if FUrlSegments.IndexOf(AName) < 0 then
+    FUrlSegments.AddPair(AName, AValue);
 end;
 
 function TRequestIndy.ClearParams: IRequest;
@@ -424,6 +442,7 @@ begin
   FHeaders := TStringList.Create;
   FResponse := TResponseIndy.Create(FIdHTTP);
   FParams := TStringList.Create;
+  FUrlSegments := TStringList.Create;
 
   FStreamResult := TStringStream.Create;
   Self.ContentType('application/json');
@@ -437,6 +456,7 @@ begin
     FreeAndNil(FStreamSend);
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
+  FreeAndNil(FUrlSegments);
   FreeAndNil(FStreamResult);
   inherited;
 end;

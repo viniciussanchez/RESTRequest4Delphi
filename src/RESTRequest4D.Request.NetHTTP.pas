@@ -10,6 +10,7 @@ type
   TRequestNetHTTP = class(TInterfacedObject, IRequest)
   private
     FParams: TStrings;
+    FUrlSegments: TStrings;
     FNetHTTPClient: TNetHTTPClient;
     FBaseURL: string;
     FResource: string;
@@ -50,6 +51,7 @@ type
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
+    function AddUrlSegment(const AName, AValue: string): IRequest;
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string): IRequest;
     function ClearParams: IRequest;
@@ -195,6 +197,16 @@ begin
     FParams.Add(AName + '=' + AValue);
 end;
 
+function TRequestNetHTTP.AddUrlSegment(const AName,
+  AValue: string): IRequest;
+begin
+  Result := Self;
+  if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
+    Exit;
+  if FUrlSegments.IndexOf(AName) < 0 then
+    FUrlSegments.AddPair(AName, AValue);
+end;
+
 function TRequestNetHTTP.Asynchronous(const AValue: Boolean): IRequest;
 begin
   FNetHTTPClient.Asynchronous := AValue;
@@ -265,6 +277,7 @@ begin
   FNetHTTPClient.Asynchronous := False;
 
   FParams := TStringList.Create;
+  FUrlSegments := TStringList.Create;
 
   FResponse := TResponseNetHTTP.Create;
   TResponseNetHTTP(FResponse).SetContent(FStreamResult);
@@ -303,6 +316,8 @@ begin
     FNetHTTPClient.Free;
   if Assigned(FParams) then
     FParams.Free;
+  if Assigned(FUrlSegments) then
+    FUrlSegments.Free;
   if Assigned(FStreamSend) then
     FStreamSend.Free;
   if Assigned(FStreamResult) then
@@ -357,6 +372,13 @@ begin
     if not Result.EndsWith('/') then
       Result := Result + '/';
     Result := Result + FResourceSuffix;
+  end;
+  if FUrlSegments.Count > 0 then
+  begin
+    for I := 0 to Pred(FUrlSegments.Count) do
+    begin
+      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I] ,[rfReplaceAll,rfIgnoreCase]);
+    end;
   end;
   if not AIncludeParams then
     Exit;

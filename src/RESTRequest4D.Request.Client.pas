@@ -50,6 +50,7 @@ type
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
+    function AddUrlSegment(const AName, AValue: string): IRequest;
     function SynchronizedEvents(const AValue: Boolean): IRequest;
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
@@ -159,6 +160,15 @@ begin
     Exit;
   FParams.Add(AName);
   FRESTRequest.AddParameter(AName, AValue, AKind);
+end;
+
+function TRequestClient.AddUrlSegment(const AName,
+  AValue: string): IRequest;
+begin
+  Result := Self;
+  if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
+    Exit;
+  FRESTRequest.Params.AddUrlSegment(AName, AValue);
 end;
 
 function TRequestClient.BasicAuthentication(const AUsername, APassword: string): IRequest;
