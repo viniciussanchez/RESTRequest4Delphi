@@ -286,7 +286,7 @@ begin
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
   if FUrlSegments.IndexOf(AName) < 0 then
-    FUrlSegments.AddPair(AName, AValue);
+    FUrlSegments.Add(Format('%s=%s', [AName, AValue]));
 end;
 
 function TRequestIndy.ClearParams: IRequest;
