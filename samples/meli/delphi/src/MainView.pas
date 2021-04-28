@@ -44,7 +44,7 @@ begin
     .BaseURL(ML_APIBASE)
     .Resource(ML_GET_USR_INF)
     .AddUrlSegment('cust_id',editUserID.Text)
-    .Token('bearer '+editAccess_Token.Text)
+    .Token('Bearer '+editAccess_Token.Text)
     .Accept(REST.Types.CONTENTTYPE_APPLICATION_JSON)
     .RaiseExceptionOn500(True)
     .Get;
