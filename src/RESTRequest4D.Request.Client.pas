@@ -17,6 +17,7 @@ type
     FRESTResponse: TRESTResponse;
     FRESTClient: TRESTClient;
     procedure DoJoinComponents;
+    function PrepareUrlSegments(const AValue: string): string;
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
     function AcceptCharset: string; overload;
@@ -371,6 +372,22 @@ begin
   FRESTRequest.Execute;
 end;
 
+function TRequestClient.PrepareUrlSegments(const AValue: string): string;
+var
+  LSplitedPath: TArray<string>;
+  LPart: string;
+  LPreparedUrl: string;
+begin
+  LSplitedPath := AValue.Split(['/','?','=','&']);
+  LPreparedUrl := AValue;
+  for LPart in LSplitedPath do
+  begin
+    if LPart.StartsWith(':') then
+      LPreparedUrl := StringReplace(LPreparedUrl, LPart, Format('{%s}', [LPart.TrimLeft([':'])]), []);
+  end;
+  Result := LPreparedUrl;
+end;
+
 function TRequestClient.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
 begin
   Result := Self;
@@ -420,7 +437,7 @@ end;
 function TRequestClient.BaseURL(const ABaseURL: string): IRequest;
 begin
   Result := Self;
-  FRESTClient.BaseURL := ABaseURL;
+  FRESTClient.BaseURL := PrepareUrlSegments(ABaseURL);
 end;
 
 function TRequestClient.DataSetAdapter(const ADataSet: TDataSet): IRequest;
@@ -443,13 +460,13 @@ end;
 function TRequestClient.Resource(const AResource: string): IRequest;
 begin
   Result := Self;
-  FRESTRequest.Resource := AResource;
+  FRESTRequest.Resource := PrepareUrlSegments(AResource);
 end;
 
 function TRequestClient.ResourceSuffix(const AResourceSuffix: string): IRequest;
 begin
   Result := Self;
-  FRESTRequest.ResourceSuffix := AResourceSuffix;
+  FRESTRequest.ResourceSuffix := PrepareUrlSegments(AResourceSuffix);
 end;
 
 function TRequestClient.Timeout(const ATimeout: Integer): IRequest;

@@ -74,6 +74,7 @@ const
   {$REGION 'Usuários e Aplicativos - Os seguintes recursos servirão para trabalhar com usuários e aplicativos registrados no Mercado Livre.'}
   /// <summary> Informação da conta do usuário.</summary>
   ML_GET_USR_INF = '/users/{cust_id}';
+  ML_GET_USR_INF_REGEX = '/users/:cust_id';
   /// <summary> Obtém a informação do usuário que fez login na conta.</summary>
   ML_GET_USR_LOGIN = '/users/me';
   /// <summary> Obtém endereço associados à conta do usuário.</summary>

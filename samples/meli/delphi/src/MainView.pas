@@ -42,7 +42,8 @@ begin
 
   LResponse := RESTRequest4D.TRequest.New
     .BaseURL(ML_APIBASE)
-    .Resource(ML_GET_USR_INF)
+//    .Resource(ML_GET_USR_INF)
+    .Resource(ML_GET_USR_INF_REGEX)
     .AddUrlSegment('cust_id',editUserID.Text)
     .Token('Bearer '+editAccess_Token.Text)
     .Accept(REST.Types.CONTENTTYPE_APPLICATION_JSON)
