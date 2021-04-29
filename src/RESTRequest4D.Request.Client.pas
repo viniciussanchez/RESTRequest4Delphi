@@ -163,8 +163,7 @@ begin
   FRESTRequest.AddParameter(AName, AValue, AKind);
 end;
 
-function TRequestClient.AddUrlSegment(const AName,
-  AValue: string): IRequest;
+function TRequestClient.AddUrlSegment(const AName, AValue: string): IRequest;
 begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
