@@ -197,8 +197,7 @@ begin
     FParams.Add(AName + '=' + AValue);
 end;
 
-function TRequestNetHTTP.AddUrlSegment(const AName,
-  AValue: string): IRequest;
+function TRequestNetHTTP.AddUrlSegment(const AName, AValue: string): IRequest;
 begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
@@ -377,8 +376,8 @@ begin
   begin
     for I := 0 to Pred(FUrlSegments.Count) do
     begin
-      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I] ,[rfReplaceAll,rfIgnoreCase]);
-      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I] ,[rfReplaceAll,rfIgnoreCase]);
+      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
+      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
     end;
   end;
   if not AIncludeParams then

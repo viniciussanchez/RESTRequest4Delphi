@@ -1,8 +1,8 @@
-object frmMainView: TfrmMainView
+object FrmMercadoLibre: TFrmMercadoLibre
   Left = 0
   Top = 0
-  Caption = 'frmMainView'
-  ClientHeight = 409
+  Caption = 'Mercado Libre - API'
+  ClientHeight = 435
   ClientWidth = 626
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
