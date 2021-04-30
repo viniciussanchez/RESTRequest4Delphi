@@ -15,6 +15,7 @@ type
     function ContentEncoding: string;
     function ContentStream: TStream;
     function StatusCode: Integer;
+    function StatusText: string;
     function RawBytes: TBytes;
     function JSONValue: TJSONValue;
     function Headers: TStrings;
@@ -86,6 +87,11 @@ end;
 function TResponseClient.StatusCode: Integer;
 begin
   Result := FRESTResponse.StatusCode;
+end;
+
+function TResponseClient.StatusText: string;
+begin
+  Result := FRESTResponse.StatusText;
 end;
 
 end.

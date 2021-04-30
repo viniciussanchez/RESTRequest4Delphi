@@ -28,6 +28,7 @@ type
     function ContentEncoding: string;
     function ContentStream: TStream;
     function StatusCode: Integer;
+    function StatusText: string;
     function RawBytes: TBytes;
   {$IFDEF FPC}
     function JSONValue: TJSONData;
@@ -139,6 +140,11 @@ end;
 function TResponseIndy.StatusCode: Integer;
 begin
   Result := FIdHTTP.Response.ResponseCode;
+end;
+
+function TResponseIndy.StatusText: string;
+begin
+  { TODO -oAll -cResponse : Implement response StatusText for Indy }
 end;
 
 end.

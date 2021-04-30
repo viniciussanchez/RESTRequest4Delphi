@@ -17,6 +17,7 @@ type
     function ContentEncoding: string;
     function ContentStream: TStream;
     function StatusCode: Integer;
+    function StatusText: string;
     function RawBytes: TBytes;
     function JSONValue: TJSONValue;
     function Headers: TStrings;
@@ -107,6 +108,11 @@ end;
 function TResponseNetHTTP.StatusCode: Integer;
 begin
   Result := FHTTPResponse.StatusCode;
+end;
+
+function TResponseNetHTTP.StatusText: string;
+begin
+  Result := FHTTPResponse.StatusText;
 end;
 
 end.
