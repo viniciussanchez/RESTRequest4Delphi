@@ -144,7 +144,7 @@ end;
 
 function TResponseIndy.StatusText: string;
 begin
-  { TODO -oAll -cResponse : Implement response StatusText for Indy }
+  Result := FIdHTTP.Response.ResponseText;
 end;
 
 end.
