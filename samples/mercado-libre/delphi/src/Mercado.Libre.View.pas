@@ -41,7 +41,10 @@ begin
     .RaiseExceptionOn500(True)
     .Get;
 
-  memoResponse.Text := LResponse.Content;
+  memoResponse.Lines.Clear;
+  memoResponse.Lines.Add(Format('Http status: %d', [LResponse.StatusCode]));
+  memoResponse.Lines.Add(Format('Http text: %s', [LResponse.StatusText]));
+  memoResponse.Lines.Add(Format('Response content: %s', [LResponse.Content]));
 end;
 
 end.

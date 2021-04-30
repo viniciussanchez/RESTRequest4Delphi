@@ -18,6 +18,7 @@ type
     function ContentEncoding: string;
     function ContentStream: TStream;
     function StatusCode: Integer;
+    function StatusText: string;
     function RawBytes: TBytes;
   {$IFDEF FPC}
     function JSONValue: TJSONData;
