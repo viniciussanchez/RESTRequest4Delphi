@@ -59,7 +59,8 @@ type
     function ContentType(const AContentType: string): IRequest;
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
-    function AddFile(const AName: string; const AValue: TStream): IRequest;
+    function AddFile(const AName: string; const AValue: TStream): IRequest; overload;
+    function AddFile(const AName: string; const APath: string): IRequest; overload;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
   protected
@@ -508,6 +509,27 @@ begin
   Result := Self;
   for I := 0 to Pred(ACookies.Count) do
     FRESTRequest.AddParameter(ACookies.Names[I], ACookies.Values[ACookies.Names[I]], TRESTRequestParameterKind.pkCOOKIE);
+end;
+
+function TRequestClient.AddFile(const AName, APath: string): IRequest;
+var
+  LParams: TRESTRequestParameterList;
+begin
+  Result := Self;
+  LParams := TRESTRequestParameterList.Create(nil);
+  try
+    with LParams.AddItem do
+    begin
+      Kind := pkFile;
+      Name := AName;
+      Value := APath;
+      Options := [poDoNotEncode];
+      ContentType := ctMULTIPART_FORM_DATA;
+    end;
+    FRESTRequest.Params := LParams;
+  finally
+    FreeAndNil(LParams);
+  end;
 end;
 
 end.
