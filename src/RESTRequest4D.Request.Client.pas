@@ -51,7 +51,7 @@ type
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
-    function FallbackCharsetEncoding(const aFallbackCharsetEncoding : String) : IRequest;
+    function FallbackCharsetEncoding(const AFallbackCharsetEncoding: string): IRequest;
     function AddUrlSegment(const AName, AValue: string): IRequest;
     function SynchronizedEvents(const AValue: Boolean): IRequest;
     function ClearHeaders: IRequest;
@@ -330,11 +330,10 @@ begin
   Result := FDataSetAdapter;
 end;
 
-function TRequestClient.FallbackCharsetEncoding(
-  const aFallbackCharsetEncoding: String): IRequest;
+function TRequestClient.FallbackCharsetEncoding(const AFallbackCharsetEncoding: string): IRequest;
 begin
   Result := Self;
-  FRESTClient.FallbackCharsetEncoding := aFallbackCharsetEncoding;
+  FRESTClient.FallbackCharsetEncoding := AFallbackCharsetEncoding;
 end;
 
 function TRequestClient.FullRequestURL(const AIncludeParams: Boolean): string;
