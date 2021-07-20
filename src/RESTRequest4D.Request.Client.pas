@@ -38,7 +38,7 @@ type
     function RaiseExceptionOn500(const ARaiseException: Boolean): IRequest; overload;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function Token(const AToken: string): IRequest;
-	function TokenBearer(const AToken: string): IRequest;    
+    function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Get: IResponse;
     function Post: IResponse;

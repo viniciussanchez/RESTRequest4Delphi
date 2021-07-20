@@ -38,6 +38,7 @@ type
     function ResourceSuffix(const AResourceSuffix: string): IRequest; overload;
     function ResourceSuffix: string; overload;
     function Token(const AToken: string): IRequest;
+    function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Get: IResponse;
     function Post: IResponse;
@@ -469,6 +470,12 @@ function TRequestNetHTTP.Token(const AToken: string): IRequest;
 begin
   Result := Self;
   Self.AddHeader('Authorization', AToken);
+end;
+
+function TRequestNetHTTP.TokenBearer(const AToken: string): IRequest;
+begin
+  Result := Self;
+  Self.AddHeader('Authorization', 'Bearer' + AToken);
 end;
 
 function TRequestNetHTTP.UserAgent(const AName: string): IRequest;
