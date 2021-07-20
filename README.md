@@ -109,7 +109,7 @@ You can set credentials using the `BasicAuthentication` or `Token` or `TokenBear
 begin
   Request.BasicAuthentication('username', 'password');
   // considere vToken igual a chave do Token
-  Request.Token('bearer ' + vToken); // existe a necessidade de envia o 'bearer ' + vToken
+  Request.Token('bearer ' + vToken); // existe a necessidade de enviar o 'bearer ' + vToken
   Request.TokenBearer(vToken);       // sem necessidade de enviar o 'bearer ' 
 
 end;
