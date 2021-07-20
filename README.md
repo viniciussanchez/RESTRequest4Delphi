@@ -108,9 +108,9 @@ You can set credentials using the `BasicAuthentication` or `Token` or `TokenBear
 ```pascal
 begin
   Request.BasicAuthentication('username', 'password');
-  // considere "token" igual a chave
-  Request.Token('bearer token'); // sempre passe o 'bearer ' + vToken
-  Request.TokenBearer('token');  // sem necessidade do 'bearer ' 
+  // considere vToken igual a chave do Token
+  Request.Token('bearer ' + vToken); // existe a necessidade de envia o 'bearer ' + vToken
+  Request.TokenBearer(vToken);       // sem necessidade de enviar o 'bearer ' 
 
 end;
 ```
