@@ -77,6 +77,7 @@ implementation
 
 function TRequestNetHTTP.Accept(const AAccept: string): IRequest;
 begin
+  Result := Self;
   FNetHTTPClient.Accept := AAccept;
 end;
 
@@ -87,6 +88,7 @@ end;
 
 function TRequestNetHTTP.AcceptCharset(const AAcceptCharset: string): IRequest;
 begin
+  Result := Self;
   FNetHTTPClient.AcceptCharSet := AAcceptCharset;
 end;
 
@@ -97,6 +99,7 @@ end;
 
 function TRequestNetHTTP.AcceptEncoding(const AAcceptEncoding: string): IRequest;
 begin
+  Result := Self;
   FNetHTTPClient.AcceptEncoding := AAcceptEncoding;
 end;
 
@@ -208,6 +211,7 @@ end;
 
 function TRequestNetHTTP.Asynchronous(const AValue: Boolean): IRequest;
 begin
+  Result := Self;
   FNetHTTPClient.Asynchronous := AValue;
 end;
 
