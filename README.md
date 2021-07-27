@@ -74,7 +74,7 @@ end;
 ```pascal
 begin
   TRequest.New.BaseURL('http://localhost:8888/users')
-    .Accept('application/json')
+    .ContentType('application/json')
     .AddBody('{"name":"Vinicius","lastName":"Sanchez","email":"viniciuss.sanchez@gmail.com"}')
     .Post;
 end;
@@ -85,7 +85,7 @@ end;
 ```pascal
 begin
   TRequest.New.BaseURL('http://localhost:8888/users/1')
-    .Accept('application/json')
+    .ContentType('application/json')
     .AddBody('{"name":"Vinicius","lastName":"Scandelai Sanchez","email":"viniciuss.sanchez@gmail.com"}')
     .Put;
 end;
