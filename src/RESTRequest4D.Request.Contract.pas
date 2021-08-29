@@ -66,6 +66,7 @@ type
     function UserAgent(const AName: string): IRequest;
     function ContentType(const AContentType: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
+    function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;

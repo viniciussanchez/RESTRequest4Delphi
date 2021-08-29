@@ -58,6 +58,7 @@ type
     function ContentType(const AContentType: string): IRequest;
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
+    function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
     function AddFile(const AName: string; const AValue: TStream): IRequest;
     function Asynchronous(const AValue: Boolean): IRequest;
@@ -174,6 +175,15 @@ begin
     ACookies.Free;
     LURI.Free;
   end;
+end;
+
+function TRequestNetHTTP.AddCookie(const ACookieName, ACookieValue: string): IRequest;
+var
+  cookies: TStringList;
+begin
+  cookies := TStringList.Create;
+  cookies.AddPair(ACookieName, ACookieValue);
+  Result := AddCookies(cookies);
 end;
 
 function TRequestNetHTTP.AddFile(const AName: string; const AValue: TStream): IRequest;
