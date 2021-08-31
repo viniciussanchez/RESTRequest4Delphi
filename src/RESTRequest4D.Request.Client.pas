@@ -501,7 +501,7 @@ begin
   Result := Self;
   if AToken.Trim.IsEmpty then
     Exit;
-  self.Token( 'Bearer '+AToken)
+  Self.Token('Bearer ' + AToken);
 end;
 
 function TRequestClient.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;

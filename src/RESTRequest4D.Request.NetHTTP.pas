@@ -489,7 +489,7 @@ end;
 function TRequestNetHTTP.TokenBearer(const AToken: string): IRequest;
 begin
   Result := Self;
-  Self.AddHeader('Authorization', 'Bearer' + AToken);
+  Self.AddHeader('Authorization', 'Bearer ' + AToken);
 end;
 
 function TRequestNetHTTP.UserAgent(const AName: string): IRequest;

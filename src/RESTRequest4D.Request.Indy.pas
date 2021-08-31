@@ -239,7 +239,7 @@ end;
 function TRequestIndy.TokenBearer(const AToken: string): IRequest;
 begin
   Result := Self;
-  Self.AddHeader('Authorization', 'Bearer '+AToken);
+  Self.AddHeader('Authorization', 'Bearer ' + AToken);
 end;
 
 function TRequestIndy.FullRequestURL(const AIncludeParams: Boolean): string;
