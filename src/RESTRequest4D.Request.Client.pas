@@ -38,6 +38,7 @@ type
     function RaiseExceptionOn500(const ARaiseException: Boolean): IRequest; overload;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function Token(const AToken: string): IRequest;
+    function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Get: IResponse;
     function Post: IResponse;
@@ -493,6 +494,14 @@ begin
     FHeaders.Add(AUTHORIZATION);
   FRESTRequest.Params.AddHeader(AUTHORIZATION, AToken);
   FRESTRequest.Params.ParameterByName(AUTHORIZATION).Options := [poDoNotEncode];
+end;
+
+function TRequestClient.TokenBearer(const AToken: string): IRequest;
+begin
+  Result := Self;
+  if AToken.Trim.IsEmpty then
+    Exit;
+  self.Token( 'Bearer '+AToken)
 end;
 
 function TRequestClient.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;

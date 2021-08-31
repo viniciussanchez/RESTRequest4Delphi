@@ -103,12 +103,15 @@ end;
 
 ## 🔒 Authentication
 
-You can set credentials using the `BasicAuthentication` or `Token` method before making the first request:
+You can set credentials using the `BasicAuthentication` or `Token` or `TokenBearer` method before making the first request:
 
 ```pascal
 begin
   Request.BasicAuthentication('username', 'password');
-  Request.Token('bearer token');
+  // considere vToken igual a chave do Token
+  Request.Token('bearer ' + vToken); // existe a necessidade de enviar o 'bearer ' + vToken
+  Request.TokenBearer(vToken);       // sem necessidade de enviar o 'bearer ' 
+
 end;
 ```
 You can set it once and it will be used for every request.
