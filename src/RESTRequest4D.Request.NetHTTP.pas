@@ -197,7 +197,7 @@ begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
-{$IFDEF VER340}
+{$IF COMPILERVERSION >= 34}
   FNetHTTPClient.CustHeaders.Add(AName, AValue);
 {$ELSE}
   {TODO -oAll -cCustoms Headers : Add headers with NetHTTPClient in versions below of 10.4 Sydney}
@@ -250,13 +250,13 @@ begin
 end;
 
 function TRequestNetHTTP.ClearHeaders: IRequest;
-{$IFDEF VER340}
+{$IF COMPILERVERSION >= 34}
 var
   I: Integer;
 {$ENDIF}
 begin
   Result := Self;
-{$IFDEF VER340}
+{$IF COMPILERVERSION >= 34}
   for I := 0 to Pred(FNetHTTPClient.CustHeaders.Count) do
     FNetHTTPClient.CustHeaders.Delete(I);
 {$ELSE}
