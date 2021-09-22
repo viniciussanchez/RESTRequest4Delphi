@@ -22,16 +22,20 @@ const
   poDoNotEncode = REST.Types.poDoNotEncode;
   poTransient = REST.Types.poTransient;
   poAutoCreated = REST.Types.poAutoCreated;
+  {$IF COMPILERVERSION >= 33}
   poFlatArray = REST.Types.poFlatArray;
   poPHPArray = REST.Types.poPHPArray;
   poListArray = REST.Types.poListArray;
+  {$ENDIF}
 
   pkCOOKIE = REST.Types.pkCOOKIE;
   pkGETorPOST = REST.Types.pkGETorPOST;
   pkURLSEGMENT = REST.Types.pkURLSEGMENT;
   pkHTTPHEADER = REST.Types.pkHTTPHEADER;
   pkREQUESTBODY = REST.Types.pkREQUESTBODY;
+  {$IF COMPILERVERSION >= 32}
   pkFILE = REST.Types.pkFILE;
+  {$ENDIF}
   {$IF COMPILERVERSION >= 33}
   pkQUERY = REST.Types.pkQUERY;
   {$ENDIF}
