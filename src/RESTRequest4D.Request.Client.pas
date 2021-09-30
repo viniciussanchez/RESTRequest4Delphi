@@ -104,7 +104,7 @@ begin
   if AOwns then
     {$IFDEF MSWINDOWS}
     AContent.Free;
-    {$ELSEIFDEF}
+    {$ELSE}
       AContent.DisposeOf;
     {$ENDIF}
 end;
@@ -118,7 +118,7 @@ begin
   if AOwns then
     {$IFDEF MSWINDOWS}
     AContent.Free;
-    {$ELSEIFDEF}
+    {$ELSE}
     AContent.DisposeOf;
     {$ENDIF}
 end;
@@ -136,7 +136,7 @@ begin
   if AOwns then
     {$IFDEF MSWINDOWS}
     AContent.Free;
-    {$ELSEIFDEF}
+    {$ELSE}
     AContent.DisposeOf;
     {$ENDIF}
 end;
@@ -529,7 +529,7 @@ begin
   if AOwns then
     {$IFDEF MSWINDOWS}
     AContent.Free;
-    {$ELSEIFDEF}
+    {$ELSE}
     AContent.DisposeOf;
     {$ENDIF}
 end;
