@@ -1,11 +1,11 @@
 {
-	"hash": "cdbb70a8679a51d4358a9e31e1ef566a",
-	"updated": "2021-03-24T15:27:46.0150426-03:00",
+	"hash": "",
+	"updated": "2021-09-30T18:04:36.4864431-03:00",
 	"installedModules": {
-		"github.com/viniciussanchez/dataset-serialize": {
+		"https://github.com/ricksolucoes/dataset-serialize": {
 			"name": "dataset-serialize",
-			"version": "v2.3.3",
-			"hash": "65a1995f3a283f09382722a7a8c21d1a",
+			"version": "2.3.3",
+			"hash": "3d8342c46cb68d82bf100b8e5c2623b2",
 			"artifacts": {},
 			"failed": false,
 			"changed": false
