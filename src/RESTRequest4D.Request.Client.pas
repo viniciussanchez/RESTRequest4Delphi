@@ -102,7 +102,11 @@ begin
     FRESTRequest.Body.Add(AContent);
   {$ENDIF}
   if AOwns then
+    {$IFDEF MSWINDOWS}
     AContent.Free;
+    {$ELSEIFDEF}
+      AContent.DisposeOf;
+    {$ENDIF}
 end;
 
 function TRequestClient.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
@@ -112,7 +116,11 @@ begin
     Exit;
   Self.AddBody(AContent.ToString);
   if AOwns then
+    {$IFDEF MSWINDOWS}
     AContent.Free;
+    {$ELSEIFDEF}
+    AContent.DisposeOf;
+    {$ENDIF}
 end;
 
 function TRequestClient.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
@@ -126,7 +134,11 @@ begin
     FRESTRequest.Body.Add(AContent);
   {$ENDIF}
   if AOwns then
+    {$IFDEF MSWINDOWS}
     AContent.Free;
+    {$ELSEIFDEF}
+    AContent.DisposeOf;
+    {$ENDIF}
 end;
 
 function TRequestClient.AddFile(const AName: string; const AValue: TStream): IRequest;
@@ -515,7 +527,11 @@ begin
     FRESTRequest.Body.Add(AContent, TRESTContentType.ctAPPLICATION_OCTET_STREAM);
   {$ENDIF}
   if AOwns then
+    {$IFDEF MSWINDOWS}
     AContent.Free;
+    {$ELSEIFDEF}
+    AContent.DisposeOf;
+    {$ENDIF}
 end;
 
 function TRequestClient.AddCookies(const ACookies: TStrings): IRequest;
