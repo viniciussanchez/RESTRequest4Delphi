@@ -242,7 +242,6 @@ begin
   DoJoinComponents;
 
   FRESTClient.RaiseExceptionOn500 := False;
-  Self.ContentType('application/json');
 end;
 
 function TRequestClient.DeactivateProxy: IRequest;
