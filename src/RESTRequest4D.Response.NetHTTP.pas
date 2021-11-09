@@ -35,7 +35,8 @@ var
 begin
   if not(Assigned(FJSONValue)) then
   begin
-    LContent := FHTTPResponse.ContentAsString.Trim;
+    if Assigned(FHTTPResponse) then
+      LContent := FHTTPResponse.ContentAsString.Trim;
     if LContent.StartsWith('{') then
       FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
     else if LContent.StartsWith('[') then
@@ -48,28 +49,36 @@ end;
 
 function TResponseNetHTTP.Content: string;
 begin
-  Result := FHTTPResponse.ContentAsString;
+  if Assigned(FHTTPResponse) then
+    Result := FHTTPResponse.ContentAsString;
 end;
 
 function TResponseNetHTTP.ContentEncoding: string;
 begin
-  Result := FHTTPResponse.ContentEncoding;
+  if Assigned(FHTTPResponse) then
+    Result := FHTTPResponse.ContentEncoding;
 end;
 
 function TResponseNetHTTP.ContentLength: Cardinal;
 begin
-  Result := FHTTPResponse.ContentLength
+  Result := 0;
+  if Assigned(FHTTPResponse) then
+    Result := FHTTPResponse.ContentLength
 end;
 
 function TResponseNetHTTP.ContentStream: TStream;
 begin
-  Result := FHTTPResponse.ContentStream;
-  Result.Position := 0;
+  Result := nil;
+  if Assigned(FHTTPResponse) then
+  begin
+    Result := FHTTPResponse.ContentStream;
+    Result.Position := 0;
+  end;
 end;
 
 function TResponseNetHTTP.ContentType: string;
 begin
-  if FHTTPResponse.ContainsHeader('Content-Type') then
+  if Assigned(FHTTPResponse) and FHTTPResponse.ContainsHeader('Content-Type') then
     Result := FHTTPResponse.HeaderValue['Content-Type'];
 end;
 
@@ -86,13 +95,15 @@ var
   LHeader: TNameValuePair;
 begin
   Result := TStringList.Create;
-  for LHeader in FHTTPResponse.Headers do
-    Result.Add(LHeader.Name + '=' + LHeader.Value);
+  if Assigned(FHTTPResponse) then
+    for LHeader in FHTTPResponse.Headers do
+      Result.Add(LHeader.Name + '=' + LHeader.Value);
 end;
 
 function TResponseNetHTTP.RawBytes: TBytes;
 begin
-  Result := FContent.Bytes;
+  if Assigned(FContent) then
+    Result := FContent.Bytes;
 end;
 
 procedure TResponseNetHTTP.SetContent(const AContent: TStringStream);
@@ -107,12 +118,15 @@ end;
 
 function TResponseNetHTTP.StatusCode: Integer;
 begin
-  Result := FHTTPResponse.StatusCode;
+  Result := 0;
+  if Assigned(FHTTPResponse) then
+    Result := FHTTPResponse.StatusCode;
 end;
 
 function TResponseNetHTTP.StatusText: string;
 begin
-  Result := FHTTPResponse.StatusText;
+  if Assigned(FHTTPResponse) then
+    Result := FHTTPResponse.StatusText;
 end;
 
 end.

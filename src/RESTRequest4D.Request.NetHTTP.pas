@@ -19,6 +19,8 @@ type
     FResponse: IResponse;
     FStreamSend: TStream;
     FStreamResult: TStringStream;
+    FRetries: Integer;
+    function ExecuteRequest(const AMethod: TMethodRequest): IHTTPResponse;
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
     function AcceptCharset: string; overload;
@@ -40,6 +42,7 @@ type
     function Token(const AToken: string): IRequest;
     function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
+    function Retry(const ARetries: Integer): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -298,6 +301,7 @@ begin
 
   FStreamResult := TStringStream.Create;
   Self.ContentType('application/json');
+  FRetries := 0;
 end;
 
 function TRequestNetHTTP.DataSetAdapter: TDataSet;
@@ -321,7 +325,7 @@ function TRequestNetHTTP.Delete: IResponse;
 begin
   Result := FResponse;
   DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Delete(TIdURI.URLEncode(MakeURL), FStreamResult));
+  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrDELETE));
 end;
 
 destructor TRequestNetHTTP.Destroy;
@@ -358,6 +362,36 @@ begin
   // virtual method
 end;
 
+function TRequestNetHTTP.ExecuteRequest(const AMethod: TMethodRequest): IHTTPResponse;
+var
+  LAttempts: Integer;
+begin
+  LAttempts := FRetries + 1;
+  while LAttempts > 0 do
+  begin
+    try
+      case AMethod of
+        mrGET:
+          Result := FNetHTTPClient.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
+        mrPOST:
+          Result := FNetHTTPClient.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        mrPUT:
+          Result := FNetHTTPClient.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        mrPATCH:
+          Result := FNetHTTPClient.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        mrDELETE:
+          Result := FNetHTTPClient.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
+      end;
+      if Assigned(Result) then
+        LAttempts := 0
+      else
+        LAttempts := LAttempts - 1;
+    except
+      LAttempts := LAttempts - 1;
+    end;
+  end;
+end;
+
 function TRequestNetHTTP.FullRequestURL(const AIncludeParams: Boolean): string;
 begin
   Result := Self.MakeURL(AIncludeParams);
@@ -367,7 +401,7 @@ function TRequestNetHTTP.Get: IResponse;
 begin
   Result := FResponse;
   DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Get(TIdURI.URLEncode(MakeURL), FStreamResult));
+  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrGET));
 end;
 
 function TRequestNetHTTP.MakeURL(const AIncludeParams: Boolean): string;
@@ -413,14 +447,14 @@ function TRequestNetHTTP.Patch: IResponse;
 begin
   Result := FResponse;
   DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult));
+  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrPATCH));
 end;
 
 function TRequestNetHTTP.Post: IResponse;
 begin
   Result := FResponse;
   DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult));
+  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrPOST));
 end;
 
 function TRequestNetHTTP.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -433,7 +467,7 @@ function TRequestNetHTTP.Put: IResponse;
 begin
   Result := FResponse;
   DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(FNetHTTPClient.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult));
+  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrPUT));
 end;
 
 function TRequestNetHTTP.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
@@ -466,6 +500,12 @@ end;
 function TRequestNetHTTP.ResourceSuffix: string;
 begin
   Result := FResourceSuffix;
+end;
+
+function TRequestNetHTTP.Retry(const ARetries: Integer): IRequest;
+begin
+  Result := Self;
+  FRetries := ARetries;
 end;
 
 function TRequestNetHTTP.Timeout: Integer;

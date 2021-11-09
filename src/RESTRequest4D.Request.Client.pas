@@ -16,6 +16,8 @@ type
     FDataSetAdapter: TDataSet;
     FRESTResponse: TRESTResponse;
     FRESTClient: TRESTClient;
+    FRetries: Integer;
+    procedure ExecuteRequest;
     procedure DoJoinComponents;
     function PrepareUrlSegments(const AValue: string): string;
     function AcceptEncoding: string; overload;
@@ -40,6 +42,7 @@ type
     function Token(const AToken: string): IRequest;
     function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
+    function Retry(const ARetries: Integer): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -242,6 +245,7 @@ begin
   DoJoinComponents;
 
   FRESTClient.RaiseExceptionOn500 := False;
+  FRetries := 0;
 end;
 
 function TRequestClient.DeactivateProxy: IRequest;
@@ -258,7 +262,7 @@ begin
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmDELETE;
-  FRESTRequest.Execute;
+  ExecuteRequest;
 end;
 
 destructor TRequestClient.Destroy;
@@ -298,12 +302,28 @@ begin
   FRESTRequest.Response := FRESTResponse;
 end;
 
+procedure TRequestClient.ExecuteRequest;
+var
+  LAttempts: Integer;
+begin
+  LAttempts := FRetries + 1;
+  while LAttempts > 0 do
+  begin
+    try
+      FRESTRequest.Execute;
+      LAttempts := 0;
+    except
+      LAttempts := LAttempts - 1;
+    end;
+  end;
+end;
+
 function TRequestClient.Get: IResponse;
 begin
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmGET;
-  FRESTRequest.Execute;
+  ExecuteRequest;
 end;
 
 function TRequestClient.Accept: string;
@@ -352,6 +372,12 @@ begin
   Result := FRESTRequest.ResourceSuffix;
 end;
 
+function TRequestClient.Retry(const ARetries: Integer): IRequest;
+begin
+  Result := Self;
+  FRetries := ARetries;
+end;
+
 function TRequestClient.SynchronizedEvents(const AValue: Boolean): IRequest;
 begin
   FRESTClient.SynchronizedEvents := AValue;
@@ -368,7 +394,7 @@ begin
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmPATCH;
-  FRESTRequest.Execute;
+  ExecuteRequest;
 end;
 
 function TRequestClient.Post: IResponse;
@@ -376,7 +402,7 @@ begin
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmPOST;
-  FRESTRequest.Execute;
+  ExecuteRequest;
 end;
 
 function TRequestClient.PrepareUrlSegments(const AValue: string): string;
@@ -409,7 +435,7 @@ begin
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmPUT;
-  FRESTRequest.Execute;
+  ExecuteRequest;
 end;
 
 function TRequestClient.Accept(const AAccept: string): IRequest;

@@ -7,6 +7,8 @@ uses DB;
 {$ENDIF}
 
 type
+  TMethodRequest = (mrGET, mrPOST, mrPUT, mrPATCH, mrDELETE);
+
   TRESTRequest4DelphiUtils = class
   public
     {$IFNDEF FPC}

@@ -7,6 +7,7 @@ unit RESTRequest4D.Request.Indy;
 interface
 
 uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL, IdCTypes, IdSSLOpenSSLHeaders,
+  RESTRequest4D.Utils,
   {$IFDEF FPC}
     DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
   {$ELSE}
@@ -28,6 +29,8 @@ type
     FResponse: IResponse;
     FStreamSend: TStream;
     FStreamResult: TStringStream;
+    FRetries: Integer;
+    procedure ExecuteRequest(const AMethod: TMethodRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
     function AcceptCharset: string; overload;
@@ -49,6 +52,7 @@ type
     function Token(const AToken: string): IRequest;
     function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
+    function Retry(const ARetries: Integer): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -84,7 +88,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, {$IFNDEF FPC}RESTRequest4D.Utils,{$ENDIF} IdCookieManager;
+uses RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, IdCookieManager;
 
 function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
 begin
@@ -157,25 +161,50 @@ begin
   {$ENDIF}
 end;
 
+procedure TRequestIndy.ExecuteRequest(const AMethod: TMethodRequest);
+var
+  LAttempts: Integer;
+begin
+  LAttempts := FRetries + 1;
+  while LAttempts > 0 do
+  begin
+    try
+      case AMethod of
+        mrGET:
+          FIdHTTP.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
+        mrPOST:
+          FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        mrPUT:
+          FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        mrPATCH:
+          FIdHTTP.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        mrDELETE:
+          FIdHTTP.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
+      end;
+      LAttempts := 0;
+      Self.DoAfterExecute;
+    except
+      LAttempts := LAttempts - 1;
+    end;
+  end;
+end;
+
 function TRequestIndy.Patch: IResponse;
 begin
   Result := FResponse;
-  FIdHTTP.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
-  Self.DoAfterExecute;
+  ExecuteRequest(mrPATCH);
 end;
 
 function TRequestIndy.Put: IResponse;
 begin
   Result := FResponse;
-  FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
-  Self.DoAfterExecute;
+  ExecuteRequest(mrPUT);
 end;
 
 function TRequestIndy.Post: IResponse;
 begin
   Result := FResponse;
-  FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
-  Self.DoAfterExecute;
+  ExecuteRequest(mrGET);
 end;
 
 function TRequestIndy.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -190,8 +219,7 @@ end;
 function TRequestIndy.Get: IResponse;
 begin
   Result := FResponse;
-  FIdHTTP.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
-  Self.DoAfterExecute;
+  ExecuteRequest(mrGET);
 end;
 
 function TRequestIndy.DeactivateProxy: IRequest;
@@ -206,8 +234,7 @@ end;
 function TRequestIndy.Delete: IResponse;
 begin
   Result := FResponse;
-  FIdHTTP.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
-  Self.DoAfterExecute;
+  ExecuteRequest(mrDELETE);
 end;
 
 function TRequestIndy.AddBody(const AContent: string): IRequest;
@@ -464,6 +491,7 @@ begin
 
   FStreamResult := TStringStream.Create;
   Self.ContentType('application/json');
+  FRetries := 0;
 end;
 
 destructor TRequestIndy.Destroy;
@@ -499,6 +527,12 @@ end;
 function TRequestIndy.ResourceSuffix: string;
 begin
   Result := FResourceSuffix;
+end;
+
+function TRequestIndy.Retry(const ARetries: Integer): IRequest;
+begin
+  Result := Self;
+  FRetries := ARetries;
 end;
 
 function TRequestIndy.Timeout: Integer;
