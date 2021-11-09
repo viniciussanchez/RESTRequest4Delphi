@@ -105,7 +105,13 @@ begin
     FStreamSend.Position := 0;
   finally
     if AOwns then
-      AContent.Free;
+    begin
+      {$IFDEF MSWINDOWS OR FPC}
+        AContent.Free;
+      {$ELSE}
+        AContent.DisposeOf;
+      {$ENDIF}
+    end;
   end;
 end;
 
@@ -120,7 +126,11 @@ begin
       FIdHTTP.CookieManager := TIdCookieManager.Create(FIdHTTP);
     FIdHTTP.CookieManager.AddServerCookies(ACookies, LURI);
   finally
-    ACookies.Free;
+    {$IFDEF MSWINDOWS OR FPC}
+      ACookies.Free;
+    {$ELSE}
+      ACookies.DisposeOf;
+    {$ENDIF}
     LURI.Free;
   end;
 end;
@@ -367,7 +377,13 @@ begin
     {$ENDIF}
     LJSONObject.Free;
     if AOwns then
-      AContent.Free;
+    begin
+      {$IFDEF MSWINDOWS OR FPC}
+        AContent.Free;
+      {$ELSE}
+        AContent.DisposeOf;
+      {$ENDIF}
+    end;
   end;
 end;
 
@@ -386,7 +402,13 @@ begin
   Result := Self.AddBody(AContent.ToJSON);
 {$ENDIF}
   if AOwns then
-    AContent.Free;
+  begin
+    {$IFDEF MSWINDOWS OR FPC}
+      AContent.Free;
+    {$ELSE}
+      AContent.DisposeOf;
+    {$ENDIF}
+  end;
 end;
 
 function TRequestIndy.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
@@ -397,7 +419,13 @@ begin
   Result := Self.AddBody(AContent.ToJSON);
 {$ENDIF}
   if AOwns then
-    AContent.Free;
+  begin
+    {$IFDEF MSWINDOWS OR FPC}
+      AContent.Free;
+    {$ELSE}
+      AContent.DisposeOf;
+    {$ENDIF}
+  end;
 end;
 
 function TRequestIndy.DataSetAdapter(const ADataSet: TDataSet): IRequest;

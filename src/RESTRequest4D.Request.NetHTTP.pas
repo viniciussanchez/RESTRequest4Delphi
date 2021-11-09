@@ -133,7 +133,13 @@ begin
     FStreamSend.Position := 0;
   finally
     if AOwns then
-      AContent.Free;
+    begin
+      {$IFDEF MSWINDOWS}
+        AContent.Free;
+      {$ELSE}
+        AContent.DisposeOf;
+      {$ENDIF}
+    end;
   end;
 end;
 
@@ -141,7 +147,13 @@ function TRequestNetHTTP.AddBody(const AContent: TJSONObject; const AOwns: Boole
 begin
   Result := Self.AddBody(AContent.ToJSON);
   if AOwns then
-    AContent.Free;;
+  begin
+    {$IFDEF MSWINDOWS}
+      AContent.Free;
+    {$ELSE}
+      AContent.DisposeOf;
+    {$ENDIF}
+  end;
 end;
 
 function TRequestNetHTTP.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
@@ -154,7 +166,13 @@ begin
   finally
     LJSONObject.Free;
     if AOwns then
-      AContent.Free;
+    begin
+      {$IFDEF MSWINDOWS}
+        AContent.Free;
+      {$ELSE}
+        AContent.DisposeOf;
+      {$ENDIF}
+    end;
   end;
 end;
 
@@ -162,7 +180,13 @@ function TRequestNetHTTP.AddBody(const AContent: TJSONArray; const AOwns: Boolea
 begin
   Result := Self.AddBody(AContent.ToJSON);
   if AOwns then
-    AContent.Free;
+  begin
+    {$IFDEF MSWINDOWS}
+      AContent.Free;
+    {$ELSE}
+      AContent.DisposeOf;
+    {$ENDIF}
+  end;
 end;
 
 function TRequestNetHTTP.AddCookies(const ACookies: TStrings): IRequest;
@@ -176,7 +200,11 @@ begin
       FNetHTTPClient.CookieManager := TCookieManager.Create;
     FNetHTTPClient.CookieManager.AddServerCookie(ACookies.Text, LURI.URI);
   finally
-    ACookies.Free;
+    {$IFDEF MSWINDOWS}
+      ACookies.Free;
+    {$ELSE}
+      ACookies.DisposeOf;
+    {$ENDIF}
     LURI.Free;
   end;
 end;
