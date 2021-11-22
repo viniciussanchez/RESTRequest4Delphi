@@ -214,7 +214,7 @@ end;
 function TRequestIndy.Post: IResponse;
 begin
   Result := FResponse;
-  ExecuteRequest(mrGET);
+  ExecuteRequest(mrPOST);
 end;
 
 function TRequestIndy.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
