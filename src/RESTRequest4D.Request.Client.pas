@@ -68,6 +68,7 @@ type
     function AddFile(const AName: string; const AValue: TStream): IRequest;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
+    function HandleRedirects (const ARedirect : Boolean) : IRequest;
   protected
     procedure DoAfterExecute(Sender: TCustomRESTRequest); virtual;
     procedure DoBeforeExecute(Sender: TCustomRESTRequest); virtual;
@@ -342,6 +343,12 @@ begin
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmGET;
   ExecuteRequest;
+end;
+
+function TRequestClient.HandleRedirects(const ARedirect: Boolean): IRequest;
+begin
+  Result := Self;
+  FRESTRequest.HandleRedirects := ARedirect;
 end;
 
 function TRequestClient.Accept: string;
