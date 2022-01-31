@@ -415,7 +415,11 @@ begin
       else
         LAttempts := LAttempts - 1;
     except
-      LAttempts := LAttempts - 1;
+      begin
+        LAttempts := LAttempts - 1;
+        if LAttempts = 0 then
+          raise;
+      end;
     end;
   end;
 end;

@@ -194,7 +194,11 @@ begin
       LAttempts := 0;
       Self.DoAfterExecute;
     except
-      LAttempts := LAttempts - 1;
+      begin
+        LAttempts := LAttempts - 1;
+        if LAttempts = 0 then
+          raise;
+      end;
     end;
   end;
 end;
