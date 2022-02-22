@@ -8,11 +8,11 @@ interface
 
 uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL, IdCTypes, IdSSLOpenSSLHeaders,
   RESTRequest4D.Utils,
-  {$IFDEF FPC}
-    DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
-  {$ELSE}
-    Data.DB, System.Classes, System.JSON, System.SysUtils, REST.Json;
-  {$ENDIF}
+{$IFDEF FPC}
+  DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
+{$ELSE}
+  Data.DB, System.Classes, System.JSON, System.SysUtils, REST.Json;
+{$ENDIF}
 
 type
   TRequestIndy = class(TInterfacedObject, IRequest)
@@ -344,6 +344,12 @@ begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
+  if not FullRequestURL(False).Contains(AName) then
+  begin
+    if (not ResourceSuffix.Trim.IsEmpty) and (not ResourceSuffix.EndsWith('/')) then
+      ResourceSuffix(ResourceSuffix + '/');
+    ResourceSuffix(ResourceSuffix + '{' + AName + '}');
+  end;
   if FUrlSegments.IndexOf(AName) < 0 then
     FUrlSegments.Add(Format('%s=%s', [AName, AValue]));
 end;

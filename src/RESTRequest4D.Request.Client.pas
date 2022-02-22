@@ -193,6 +193,12 @@ begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
+  if not FRESTRequest.Params.ContainsParameter(AName) then
+  begin
+    if (not ResourceSuffix.Trim.IsEmpty) and (not ResourceSuffix.EndsWith('/')) then
+      ResourceSuffix(ResourceSuffix + '/');
+    ResourceSuffix(ResourceSuffix + '{' + AName + '}');
+  end;
   FRESTRequest.Params.AddUrlSegment(AName, AValue);
 end;
 

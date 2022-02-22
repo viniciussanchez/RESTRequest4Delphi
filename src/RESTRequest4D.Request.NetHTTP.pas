@@ -247,6 +247,12 @@ begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
+  if not FullRequestURL(False).Contains(AName) then
+  begin
+    if (not ResourceSuffix.Trim.IsEmpty) and (not ResourceSuffix.EndsWith('/')) then
+      ResourceSuffix(ResourceSuffix + '/');
+    ResourceSuffix(ResourceSuffix + '{' + AName + '}');
+  end;
   if FUrlSegments.IndexOf(AName) < 0 then
     FUrlSegments.Add(Format('%s=%s', [AName, AValue]));
 end;
