@@ -106,7 +106,7 @@ begin
   finally
     if AOwns then
     begin
-      {$IFDEF MSWINDOWS OR FPC}
+      {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
         AContent.Free;
       {$ELSE}
         AContent.DisposeOf;
@@ -126,7 +126,7 @@ begin
       FIdHTTP.CookieManager := TIdCookieManager.Create(FIdHTTP);
     FIdHTTP.CookieManager.AddServerCookies(ACookies, LURI);
   finally
-    {$IFDEF MSWINDOWS OR FPC}
+    {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
       ACookies.Free;
     {$ELSE}
       ACookies.DisposeOf;
@@ -388,7 +388,7 @@ begin
     LJSONObject.Free;
     if AOwns then
     begin
-      {$IFDEF MSWINDOWS OR FPC}
+      {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
         AContent.Free;
       {$ELSE}
         AContent.DisposeOf;
@@ -413,7 +413,7 @@ begin
 {$ENDIF}
   if AOwns then
   begin
-    {$IFDEF MSWINDOWS OR FPC}
+    {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
       AContent.Free;
     {$ELSE}
       AContent.DisposeOf;
@@ -430,7 +430,7 @@ begin
 {$ENDIF}
   if AOwns then
   begin
-    {$IFDEF MSWINDOWS OR FPC}
+    {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
       AContent.Free;
     {$ELSE}
       AContent.DisposeOf;
