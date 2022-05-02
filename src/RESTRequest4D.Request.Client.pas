@@ -66,7 +66,7 @@ type
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;	
-    function AddFile(const AName: string; const AValue: TStream): IRequest;
+    function AddFile(const AName: string; const AValue: TFileStream): IRequest;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
   protected
@@ -151,7 +151,7 @@ begin
   end;
 end;
 
-function TRequestClient.AddFile(const AName: string; const AValue: TStream): IRequest;
+function TRequestClient.AddFile(const AName: string; const AValue: TFileStream): IRequest;
 begin
   Result := Self;
   if not Assigned(AValue) then
@@ -161,7 +161,7 @@ begin
   begin
     Name := AName;
     SetStream(AValue);
-    Value := AValue.ToString;
+    Value := AValue.FileName;
     Kind := TRESTRequestParameterKind.pkFILE;
     ContentType := TRESTContentType.ctAPPLICATION_OCTET_STREAM;
   end;
