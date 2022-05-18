@@ -135,6 +135,10 @@ npm install
 node server.js
 ```
 
+## 💻 Code Contributors
+
+<img src="https://opencollective.com/restrequest4delphi/contributors.svg?width=890&button=false" alt="Code Contributors" style="max-width:100%;">
+
 ## ⚠️ License
 
 `RESTRequest4Delphi` is free and open-source software licensed under the [MIT License](https://github.com/viniciussanchez/RESTRequest4Delphi/blob/master/LICENSE). 
