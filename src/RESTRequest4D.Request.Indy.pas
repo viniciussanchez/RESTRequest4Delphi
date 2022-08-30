@@ -7,7 +7,7 @@ unit RESTRequest4D.Request.Indy;
 interface
 
 uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL, IdCTypes, IdSSLOpenSSLHeaders,
-  RESTRequest4D.Utils,
+  RESTRequest4D.Utils, IdMultipartFormData,
 {$IFDEF FPC}
   DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
 {$ELSE}
@@ -17,6 +17,7 @@ uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, Id
 type
   TRequestIndy = class(TInterfacedObject, IRequest)
   private
+    FIdMultiPartFormDataStream: TIdMultiPartFormDataStream;
     FHeaders: TStrings;
     FParams: TStrings;
     FUrlSegments: TStrings;
@@ -74,7 +75,9 @@ type
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
-    function AddFile(const AName: string; const AValue: TStream): IRequest;
+    function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
+    function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
+    function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
     function MakeURL(const AIncludeParams: Boolean = True): string;
 	  function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
@@ -90,9 +93,43 @@ implementation
 
 uses RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, IdCookieManager;
 
-function TRequestIndy.AddFile(const AName: string; const AValue: TStream): IRequest;
+function TRequestIndy.AddField(const AFieldName: string; const AValue: string): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  {$IF DEFINED(RR4D_INDY)}
+  FIdMultiPartFormDataStream.AddFormField(AFieldName, AValue, EmptyStr, ' ').ContentTransfer:= '8bit';
+  {$ENDIF}
+end;
+
+function TRequestIndy.AddFile(const AFieldName: string; const AFileName: string;
+  const AContentType: string): IRequest;
+begin
+  Result := Self;
+  if not FileExists(AFileName) then
+    Exit;
+
+  {$IF DEFINED(RR4D_INDY)}
+  FIdMultiPartFormDataStream.AddFile(AFieldName, AFileName, AContentType);
+  {$ENDIF}
+end;
+
+function TRequestIndy.AddFile(const AFieldName: string; const AValue: TStream;
+  const AFileName: string; const AContentType: string): IRequest;
+var
+  lFileName: string;
+begin
+  Result := Self;
+  if not Assigned(AValue) then
+    Exit;
+
+  {$IF DEFINED(RR4D_INDY)}
+  lFileName := Trim(AFileName);
+  if (lFileName = EmptyStr) then
+    lFileName := AFieldName;
+
+  AValue.Position := 0;
+  FIdMultiPartFormDataStream.AddFormField(AFieldName, AContentType, EmptyStr, AValue, lFileName);
+  {$ENDIF}
 end;
 
 function TRequestIndy.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
@@ -183,9 +220,19 @@ begin
         mrGET:
           FIdHTTP.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
         mrPOST:
-          FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        begin
+          if (Assigned(FIdMultiPartFormDataStream) and (FIdMultiPartFormDataStream.Size > 0)) then
+            FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FIdMultiPartFormDataStream, FStreamResult)
+          else
+            FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        end;
         mrPUT:
-          FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        begin
+          if (Assigned(FIdMultiPartFormDataStream) and (FIdMultiPartFormDataStream.Size > 0)) then
+            FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FIdMultiPartFormDataStream, FStreamResult)
+          else
+            FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
+        end;
         mrPATCH:
           FIdHTTP.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
         mrDELETE:
@@ -530,6 +577,7 @@ begin
   FStreamResult := TStringStream.Create;
   Self.ContentType('application/json');
   FRetries := 0;
+  FIdMultiPartFormDataStream := TIdMultiPartFormDataStream.Create;
 end;
 
 destructor TRequestIndy.Destroy;
@@ -542,6 +590,8 @@ begin
   FreeAndNil(FParams);
   FreeAndNil(FUrlSegments);
   FreeAndNil(FStreamResult);
+  if Assigned(FIdMultiPartFormDataStream) then
+    FreeAndNil(FIdMultiPartFormDataStream);
   inherited;
 end;
 
