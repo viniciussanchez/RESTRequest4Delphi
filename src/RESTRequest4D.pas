@@ -44,7 +44,9 @@ const
 implementation
 
 uses
-{$IF DEFINED(RR4D_INDY) or DEFINED(FPC)}
+{$IF DEFINED(RR4D_FPHTTPCLIENT)}
+  RESTRequest4D.Request.FPHTTPClient;
+{$ELSEIF DEFINED(RR4D_INDY) or DEFINED(FPC)}
   RESTRequest4D.Request.Indy;
 {$ELSEIF DEFINED(RR4D_NETHTTP)}
   RESTRequest4D.Request.NetHTTP;
@@ -54,7 +56,9 @@ uses
 
 class function TRequest.New: IRequest;
 begin
-{$IF DEFINED(RR4D_INDY) or DEFINED(FPC)}
+{$IF DEFINED(RR4D_FPHTTPCLIENT)}
+  Result := TRequestFPHTTPClient.Create; 
+{$ELSEIF DEFINED(RR4D_INDY) or DEFINED(FPC)}
   Result := TRequestIndy.Create;
 {$ELSEIF DEFINED(RR4D_NETHTTP)}
   Result := TRequestNetHTTP.Create;
