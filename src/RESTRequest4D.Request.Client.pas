@@ -2,9 +2,10 @@ unit RESTRequest4D.Request.Client;
 
 interface
 
-uses RESTRequest4D.Request.Contract, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
-  RESTRequest4D.Response.Contract, System.JSON{$IF COMPILERVERSION >= 33}, System.Net.HttpClient{$ENDIF}, REST.Authenticator.Basic
-  {$if CompilerVersion <= 32.0}, IPPeerClient{$endif};
+uses RESTRequest4D.Request.Contract, Data.DB, REST.Client, REST.Response.Adapter,
+REST.Types, System.SysUtils, System.Classes, RESTRequest4D.Response.Contract,
+System.JSON{$IF COMPILERVERSION >= 33.0}, System.Net.HttpClient{$ENDIF},
+REST.Authenticator.Basic {$IF COMPILERVERSION <= 32.0}, IPPeerClient, IPPeerCommon{$ENDIF};
 
 type
   TRequestClient = class(TInterfacedObject, IRequest)
@@ -65,8 +66,10 @@ type
     function ContentType(const AContentType: string): IRequest;
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
-    function AddCookie(const ACookieName, ACookieValue: string): IRequest;	
-    function AddFile(const AName: string; const AValue: TStream): IRequest;
+    function AddCookie(const ACookieName, ACookieValue: string): IRequest;
+    function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
+    function AddFile(const AFieldName: string; const AFileName: string; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
+    function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
   protected
@@ -151,19 +154,48 @@ begin
   end;
 end;
 
-function TRequestClient.AddFile(const AName: string; const AValue: TStream): IRequest;
+function TRequestClient.AddField(const AFieldName: string; const AValue: string): IRequest;
+begin
+  Result := Self;
+  FRESTRequest.Params.AddItem(AFieldName, AValue);
+end;
+
+function TRequestClient.AddFile(const AFieldName: string; const AFileName: string;
+  const AContentType: TRESTContentType): IRequest;
+begin
+  Result := Self;
+  if not FileExists(AFileName) then
+    Exit;
+
+  {$IF COMPILERVERSION >= 32.0}
+  FRESTRequest.AddFile(AFieldName, AFileName, AContentType);
+  {$ENDIF}
+end;
+
+function TRequestClient.AddFile(const AFieldName: string; const AValue: TStream;
+  const AFileName: string; const AContentType: TRESTContentType): IRequest;
+{$IF COMPILERVERSION >= 33.0}
+var
+  lFileName: string;
+{$ENDIF}
 begin
   Result := Self;
   if not Assigned(AValue) then
     Exit;
-  {$IF COMPILERVERSION >= 33}
+
+  {$IF COMPILERVERSION >= 33.0}
+  lFileName := Trim(AFileName);
+  if (lFileName = EmptyStr) then
+    lFileName := AFieldName;
+
+  AValue.Position := 0;
   with FRESTRequest.Params.AddItem do
   begin
-    Name := AName;
+    Name := AFieldName;
     SetStream(AValue);
-    Value := AValue.ToString;
+    Value := lFileName;
     Kind := TRESTRequestParameterKind.pkFILE;
-    ContentType := TRESTContentType.ctAPPLICATION_OCTET_STREAM;
+    ContentType := AContentType;
   end;
   {$ENDIF}
 end;

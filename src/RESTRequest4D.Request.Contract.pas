@@ -69,7 +69,14 @@ type
     function ContentType(const AContentType: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
-    function AddFile(const AName: string; const AValue: TStream): IRequest;
+    function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
+   {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP)}
+    function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
+    function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
+    {$ELSE}
+    function AddFile(const AFieldName: string; const AFileName: string; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
+    function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
+    {$ENDIF}
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
   end;
