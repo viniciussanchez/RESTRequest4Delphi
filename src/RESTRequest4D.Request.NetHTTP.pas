@@ -9,6 +9,7 @@ uses System.Net.Mime, System.Net.HttpClientComponent, System.Net.HttpClient, RES
 type
   TRequestNetHTTP = class(TInterfacedObject, IRequest)
   private
+    FUseMultipartFormData: Boolean;
     FMultipartFormData: TMultipartFormData;
     FParams: TStrings;
     FUrlSegments: TStrings;
@@ -225,6 +226,7 @@ function TRequestNetHTTP.AddField(const AFieldName: string; const AValue: string
 begin
   Result := Self;
   FMultipartFormData.AddField(AFieldName, AValue);
+  FUseMultipartFormData := True;
 end;
 
 function TRequestNetHTTP.AddFile(const AFieldName: string; const AFileName: string;
@@ -239,6 +241,7 @@ begin
   {$ELSE}
   FMultipartFormData.AddFile(AFieldName, AFileName);
   {$ENDIF}
+  FUseMultipartFormData := True;
 end;
 
 function TRequestNetHTTP.AddFile(const AFieldName: string; const AValue: TStream;
@@ -259,6 +262,7 @@ begin
 
   AValue.Position := 0;
   FMultipartFormData.AddStream(AFieldName, AValue, lFileName, AContentType);
+  FUseMultipartFormData := True;
   {$ENDIF}
 end;
 
@@ -377,6 +381,7 @@ begin
   FRetries := 0;
 
   FMultipartFormData := TMultipartFormData.Create;
+  FUseMultipartFormData := False;
 end;
 
 function TRequestNetHTTP.DataSetAdapter: TDataSet;
@@ -452,9 +457,10 @@ begin
           Result := FNetHTTPClient.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
         mrPOST:
         begin
-          if (Assigned(FMultipartFormData.Stream) and (FMultipartFormData.Stream.Size > 0)) then
+          if (Assigned(FMultipartFormData.Stream) and (FUseMultipartFormData = True)) then
           begin
             FNetHTTPClient.ContentType := EmptyStr;
+            FUseMultipartFormData := False;
             Result := FNetHTTPClient.Post(TIdURI.URLEncode(MakeURL), FMultipartFormData, FStreamResult);
           end
           else
@@ -462,9 +468,10 @@ begin
         end;
         mrPUT:
         begin
-          if (Assigned(FMultipartFormData.Stream) and (FMultipartFormData.Stream.Size > 0)) then
+          if (Assigned(FMultipartFormData.Stream) and (FUseMultipartFormData = True)) then
           begin
             FNetHTTPClient.ContentType := EmptyStr;
+            FUseMultipartFormData := False;
             {$IF COMPILERVERSION >= 33.0}
             Result := FNetHTTPClient.Put(TIdURI.URLEncode(MakeURL), FMultipartFormData, FStreamResult);
             {$ENDIF}

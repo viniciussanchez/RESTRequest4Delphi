@@ -229,7 +229,7 @@ begin
         mrPUT:
         begin
           if (Assigned(FIdMultiPartFormDataStream) and (FIdMultiPartFormDataStream.Size > 0)) then
-            FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FIdMultiPartFormDataStream, FStreamResult)
+            raise Exception.Create('Method Put not supported multipart/form-data.')
           else
             FIdHTTP.Put(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
         end;
