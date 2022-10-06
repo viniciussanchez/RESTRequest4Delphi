@@ -6,150 +6,229 @@ unit RESTRequest4D.Request.FPHTTPClient;
 
 interface
 
-uses 
-	Classes, 
-	SysUtils,
-  DB,
-  fpJSON,
-  fpjsonrtti,
-  FPHTTPClient,
-	OpenSSL,
-	OpenSSLSockets,
-
-  RESTRequest4D.Utils,
-  RESTRequest4D.Request.Contract,
-	RESTRequest4D.Response.Contract,
-  DataSet.Serialize;
+uses Classes, SysUtils, DB,
+    RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract,
+    RESTRequest4D.Utils,
+    FPHTTPClient, openssl, opensslsockets, fpjson, fpjsonrtti,
+    Generics.Collections;
 
 type
 
+  { TFile }
+
+  TFile = class
+  private
+    FFileStream: TStream;
+    FFileName: String;
+    FContentType: String;
+  public
+    constructor Create(const AFileStream: TStream; const AFileName: string; const AContentType: string); overload;
+    destructor Destroy; override;
+  end;
+
+  { TRequestFPHTTPClient }
+
   TRequestFPHTTPClient = class(TInterfacedObject, IRequest)
   private
-    FHeaders       : TStrings;
-    FParams        : TStrings;
-    FUrlSegments   : TStrings;
-    FFPHTTPClient  : TFPHTTPClient;
-    FBaseURL       : String;
-    FResource      : String;
-    FResourceSuffix: String;
-    FResponse      : IResponse;
-    FStreamSend    : TStream;
-    FRetries       : Integer;
+    FHeaders: TStrings;
+    FParams: TStringList;
+    FFiles: TDictionary<String, TFile>;
+    FFields: TDictionary<String, String>;
+    FUrlSegments: TStrings;
+    FFPHTTPClient: TFPHTTPClient;
+    FBaseURL: string;
+    FResource: string;
+    FResourceSuffix: string;
     FDataSetAdapter: TDataSet;
-
-    function AcceptEncoding : String;   overload;
-    function AcceptCharset  : String;   overload;
-    function Accept         : String;   overload;
-    function Timeout        : Integer;  overload;
-    function DataSetAdapter : TDataSet; overload;
-    function BaseURL        : String;   overload;
-    function Resource       : String;   overload;
-    function ResourceSuffix : String;   overload;
-
-    function ClearBody      : IRequest;
-    function ClearHeaders   : IRequest;
-    function ClearParams    : IRequest;
-    function DeactivateProxy: IRequest;
-    function Get            : IResponse;
-    function Post           : IResponse;
-    function Put            : IResponse;
-    function Delete         : IResponse;
-    function Patch          : IResponse;
-
-    function RaiseExceptionOn500: Boolean; overload;
-
-    function AcceptEncoding     (const AAcceptEncoding: string  ): IRequest; overload;
-    function AcceptCharset      (const AAcceptCharset : string  ): IRequest; overload;
-    function Accept             (const AAccept        : string  ): IRequest; overload;
-    function Timeout            (const ATimeout       : Integer ): IRequest; overload;
-    function DataSetAdapter     (const ADataSet       : TDataSet): IRequest; overload;
-    function BaseURL            (const ABaseURL       : string  ): IRequest; overload;
-    function Resource           (const AResource      : string  ): IRequest; overload;
-    function ResourceSuffix     (const AResourceSuffix: string  ): IRequest; overload;
-    function RaiseExceptionOn500(const ARaiseException: Boolean ): IRequest; overload;
-    function TokenBearer        (const AToken         : string  ): IRequest;
-    function Token              (const AToken         : string  ): IRequest;
-    function Retry              (const ARetries       : Integer ): IRequest;
-    function ContentType        (const AContentType   : string  ): IRequest;
-    function UserAgent          (const AName          : string  ): IRequest;
-    function AddCookies         (const ACookies       : TStrings): IRequest;
-    function FullRequestURL     (const AIncludeParams : Boolean = True): string;
-    function MakeURL            (const AIncludeParams : Boolean = True): string;
-
-    function AddBody            (const AContent: string): IRequest; overload;
-    function AddBody            (const AContent: TStream;     const AOwns: Boolean = False): IRequest; overload;
-    function AddBody            (const AContent: TJSONObject; const AOwns: Boolean = True ): IRequest; overload;
-    function AddBody            (const AContent: TJSONArray;  const AOwns: Boolean = True ): IRequest; overload;
-    function AddBody            (const AContent: TObject;     const AOwns: Boolean = True ): IRequest; overload;
-
-    function AddHeader          (const AName        , AValue      : string ): IRequest;
-    function AddParam           (const AName        , AValue      : string ): IRequest;
-    function AddUrlSegment      (const AName        , AValue      : string ): IRequest;
-    function AddCookie          (const ACookieName  , ACookieValue: string ): IRequest;
-    function AddFile            (const AName: string; const AValue: TStream): IRequest;
-
-    function BasicAuthentication(const AUsername, APassword: string): IRequest;
-    function Proxy              (const AServer  , APassword, AUsername: string; const APort: Integer): IRequest;
-
-  protected
-    procedure DoAfterExecute;
+    FResponse: IResponse;
+    FStreamSend: TStream;
+    FRetries: Integer;
     procedure ExecuteRequest(const AMethod: TMethodRequest);
-
+    function AcceptEncoding: string; overload;
+    function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
+    function AcceptCharset: string; overload;
+    function AcceptCharset(const AAcceptCharset: string): IRequest; overload;
+    function Accept: string; overload;
+    function Accept(const AAccept: string): IRequest; overload;
+    function Timeout: Integer; overload;
+    function Timeout(const ATimeout: Integer): IRequest; overload;
+    function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
+    function DataSetAdapter: TDataSet; overload;
+    function BaseURL(const ABaseURL: string): IRequest; overload;
+    function BaseURL: string; overload;
+    function Resource(const AResource: string): IRequest; overload;
+    function RaiseExceptionOn500: Boolean; overload;
+    function RaiseExceptionOn500(const ARaiseException: Boolean): IRequest; overload;
+    function Resource: string; overload;
+    function ResourceSuffix(const AResourceSuffix: string): IRequest; overload;
+    function ResourceSuffix: string; overload;
+    function Token(const AToken: string): IRequest;
+    function TokenBearer(const AToken: string): IRequest;
+    function BasicAuthentication(const AUsername, APassword: string): IRequest;
+    function Retry(const ARetries: Integer): IRequest;
+    function Get: IResponse;
+    function Post: IResponse;
+    function Put: IResponse;
+    function Delete: IResponse;
+    function Patch: IResponse;
+    function FullRequestURL(const AIncludeParams: Boolean = True): string;
+    function ClearBody: IRequest;
+    function AddBody(const AContent: string): IRequest; overload;
+    function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
+    function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
+    function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
+    function AddBody(const AContent: TStream; const AOwns: Boolean = True): IRequest; overload;
+    function AddUrlSegment(const AName, AValue: string): IRequest;
+    function ClearHeaders: IRequest;
+    function AddHeader(const AName, AValue: string): IRequest;
+    function ClearParams: IRequest;
+    function ContentType(const AContentType: string): IRequest;
+    function UserAgent(const AName: string): IRequest;
+    function AddCookies(const ACookies: TStrings): IRequest;
+    function AddCookie(const ACookieName, ACookieValue: string): IRequest;
+    function AddParam(const AName, AValue: string): IRequest;
+    function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
+    function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
+    function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
+    function MakeURL(const AIncludeParams: Boolean = True): string;
+    function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+    function DeactivateProxy: IRequest;
+  protected
+    procedure DoAfterExecute(const Sender: TObject; const AResponse: IResponse); virtual;
+    procedure DoBeforeExecute(const Sender: TFPHTTPClient); virtual;
   public
     constructor Create;
     destructor Destroy; override;
-
   end;
 
 implementation
 
 uses
-  RESTRequest4D.Response.FPHTTPClient;
+    RESTRequest4D.Response.FPHTTPClient;
 
-constructor TRequestFPHTTPClient.Create;
+{ TFile }
+
+constructor TFile.Create(const AFileStream: TStream; const AFileName: string;
+  const AContentType: string);
 begin
-  FFPHTTPClient                := TFPHTTPClient.Create(nil);
-  FFPHTTPClient.KeepConnection := false;
-  FFPHTTPClient.AllowRedirect  := false;
-  FFPHTTPClient.HTTPversion    := '1.1';
-  FHeaders                     := TStringList.Create;
-  FResponse                    := TResponseFpHTTPClient.Create(FFPHTTPClient);
-  FParams                      := TStringList.Create;
-  FUrlSegments                 := TStringList.Create;
-  FRetries                     := 0;
-
-  Timeout(3000);
-  FFPHTTPClient.AddHeader('User-Agent','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36');
-  ContentType('application/json');
+  FFileStream := AFileStream;
+  FFileName   := AFileName;
+  FContentType := AContentType;
 end;
 
-destructor TRequestFPHTTPClient.Destroy;
+destructor TFile.Destroy;
 begin
-  if Assigned(FStreamSend) then
-  begin
-    FreeAndNil(FStreamSend);
-  end;
-
-  FreeAndNil(FHeaders);
-  FreeAndNil(FParams);
-  FreeAndNil(FUrlSegments);
-  FreeAndNil(FFPHTTPClient);
   inherited Destroy;
 end;
 
-function TRequestFPHTTPClient.AcceptEncoding: String;
+{ TRequestFPHTTPClient }
+
+procedure TRequestFPHTTPClient.ExecuteRequest(const AMethod: TMethodRequest);
+var
+  LAttempts: Integer;
+  LBound, LContent, LFieldName: String;
+  LFile: TFile;
+  LStream: TStream;
+begin
+  LAttempts := FRetries + 1;
+
+  while LAttempts > 0 do
+  begin
+    try
+      DoBeforeExecute(FFPHTTPClient);
+      LStream := TStringStream.Create('', TEncoding.UTF8);
+      try
+        if AMethod <> mrGET then
+        begin
+          if (FFields.Count > 0) or (FFiles.Count > 0) then
+          begin
+            LBound := IntToHex(Random(MaxInt), 8) + '_rr4d_boundary';
+            ContentType('multipart/form-data; boundary=' + LBound);
+
+            for LFieldName in FFields.Keys do
+            begin
+              LContent := sLineBreak + '--' + LBound + sLineBreak +
+                          'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') + sLineBreak + sLineBreak +
+                          FFields.Items[LFieldName]+ sLineBreak + sLineBreak;
+              LStream.Write(PAnsiChar(LContent)^, Length(LContent));
+            end;
+
+            for LFieldName in FFiles.Keys do
+            begin
+              LFile := FFiles.Items[LFieldName];
+
+              LContent := sLineBreak + '--' + LBound + sLineBreak +
+                          'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') +';' +
+                          sLineBreak + #9'filename=' + AnsiQuotedStr(LFile.FFileName, '"') +
+                          sLineBreak + 'Content-Type: '+AnsisQuotedStr(LFile.FContentType, '"')  + sLineBreak + sLineBreak;
+              LStream.Write(PAnsiChar(LContent)^, Length(LContent));
+              LFile.FFileStream.Position := 0;
+              LStream.Write(LFile.FFileStream, LFile.FFileStream.Size);
+            end;
+
+            LBound := '--' +LBound+ '--' +sLineBreak;
+            LStream.Write(PAnsiChar(LBound)^, Length(LBound));
+            LStream.Position := 0;
+            FFPHTTPClient.RequestBody := LStream;
+          end
+          else
+            FFPHTTPClient.RequestBody := FStreamSend;
+        end;
+
+        case AMethod of
+          mrGET   : FFPHTTPClient.Get   (MakeURL, FResponse.ContentStream);
+          mrPOST  : FFPHTTPClient.Post  (MakeURL, FResponse.ContentStream);
+          mrPUT   : FFPHTTPClient.Put   (MakeURL, FResponse.ContentStream);
+          mrPATCH : FFPHTTPClient.Put   (MakeURL, FResponse.ContentStream);
+          mrDELETE: FFPHTTPClient.Delete(MakeURL, FResponse.ContentStream);
+        end;
+
+        LAttempts := 0;
+      finally
+        if Assigned(LStream) then
+        LStream.Free;
+      end;
+      DoAfterExecute(Self, FResponse);
+    except
+      LAttempts := LAttempts - 1;
+      if LAttempts = 0 then
+        raise;
+    end;
+  end;
+end;
+function TRequestFPHTTPClient.AcceptEncoding: string;
 begin
   Result := FFPHTTPClient.GetHeader('Accept-Encoding');
 end;
 
-function TRequestFPHTTPClient.AcceptCharset: String;
+function TRequestFPHTTPClient.AcceptEncoding(const AAcceptEncoding: string
+  ): IRequest;
+begin
+  Result := Self;
+  FFPHTTPClient.AddHeader('Accept-Encoding', AAcceptEncoding);
+end;
+
+function TRequestFPHTTPClient.AcceptCharset: string;
 begin
   Result := FFPHTTPClient.GetHeader('Accept-Charset');
 end;
 
-function TRequestFPHTTPClient.Accept: String;
+function TRequestFPHTTPClient.AcceptCharset(const AAcceptCharset: string
+  ): IRequest;
+begin
+  Result := Self;
+  FFPHTTPClient.AddHeader('Accept-Charset', AAcceptCharset);
+end;
+
+function TRequestFPHTTPClient.Accept: string;
 begin
   Result := FFPHTTPClient.GetHeader('Accept');
+end;
+
+function TRequestFPHTTPClient.Accept(const AAccept: string): IRequest;
+begin
+  Result := Self;
+  FFPHTTPClient.AddHeader('Accept', AAccept);
 end;
 
 function TRequestFPHTTPClient.Timeout: Integer;
@@ -157,55 +236,93 @@ begin
   Result := FFPHTTPClient.ConnectTimeout;
 end;
 
+function TRequestFPHTTPClient.Timeout(const ATimeout: Integer): IRequest;
+begin
+  Result := Self;
+  FFPHTTPClient.ConnectTimeout := ATimeout;
+end;
+
+function TRequestFPHTTPClient.DataSetAdapter(const ADataSet: TDataSet
+  ): IRequest;
+begin
+  Result := Self;
+  FDataSetAdapter := ADataSet;
+end;
+
 function TRequestFPHTTPClient.DataSetAdapter: TDataSet;
 begin
   Result := FDataSetAdapter;
 end;
 
-function TRequestFPHTTPClient.BaseURL: String;
+function TRequestFPHTTPClient.BaseURL(const ABaseURL: string): IRequest;
+begin
+  Result := Self;
+  FBaseURL := ABaseURL;
+end;
+
+function TRequestFPHTTPClient.BaseURL: string;
 begin
   Result := FBaseURL;
 end;
 
-function TRequestFPHTTPClient.Resource: String;
+function TRequestFPHTTPClient.Resource(const AResource: string): IRequest;
+begin
+  Result := Self;
+  FResource := AResource;
+end;
+
+function TRequestFPHTTPClient.RaiseExceptionOn500: Boolean;
+begin
+  Result := False;
+end;
+
+function TRequestFPHTTPClient.RaiseExceptionOn500(const ARaiseException: Boolean
+  ): IRequest;
+begin
+  raise Exception.Create('Not implemented');
+end;
+
+function TRequestFPHTTPClient.Resource: string;
 begin
   Result := FResource;
 end;
 
-function TRequestFPHTTPClient.ResourceSuffix: String;
+function TRequestFPHTTPClient.ResourceSuffix(const AResourceSuffix: string
+  ): IRequest;
+begin
+  Result := Self;
+  FResourceSuffix := AResourceSuffix;
+end;
+
+function TRequestFPHTTPClient.ResourceSuffix: string;
 begin
   Result := FResourceSuffix;
 end;
 
-function TRequestFPHTTPClient.ClearBody: IRequest;
+function TRequestFPHTTPClient.Token(const AToken: string): IRequest;
 begin
   Result := Self;
-
-  if Assigned(FStreamSend) then
-  begin
-    FreeAndNil(FStreamSend);
-  end;
+  Self.AddHeader('Authorization', AToken);
 end;
 
-function TRequestFPHTTPClient.ClearHeaders: IRequest;
+function TRequestFPHTTPClient.TokenBearer(const AToken: string): IRequest;
 begin
   Result := Self;
-  FFPHTTPClient.RequestHeaders.Clear;
+  Self.AddHeader('Authorization', 'Bearer ' + AToken);
 end;
 
-function TRequestFPHTTPClient.ClearParams: IRequest;
+function TRequestFPHTTPClient.BasicAuthentication(const AUsername,
+  APassword: string): IRequest;
 begin
   Result := Self;
-  FParams.Clear;
+  FFPHTTPClient.UserName := AUsername;
+  FFPHTTPClient.Password := APassword;
 end;
 
-function TRequestFPHTTPClient.DeactivateProxy: IRequest;
+function TRequestFPHTTPClient.Retry(const ARetries: Integer): IRequest;
 begin
-  Result := Self;
-  FFPHTTPClient.Proxy.Host     := EmptyStr;
-  FFPHTTPClient.Proxy.Password := EmptyStr;
-  FFPHTTPClient.Proxy.UserName := EmptyStr;
-  FFPHTTPClient.Proxy.Port     := 0;
+  Result   := Self;
+  FRetries := ARetries;
 end;
 
 function TRequestFPHTTPClient.Get: IResponse;
@@ -238,125 +355,117 @@ begin
   ExecuteRequest(mrPATCH);
 end;
 
-function TRequestFPHTTPClient.RaiseExceptionOn500: Boolean;
+function TRequestFPHTTPClient.FullRequestURL(const AIncludeParams: Boolean
+  ): string;
 begin
-  Result := False;
+  Result := Self.MakeURL(AIncludeParams);
 end;
 
-procedure TRequestFPHTTPClient.DoAfterExecute;
+function TRequestFPHTTPClient.ClearBody: IRequest;
 begin
-  if not Assigned(FDataSetAdapter) then
+  Result := Self;
+  if Assigned(FStreamSend) then
+    FreeAndNil(FStreamSend);
+end;
+
+function TRequestFPHTTPClient.AddBody(const AContent: string): IRequest;
+begin
+  Result := Self;
+  if not Assigned(FStreamSend) then
+    FStreamSend := TStringStream.Create(AContent, TEncoding.UTF8)
+  else
+    TStringStream(FStreamSend).WriteString(AContent);
+  FStreamSend.Position := 0;
+end;
+
+function TRequestFPHTTPClient.AddBody(const AContent: TJSONObject;
+  const AOwns: Boolean): IRequest;
+begin
+  Result := Self.AddBody(AContent.AsJSON);
+
+  if AOwns then
   begin
-    Exit;
+    AContent.Free;
   end;
-
-  FDataSetAdapter.LoadFromJSON(FResponse.Content);
 end;
 
-procedure TRequestFPHTTPClient.ExecuteRequest(const AMethod: TMethodRequest);
+function TRequestFPHTTPClient.AddBody(const AContent: TJSONArray;
+  const AOwns: Boolean): IRequest;
+begin
+  Result := Self.AddBody(AContent.AsJSON);
+
+  if AOwns then
+  begin
+    AContent.Free;
+  end;
+end;
+
+function TRequestFPHTTPClient.AddBody(const AContent: TObject;
+  const AOwns: Boolean): IRequest;
 var
-  LAttempts: Integer;
+  LJSONStreamer: TJSONStreamer;
+  LJSONObject  : TJSONObject;
 begin
-    LAttempts := FRetries + 1;
+  LJSONStreamer := TJSONStreamer.Create(NIL);
+  LJSONObject   := LJSONStreamer.ObjectToJSON(AContent);
+  try
+    Result := Self.AddBody(LJSONObject, False);
+  finally
+    LJSONStreamer.Free;
 
-    while LAttempts > 0 do
+    if AOwns then
     begin
-        try
-            if AMethod <> mrGET then
-            begin
-                FFPHTTPClient.RequestBody := FStreamSend;
-            end;
-
-            case AMethod of
-                mrGET   : FFPHTTPClient.Get   (MakeURL, FResponse.ContentStream);
-                mrPOST  : FFPHTTPClient.Post  (MakeURL, FResponse.ContentStream);
-                mrPUT   : FFPHTTPClient.Put   (MakeURL, FResponse.ContentStream);
-                mrPATCH : FFPHTTPClient.Put   (MakeURL, FResponse.ContentStream);
-                mrDELETE: FFPHTTPClient.Delete(MakeURL, FResponse.ContentStream);
-            end;
-
-            LAttempts := 0;
-            DoAfterExecute;
-        except
-            LAttempts := LAttempts - 1;
-            if LAttempts = 0 then
-            begin
-              raise;
-            end;
-        end;
+      AContent.Free;
     end;
+  end;
 end;
 
-function TRequestFPHTTPClient.AcceptEncoding(const AAcceptEncoding: string): IRequest;
-begin
- Result := Self;
- FFPHTTPClient.AddHeader('Accept-Encoding', AAcceptEncoding);
-end;
-
-function TRequestFPHTTPClient.AcceptCharset(const AAcceptCharset: string): IRequest;
-begin
- Result := Self;
- FFPHTTPClient.AddHeader('Accept-Charset', AAcceptCharset);
-end;
-
-function TRequestFPHTTPClient.Accept(const AAccept: string): IRequest;
-begin
- Result := Self;
- FFPHTTPClient.AddHeader('Accept', AAccept);
-end;
-
-function TRequestFPHTTPClient.Timeout(const ATimeout: Integer): IRequest;
+function TRequestFPHTTPClient.AddBody(const AContent: TStream;
+  const AOwns: Boolean): IRequest;
 begin
   Result := Self;
-  FFPHTTPClient.ConnectTimeout := ATimeout;
+  try
+    if not Assigned(FStreamSend) then
+      FStreamSend := TStringStream.Create;
+    TStringStream(FStreamSend).CopyFrom(AContent, AContent.Size);
+    FStreamSend.Position := 0;
+  finally
+    if AOwns then
+      AContent.Free;
+  end;
 end;
 
-function TRequestFPHTTPClient.DataSetAdapter(const ADataSet: TDataSet): IRequest;
+function TRequestFPHTTPClient.AddUrlSegment(const AName, AValue: string
+  ): IRequest;
 begin
   Result := Self;
-  FDataSetAdapter := ADataSet;
+  if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
+    Exit;
+  if FUrlSegments.IndexOf(AName) < 0 then
+    FUrlSegments.Add(Format('%s=%s', [AName, AValue]));
 end;
 
-function TRequestFPHTTPClient.BaseURL(const ABaseURL: string): IRequest;
-begin
-  Result   := Self;
-  FBaseURL := ABaseURL;
-end;
-
-function TRequestFPHTTPClient.Resource(const AResource: string): IRequest;
-begin
-  Result    := Self;
-  FResource := AResource;
-end;
-
-function TRequestFPHTTPClient.ResourceSuffix(const AResourceSuffix: string): IRequest;
-begin
-  Result          := Self;
-  FResourceSuffix := AResourceSuffix;
-end;
-
-function TRequestFPHTTPClient.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
+function TRequestFPHTTPClient.ClearHeaders: IRequest;
 begin
   Result := Self;
-  Raise Exception.Create('RaiseExceptionOn500 not implemented!');
+  FFPHTTPClient.RequestHeaders.Clear;
 end;
 
-function TRequestFPHTTPClient.TokenBearer(const AToken: string): IRequest;
+function TRequestFPHTTPClient.AddHeader(const AName, AValue: string): IRequest;
 begin
   Result := Self;
-  Self.AddHeader('Authorization', 'Bearer ' + AToken);
+  if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
+    Exit;
+  if FHeaders.IndexOf(AName) < 0 then
+    FHeaders.Add(AName);
+
+  FFPHTTPClient.AddHeader(AName, AValue);
 end;
 
-function TRequestFPHTTPClient.Token(const AToken: string): IRequest;
+function TRequestFPHTTPClient.ClearParams: IRequest;
 begin
   Result := Self;
-  Self.AddHeader('Authorization', AToken);
-end;
-
-function TRequestFPHTTPClient.Retry(const ARetries: Integer): IRequest;
-begin
-  Result   := Self;
-  FRetries := ARetries;
+  FParams.Clear;
 end;
 
 function TRequestFPHTTPClient.ContentType(const AContentType: string): IRequest;
@@ -383,15 +492,71 @@ begin
   end;
 end;
 
-function TRequestFPHTTPClient.AddCookie(const ACookieName, ACookieValue: string): IRequest;
+function TRequestFPHTTPClient.AddCookie(const ACookieName, ACookieValue: string
+  ): IRequest;
+var
+  LCookies: TStringList;
 begin
-  Result := Self;
-  Raise Exception.Create('AddCookie not implemented');
+  LCookies := TStringList.Create;
+  try
+    LCookies.AddPair(ACookieName, ACookieValue);
+    Result := AddCookies(LCookies);
+  finally
+    LCookies.Free;
+  end;
 end;
 
-function TRequestFPHTTPClient.FullRequestURL(const AIncludeParams: Boolean): string;
+function TRequestFPHTTPClient.AddParam(const AName, AValue: string): IRequest;
 begin
-  Result := Self.MakeURL(AIncludeParams);
+  Result := Self;
+  if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
+    FParams.Add(AName + '=' + AValue);
+end;
+
+function TRequestFPHTTPClient.AddField(const AFieldName: string;
+  const AValue: string): IRequest;
+begin
+  Result := Self;
+  if (not AFieldName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
+    FFields.AddOrSetValue(AFieldName, AValue);
+end;
+
+function TRequestFPHTTPClient.AddFile(const AFieldName: string;
+  const AFileName: string; const AContentType: string): IRequest;
+var
+  LStream: TMemoryStream;
+begin
+  Result := Self;
+
+  if not FileExists(AFileName) then
+    Exit;
+
+  LStream := TMemoryStream.Create;
+  try
+    LStream.LoadFromFile(AFileName);
+    LStream.Position := 0;
+    AddFile(AFieldName, LStream, AFileName, AContentType);
+  finally
+    LStream.Free;
+  end;
+end;
+
+function TRequestFPHTTPClient.AddFile(const AFieldName: string;
+  const AValue: TStream; const AFileName: string; const AContentType: string
+  ): IRequest;
+var
+  LFile: TFile;
+begin
+  Result := Self;
+
+  if not Assigned(AValue) then
+    Exit;
+
+  if (AValue <> Nil) and (AValue.Size > 0) then
+  begin
+    LFile := TFile.Create(AValue, AFileName, AContentType);
+    FFiles.AddOrSetValue(AFieldName, LFile);
+  end;
 end;
 
 function TRequestFPHTTPClient.MakeURL(const AIncludeParams: Boolean): string;
@@ -433,121 +598,8 @@ begin
   end;
 end;
 
-function TRequestFPHTTPClient.AddBody(const AContent: string): IRequest;
-begin
-  Result := Self;
-
-  if not Assigned(FStreamSend) then
-    FStreamSend := TStringStream.Create(AContent, TEncoding.UTF8)
-  else
-    TStringStream(FStreamSend).WriteString(AContent);
-
-  FStreamSend.Position := 0;
-end;
-
-function TRequestFPHTTPClient.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
-begin
-  Result := Self;
-  try
-    if not Assigned(FStreamSend) then
-    begin
-      FStreamSend := TStringStream.Create;
-    end;
-
-    TStringStream(FStreamSend).CopyFrom(AContent, AContent.Size);
-    FStreamSend.Position := 0;
-  finally
-    if AOwns then
-    begin
-      AContent.Free;
-    end;
-  end;
-end;
-
-function TRequestFPHTTPClient.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
-var
-  LJSONStreamer: TJSONStreamer;
-  LJSONObject  : TJSONObject;
-begin
-  LJSONStreamer := TJSONStreamer.Create(NIL);
-  LJSONObject   := LJSONStreamer.ObjectToJSON(AContent);
-  try
-    Result := Self.AddBody(LJSONObject, False);
-  finally
-    LJSONStreamer.Free;
-
-    if AOwns then
-    begin
-      AContent.Free;
-    end;
-  end;
-end;
-
-function TRequestFPHTTPClient.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
-begin
-  Result := Self.AddBody(AContent.AsJSON);
-
-  if AOwns then
-  begin
-    AContent.Free;
-  end;
-end;
-
-function TRequestFPHTTPClient.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
-begin
-  Result := Self.AddBody(AContent.AsJSON);
-  if AOwns then
-  begin
-    AContent.Free;
-  end;
-end;
-
-function TRequestFPHTTPClient.AddHeader(const AName, AValue: string): IRequest;
-begin
-  Result := Self;
-  if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
-    Exit;
-  if FHeaders.IndexOf(AName) < 0 then
-    FHeaders.Add(AName);
-
-  FFPHTTPClient.AddHeader(AName, AValue);
-end;
-
-function TRequestFPHTTPClient.AddParam(const AName, AValue: string): IRequest;
-begin
-  Result := Self;
-  if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
-    FParams.Add(AName + '=' + AValue);
-end;
-
-function TRequestFPHTTPClient.AddUrlSegment(const AName, AValue: string): IRequest;
-begin
-  Result := Self;
-  if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
-    Exit;
-  if FUrlSegments.IndexOf(AName) < 0 then
-    FUrlSegments.Add(Format('%s=%s', [AName, AValue]));
-end;
-
-function TRequestFPHTTPClient.AddFile(const AName: string; const AValue: TStream): IRequest;
-begin
-  Result := Self;
-  if (AValue <> Nil) and (AValue.Size > 0) then
-  begin
-    Self.AddHeader('x-filename', AName);
-    AValue.Position := 0;
-    TStringStream(FResponse.ContentStream).LoadFromStream(AValue);
-  end;
-end;
-
-function TRequestFPHTTPClient.BasicAuthentication(const AUsername, APassword: string): IRequest;
-begin
-  Result := Self;
-  FFPHTTPClient.UserName := AUsername;
-  FFPHTTPClient.Password := APassword;
-end;
-
-function TRequestFPHTTPClient.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+function TRequestFPHTTPClient.Proxy(const AServer, APassword,
+  AUsername: string; const APort: Integer): IRequest;
 begin
   Result := Self;
 
@@ -557,6 +609,64 @@ begin
   FFPHTTPClient.Proxy.Port     := APort;
 end;
 
-end.
+function TRequestFPHTTPClient.DeactivateProxy: IRequest;
+begin
+  Result := Self;
+  FFPHTTPClient.Proxy.Host     := EmptyStr;
+  FFPHTTPClient.Proxy.Password := EmptyStr;
+  FFPHTTPClient.Proxy.UserName := EmptyStr;
+  FFPHTTPClient.Proxy.Port     := 0;
+end;
 
+procedure TRequestFPHTTPClient.DoAfterExecute(const Sender: TObject;
+  const AResponse: IResponse);
+begin
+  if not Assigned(FDataSetAdapter) then
+    Exit;
+
+//  FDataSetAdapter.LoadFromJSON(FResponse.Content);
+end;
+
+procedure TRequestFPHTTPClient.DoBeforeExecute(const Sender: TFPHTTPClient);
+begin
+  // virtual method
+end;
+
+
+constructor TRequestFPHTTPClient.Create;
+begin
+  FFPHTTPClient := TFPHTTPClient.Create(nil);
+  FFPHTTPClient.KeepConnection := True;
+  FFPHTTPClient.AllowRedirect := True;
+  FFPHTTPClient.RequestHeaders.Clear;
+  FFPHTTPClient.ResponseHeaders.Clear;
+
+  FHeaders     := TStringList.Create;
+  FResponse    := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FParams      := TStringList.Create;
+  FFields      := TDictionary<String, String>.Create;;
+  FUrlSegments := TStringList.Create;
+  FFiles       := TDictionary<String, TFile>.Create;
+
+  UserAgent('Mozilla/5.0 (compatible; fpweb)');
+end;
+
+destructor TRequestFPHTTPClient.Destroy;
+begin
+  if Assigned(FStreamSend) then
+    FreeAndNil(FStreamSend);
+
+  FreeAndNil(FHeaders);
+  FreeAndNil(FParams);
+  FreeAndNil(FFields);
+  FreeAndNil(FFields);
+  FreeAndNil(FUrlSegments);
+  FreeAndNil(FFiles);
+
+  FreeAndNil(FFPHTTPClient);
+
+  inherited Destroy;
+end;
+
+end.
 

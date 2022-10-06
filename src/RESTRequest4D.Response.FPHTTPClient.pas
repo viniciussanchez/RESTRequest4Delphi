@@ -1,39 +1,34 @@
 unit RESTRequest4D.Response.FPHTTPClient;
 
-{$mode Delphi}
+{$IFDEF FPC}
+  {$mode delphi}
+{$ENDIF}
 
 interface
 
-uses
-  SysUtils,
-  Classes,
-  fpJSON,
-  jsonparser,
-  RESTRequest4D.Response.Contract,
-  fphttpclient,
-  openssl,
-  opensslsockets;
+uses Classes, SysUtils, RESTRequest4D.Response.Contract,
+    FPHTTPClient, openssl, fpjson, jsonparser;
 
 type
 
-  TResponseFpHTTPClient = class(TInterfacedObject, IResponse)
+  { TResponseFPHTTPClient }
+
+  TResponseFPHTTPClient = class(TInterfacedObject, IResponse)
   private
-    FFPHTTPClient: TFPHTTPClient;
     FJSONValue   : TJSONData;
+    FFPHTTPClient: TFPHTTPClient;
     FStreamResult: TStringStream;
-
-    function Content        : String;
-    function ContentLength  : Cardinal;
-    function ContentType    : String;
-    function ContentEncoding: String;
-    function ContentStream  : TStream;
-    function StatusCode     : Integer;
-    function StatusText     : String;
-    function RawBytes       : TBytes;
-    function Headers        : TStrings;
-    function StreamResult   : TStringStream;
-    function JSONValue      : TJSONData;
-
+    FContent: TStringStream;
+    function Content: string;
+    function ContentLength: Cardinal;
+    function ContentType: string;
+    function ContentEncoding: string;
+    function ContentStream: TStream;
+    function StatusCode: Integer;
+    function StatusText: string;
+    function RawBytes: TBytes;
+    function JSONValue: TJSONData;
+    function Headers: TStrings;
   public
     constructor Create(const AFPHTTPClient: TFPHTTPClient);
     destructor Destroy; override;
@@ -41,44 +36,50 @@ type
 
 implementation
 
-constructor TResponseFpHTTPClient.Create(const AFPHTTPClient: TFPHTTPClient);
-begin
-  FFPHTTPClient := AFPHTTPClient;
-  FStreamResult := TStringStream.Create;
-end;
+{ TResponseFPHTTPClient }
 
-destructor TResponseFpHTTPClient.Destroy;
-begin
-  FreeAndNil(FStreamResult);
-  if Assigned(FJSONValue) then
-  begin
-    FJSONValue.Free;
-  end;
-
-  inherited;
-end;
-
-function TResponseFpHTTPClient.RawBytes: TBytes;
-begin
-  Result := FStreamResult.Bytes;
-end;
-
-function TResponseFpHTTPClient.Content: string;
+function TResponseFPHTTPClient.Content: string;
 begin
   Result := FStreamResult.DataString;
 end;
 
-function TResponseFpHTTPClient.Headers: TStrings;
+function TResponseFPHTTPClient.ContentLength: Cardinal;
 begin
-  Result := FFPHTTPClient.ResponseHeaders;
+  Result := StrToInt64Def( FFPHTTPClient.GetHeader('Content-Length'), 0 );
 end;
 
-function TResponseFpHTTPClient.StreamResult: TStringStream;
+function TResponseFPHTTPClient.ContentType: string;
+begin
+  Result := FFPHTTPClient.GetHeader('Content-Type');
+end;
+
+function TResponseFPHTTPClient.ContentEncoding: string;
+begin
+  Result := FFPHTTPClient.GetHeader('Content-Encoding');
+end;
+
+function TResponseFPHTTPClient.ContentStream: TStream;
 begin
   Result := FStreamResult;
+  Result.Position := 0;
 end;
 
-function TResponseFpHTTPClient.JSONValue: TJSONData;
+function TResponseFPHTTPClient.StatusCode: Integer;
+begin
+  Result := FFPHTTPClient.ResponseStatusCode;
+end;
+
+function TResponseFPHTTPClient.StatusText: string;
+begin
+  Result := FFPHTTPClient.ResponseStatusText;
+end;
+
+function TResponseFPHTTPClient.RawBytes: TBytes;
+begin
+  Result := FStreamResult.Bytes;
+end;
+
+function TResponseFPHTTPClient.JSONValue: TJSONData;
 var
   LContent   : string;
   LJSONParser : TJSONParser;
@@ -99,40 +100,27 @@ begin
     end;
   end;
   Result := FJSONValue;
-
 end;
 
-function TResponseFpHTTPClient.ContentEncoding: string;
+function TResponseFPHTTPClient.Headers: TStrings;
 begin
-  Result := FFPHTTPClient.GetHeader('Content-Encoding');
+  Result := FFPHTTPClient.ResponseHeaders;
 end;
 
-function TResponseFpHTTPClient.ContentLength: Cardinal;
+constructor TResponseFPHTTPClient.Create(const AFPHTTPClient: TFPHTTPClient);
 begin
-  Result := StrToInt( FFPHTTPClient.GetHeader('Content-Length') );
+  FFPHTTPClient := AFPHTTPClient;
+  FStreamResult := TStringStream.Create;
 end;
 
-function TResponseFpHTTPClient.ContentStream: TStream;
+destructor TResponseFPHTTPClient.Destroy;
 begin
-  Result := FStreamResult;
-  Result.Position := 0;
-end;
+  FreeAndNil(FStreamResult);
+  if Assigned(FJSONValue) then
+    FJSONValue.Free;
 
-function TResponseFpHTTPClient.ContentType: string;
-begin
-  Result := FFPHTTPClient.GetHeader('Content-Type');
-end;
-
-function TResponseFpHTTPClient.StatusCode: Integer;
-begin
-  Result := FFPHTTPClient.ResponseStatusCode;
-end;
-
-function TResponseFpHTTPClient.StatusText: string;
-begin
-  Result := FFPHTTPClient.ResponseStatusText;
+  inherited Destroy;
 end;
 
 end.
-
 
