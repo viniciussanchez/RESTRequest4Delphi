@@ -160,7 +160,7 @@ begin
               LContent := sLineBreak + '--' + LBound + sLineBreak +
                           'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') +';' +
                           sLineBreak + #9'filename=' + AnsiQuotedStr(LFile.FFileName, '"') +
-                          sLineBreak + 'Content-Type: '+AnsisQuotedStr(LFile.FContentType, '"')  + sLineBreak + sLineBreak;
+                          sLineBreak + 'Content-Type: '+AnsiQuotedStr(LFile.FContentType, '"')  + sLineBreak + sLineBreak;
               LStream.Write(PAnsiChar(LContent)^, Length(LContent));
               LFile.FFileStream.Position := 0;
               LStream.Write(LFile.FFileStream, LFile.FFileStream.Size);
