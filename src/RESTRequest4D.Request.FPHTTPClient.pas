@@ -8,7 +8,7 @@ interface
 
 uses Classes, SysUtils, DB,
     RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract,
-    RESTRequest4D.Utils,
+    RESTRequest4D.Utils, DataSet.Serialize,
     FPHTTPClient, openssl, opensslsockets, fpjson, fpjsonrtti,
     Generics.Collections;
 
@@ -624,7 +624,7 @@ begin
   if not Assigned(FDataSetAdapter) then
     Exit;
 
-//  FDataSetAdapter.LoadFromJSON(FResponse.Content);
+  FDataSetAdapter.LoadFromJSON(FResponse.Content);
 end;
 
 procedure TRequestFPHTTPClient.DoBeforeExecute(const Sender: TFPHTTPClient);
