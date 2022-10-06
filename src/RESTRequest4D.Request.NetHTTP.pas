@@ -218,8 +218,12 @@ var
   cookies: TStringList;
 begin
   cookies := TStringList.Create;
-  cookies.AddPair(ACookieName, ACookieValue);
-  Result := AddCookies(cookies);
+  try
+    cookies.AddPair(ACookieName, ACookieValue);
+    Result := AddCookies(cookies);
+  finally
+    cookies.Free;
+  end;
 end;
 
 function TRequestNetHTTP.AddField(const AFieldName: string; const AValue: string): IRequest;
