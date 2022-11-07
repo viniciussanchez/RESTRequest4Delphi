@@ -15,6 +15,9 @@ uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, Id
 {$ENDIF}
 
 type
+
+  { TRequestIndy }
+
   TRequestIndy = class(TInterfacedObject, IRequest)
   private
     FIdMultiPartFormDataStream: TIdMultiPartFormDataStream;
@@ -79,8 +82,10 @@ type
     function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
     function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
     function MakeURL(const AIncludeParams: Boolean = True): string;
-	  function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
+    function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
+    function CertFile(const APath: string): IRequest;
+    function KeyFile(const APath: string): IRequest;
     procedure OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
   protected
     procedure DoAfterExecute; virtual;
@@ -290,6 +295,18 @@ begin
   FIdHTTP.ProxyParams.ProxyPassword := EmptyStr;
   FIdHTTP.ProxyParams.ProxyUsername := EmptyStr;
   FIdHTTP.ProxyParams.ProxyPort := 0;
+end;
+
+function TRequestIndy.CertFile(const APath: string): IRequest;
+begin
+  Result := Self;
+  FIdSSLIOHandlerSocketOpenSSL.SSLOptions.CertFile := APath;
+end;
+
+function TRequestIndy.KeyFile(const APath: string): IRequest;
+begin
+  Result := Self;
+  FIdSSLIOHandlerSocketOpenSSL.SSLOptions.KeyFile := APath;
 end;
 
 function TRequestIndy.Delete: IResponse;
