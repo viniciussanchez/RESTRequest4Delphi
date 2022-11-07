@@ -7,7 +7,12 @@ unit RESTRequest4D.Response.Synapse;
 interface
 
 uses Classes, SysUtils, RESTRequest4D.Response.Contract,
-     httpsend, ssl_openssl, fpjson, jsonparser;
+     httpsend, ssl_openssl,
+   {$IFDEF FPC}
+     fpjson, jsonparser;
+   {$ELSE}
+    System.Json;
+   {$ENDIF}
 
 type
 
@@ -15,7 +20,11 @@ type
 
   TResponseSynapse = class(TInterfacedObject, IResponse)
   private
-    FJSONValue   : TJSONData;
+    {$IFDEF FPC}
+    FJSONValue: TJSONData;
+    {$ELSE}
+    FJSONValue: TJSONValue;
+    {$ENDIF}
     FHTTPSend: THTTPSend;
     FStreamResult: TStringStream;
     FContent: TStringStream;
@@ -27,7 +36,11 @@ type
     function StatusCode: Integer;
     function StatusText: string;
     function RawBytes: TBytes;
+    {$IFDEF FPC}
     function JSONValue: TJSONData;
+    {$ELSE}
+    function JSONValue: TJSONValue;
+    {$ENDIF}
     function Headers: TStrings;
   public
     constructor Create(const AHTTPSend: THTTPSend);
@@ -79,14 +92,15 @@ begin
   Result := FStreamResult.Bytes;
 end;
 
+{$IFDEF FPC}
 function TResponseSynapse.JSONValue: TJSONData;
 var
-  LContent   : string;
+  LContent: string;
   LJSONParser : TJSONParser;
 begin
   if not(Assigned(FJSONValue)) then
   begin
-    LContent    := Content.Trim;
+    LContent := Content.Trim;
     LJSONParser := TJSONParser.Create(LContent, False);
     try
       if LContent.StartsWith('{') then
@@ -101,6 +115,24 @@ begin
   end;
   Result := FJSONValue;
 end;
+{$ELSE}
+function TResponseSynapse.JSONValue: TJSONValue;
+var
+  LContent: string;
+begin
+  if not(Assigned(FJSONValue)) then
+  begin
+    LContent := Content.Trim;
+    if LContent.StartsWith('{') then
+      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
+    else if LContent.StartsWith('[') then
+      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
+    else
+      raise Exception.Create('The return content is not a valid JSON value.');
+  end;
+  Result := FJSONValue;
+end;
+{$ENDIF}
 
 function TResponseSynapse.Headers: TStrings;
 begin
