@@ -9,7 +9,14 @@ interface
 uses Classes, SysUtils, DB,
     RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract,
     RESTRequest4D.Utils, DataSet.Serialize,
-    httpsend, ssl_openssl, fpjson, fpjsonrtti,
+    httpsend, ssl_openssl,
+    {$IFDEF FPC}
+    fpjson, fpjsonrtti, base64,
+    {$ELSE}
+    System.Json,
+    System.NetEncoding,
+    REST.Json,
+    {$ENDIF}
     Generics.Collections;
 
 type
@@ -104,7 +111,7 @@ type
 implementation
 
 uses
-    RESTRequest4D.Response.Synapse, base64;
+    RESTRequest4D.Response.Synapse;
 
 { TFile }
 
@@ -320,7 +327,11 @@ function TRequestSynapse.BasicAuthentication(const AUsername,
   APassword: string): IRequest;
 begin
   Result := Self;
+{$IFDEF FPC}
   FHTTPSend.Headers.Add(Format('Authorization: Basic %s', [EncodeStringBase64(AUsername+':'+APassword)]));
+{$ELSE}
+  FHTTPSend.Headers.Add(Format('Authorization: Basic %s', [TNetEncoding.Base64.Encode(AUsername+':'+APassword)]));
+{$ENDIF}
 end;
 
 function TRequestSynapse.Retry(const ARetries: Integer): IRequest;
@@ -385,41 +396,66 @@ end;
 function TRequestSynapse.AddBody(const AContent: TJSONObject;
   const AOwns: Boolean): IRequest;
 begin
+{$IFDEF FPC}
   Result := Self.AddBody(AContent.AsJSON);
-
+{$ELSE}
+  Result := Self.AddBody(AContent.ToJSON);
+{$ENDIF}
   if AOwns then
   begin
-    AContent.Free;
+    {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
+      AContent.Free;
+    {$ELSE}
+      AContent.DisposeOf;
+    {$ENDIF}
   end;
 end;
 
 function TRequestSynapse.AddBody(const AContent: TJSONArray;
   const AOwns: Boolean): IRequest;
 begin
+{$IFDEF FPC}
   Result := Self.AddBody(AContent.AsJSON);
-
+{$ELSE}
+  Result := Self.AddBody(AContent.ToJSON);
+{$ENDIF}
   if AOwns then
   begin
-    AContent.Free;
+    {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
+      AContent.Free;
+    {$ELSE}
+      AContent.DisposeOf;
+    {$ENDIF}
   end;
 end;
 
-function TRequestSynapse.AddBody(const AContent: TObject;
-  const AOwns: Boolean): IRequest;
+function TRequestSynapse.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
 var
-  LJSONStreamer: TJSONStreamer;
-  LJSONObject  : TJSONObject;
+  LJSONObject: TJSONObject;
+{$IFDEF FPC}
+  LJSONStreamer : TJSONStreamer;
+{$ENDIF}
 begin
+{$IFDEF FPC}
   LJSONStreamer := TJSONStreamer.Create(NIL);
-  LJSONObject   := LJSONStreamer.ObjectToJSON(AContent);
+  LJSONObject := LJSONStreamer.ObjectToJSON(AContent);
+{$ELSE}
+  LJSONObject := TJson.ObjectToJsonObject(AContent);
+{$ENDIF}
   try
     Result := Self.AddBody(LJSONObject, False);
   finally
-    LJSONStreamer.Free;
-
+    {$IFDEF FPC}
+      LJSONStreamer.Free;
+    {$ENDIF}
+    LJSONObject.Free;
     if AOwns then
     begin
-      AContent.Free;
+      {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
+        AContent.Free;
+      {$ELSE}
+        AContent.DisposeOf;
+      {$ENDIF}
     end;
   end;
 end;
