@@ -8,16 +8,13 @@ interface
 
 uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL, IdCTypes, IdSSLOpenSSLHeaders,
   RESTRequest4D.Utils, IdMultipartFormData,
-{$IFDEF FPC}
-  DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
-{$ELSE}
-  Data.DB, System.Classes, System.JSON, System.SysUtils, REST.Json;
-{$ENDIF}
+  {$IFDEF FPC}
+    DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
+  {$ELSE}
+    Data.DB, System.Classes, System.JSON, System.SysUtils, REST.Json;
+  {$ENDIF}
 
 type
-
-  { TRequestIndy }
-
   TRequestIndy = class(TInterfacedObject, IRequest)
   private
     FIdMultiPartFormDataStream: TIdMultiPartFormDataStream;
@@ -102,38 +99,33 @@ function TRequestIndy.AddField(const AFieldName: string; const AValue: string): 
 begin
   Result := Self;
   {$IF DEFINED(RR4D_INDY)}
-  FIdMultiPartFormDataStream.AddFormField(AFieldName, AValue, EmptyStr, ' ').ContentTransfer:= '8bit';
+    FIdMultiPartFormDataStream.AddFormField(AFieldName, AValue, EmptyStr, ' ').ContentTransfer:= '8bit';
   {$ENDIF}
 end;
 
-function TRequestIndy.AddFile(const AFieldName: string; const AFileName: string;
-  const AContentType: string): IRequest;
+function TRequestIndy.AddFile(const AFieldName: string; const AFileName: string; const AContentType: string): IRequest;
 begin
   Result := Self;
   if not FileExists(AFileName) then
     Exit;
-
   {$IF DEFINED(RR4D_INDY)}
-  FIdMultiPartFormDataStream.AddFile(AFieldName, AFileName, AContentType);
+    FIdMultiPartFormDataStream.AddFile(AFieldName, AFileName, AContentType);
   {$ENDIF}
 end;
 
-function TRequestIndy.AddFile(const AFieldName: string; const AValue: TStream;
-  const AFileName: string; const AContentType: string): IRequest;
+function TRequestIndy.AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string; const AContentType: string): IRequest;
 var
   lFileName: string;
 begin
   Result := Self;
   if not Assigned(AValue) then
     Exit;
-
   {$IF DEFINED(RR4D_INDY)}
-  lFileName := Trim(AFileName);
-  if (lFileName = EmptyStr) then
-    lFileName := AFieldName;
-
-  AValue.Position := 0;
-  FIdMultiPartFormDataStream.AddFormField(AFieldName, AContentType, EmptyStr, AValue, lFileName);
+    lFileName := Trim(AFileName);
+    if (lFileName = EmptyStr) then
+      lFileName := AFieldName;
+    AValue.Position := 0;
+    FIdMultiPartFormDataStream.AddFormField(AFieldName, AContentType, EmptyStr, AValue, lFileName);
   {$ENDIF}
 end;
 
@@ -205,11 +197,11 @@ begin
   if not Assigned(FDataSetAdapter) then
     Exit;
   {$IF DEFINED(FPC)}
-  FDataSetAdapter.LoadFromJSON(FResponse.Content);
+    FDataSetAdapter.LoadFromJSON(FResponse.Content);
   {$ELSE}
-  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter, False);
-  FDataSetAdapter.LoadFromJSON(FResponse.Content);
-  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
+    TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter, False);
+    FDataSetAdapter.LoadFromJSON(FResponse.Content);
+    TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
   {$ENDIF}
 end;
 
@@ -433,16 +425,16 @@ end;
 function TRequestIndy.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
 var
   LJSONObject: TJSONObject;
-{$IFDEF FPC}
-  LJSONStreamer : TJSONStreamer;
-{$ENDIF}
+  {$IFDEF FPC}
+    LJSONStreamer: TJSONStreamer;
+  {$ENDIF}
 begin
-{$IFDEF FPC}
-  LJSONStreamer := TJSONStreamer.Create(NIL);
-  LJSONObject := LJSONStreamer.ObjectToJSON(AContent);
-{$ELSE}
-  LJSONObject := TJson.ObjectToJsonObject(AContent);
-{$ENDIF}
+  {$IFDEF FPC}
+    LJSONStreamer := TJSONStreamer.Create(NIL);
+    LJSONObject := LJSONStreamer.ObjectToJSON(AContent);
+  {$ELSE}
+    LJSONObject := TJson.ObjectToJsonObject(AContent);
+  {$ENDIF}
   try
     Result := Self.AddBody(LJSONObject, False);
   finally
@@ -470,11 +462,11 @@ end;
 
 function TRequestIndy.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
 begin
-{$IFDEF FPC}
-  Result := Self.AddBody(AContent.AsJSON);
-{$ELSE}
-  Result := Self.AddBody(AContent.ToJSON);
-{$ENDIF}
+  {$IFDEF FPC}
+    Result := Self.AddBody(AContent.AsJSON);
+  {$ELSE}
+    Result := Self.AddBody(AContent.ToJSON);
+  {$ENDIF}
   if AOwns then
   begin
     {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
@@ -487,11 +479,11 @@ end;
 
 function TRequestIndy.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
 begin
-{$IFDEF FPC}
-  Result := Self.AddBody(AContent.AsJSON);
-{$ELSE}
-  Result := Self.AddBody(AContent.ToJSON);
-{$ENDIF}
+  {$IFDEF FPC}
+    Result := Self.AddBody(AContent.AsJSON);
+  {$ELSE}
+    Result := Self.AddBody(AContent.ToJSON);
+  {$ENDIF}
   if AOwns then
   begin
     {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}

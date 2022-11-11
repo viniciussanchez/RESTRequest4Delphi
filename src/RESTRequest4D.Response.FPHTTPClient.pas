@@ -6,16 +6,12 @@ unit RESTRequest4D.Response.FPHTTPClient;
 
 interface
 
-uses Classes, SysUtils, RESTRequest4D.Response.Contract,
-    FPHTTPClient, openssl, fpjson, jsonparser;
+uses Classes, SysUtils, RESTRequest4D.Response.Contract, FPHTTPClient, openssl, fpjson, jsonparser;
 
 type
-
-  { TResponseFPHTTPClient }
-
   TResponseFPHTTPClient = class(TInterfacedObject, IResponse)
   private
-    FJSONValue   : TJSONData;
+    FJSONValue: TJSONData;
     FFPHTTPClient: TFPHTTPClient;
     FStreamResult: TStringStream;
     FContent: TStringStream;
@@ -36,8 +32,6 @@ type
 
 implementation
 
-{ TResponseFPHTTPClient }
-
 function TResponseFPHTTPClient.Content: string;
 begin
   Result := FStreamResult.DataString;
@@ -45,7 +39,7 @@ end;
 
 function TResponseFPHTTPClient.ContentLength: Cardinal;
 begin
-  Result := StrToInt64Def( FFPHTTPClient.GetHeader('Content-Length'), 0 );
+  Result := StrToInt64Def(FFPHTTPClient.GetHeader('Content-Length'), 0);
 end;
 
 function TResponseFPHTTPClient.ContentType: string;
@@ -81,12 +75,12 @@ end;
 
 function TResponseFPHTTPClient.JSONValue: TJSONData;
 var
-  LContent   : string;
-  LJSONParser : TJSONParser;
+  LContent: string;
+  LJSONParser: TJSONParser;
 begin
   if not(Assigned(FJSONValue)) then
   begin
-    LContent    := Content.Trim;
+    LContent := Content.Trim;
     LJSONParser := TJSONParser.Create(LContent, False);
     try
       if LContent.StartsWith('{') then
@@ -118,9 +112,7 @@ begin
   FreeAndNil(FStreamResult);
   if Assigned(FJSONValue) then
     FJSONValue.Free;
-
   inherited Destroy;
 end;
 
 end.
-

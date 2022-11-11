@@ -6,35 +6,28 @@ unit RESTRequest4D.Request.FPHTTPClient;
 
 interface
 
-uses Classes, SysUtils, DB,
-    RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract,
-    RESTRequest4D.Utils, DataSet.Serialize,
-    FPHTTPClient, openssl, opensslsockets, fpjson, fpjsonrtti,
-    Generics.Collections;
+uses Classes, SysUtils, DB, RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract,
+  RESTRequest4D.Utils, DataSet.Serialize, FPHTTPClient, openssl, opensslsockets, fpjson, fpjsonrtti,
+  Generics.Collections;
 
 type
-
-  { TFile }
-
   TFile = class
   private
     FFileStream: TStream;
-    FFileName: String;
-    FContentType: String;
+    FFileName: string;
+    FContentType: string;
   public
     constructor Create(const AFileStream: TStream; const AFileName: string; const AContentType: string); overload;
     destructor Destroy; override;
   end;
 
-  { TRequestFPHTTPClient }
-
   TRequestFPHTTPClient = class(TInterfacedObject, IRequest)
   private
-    FHeaders: TStrings;
-    FParams: TStringList;
-    FFiles: TDictionary<String, TFile>;
-    FFields: TDictionary<String, String>;
-    FUrlSegments: TStrings;
+    FHeaders: Tstrings;
+    FParams: TstringList;
+    FFiles: TDictionary<string, TFile>;
+    FFields: TDictionary<string, string>;
+    FUrlSegments: Tstrings;
     FFPHTTPClient: TFPHTTPClient;
     FBaseURL: string;
     FResource: string;
@@ -84,7 +77,7 @@ type
     function ClearParams: IRequest;
     function ContentType(const AContentType: string): IRequest;
     function UserAgent(const AName: string): IRequest;
-    function AddCookies(const ACookies: TStrings): IRequest;
+    function AddCookies(const ACookies: Tstrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
     function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
@@ -103,16 +96,12 @@ type
 
 implementation
 
-uses
-    RESTRequest4D.Response.FPHTTPClient;
+uses RESTRequest4D.Response.FPHTTPClient;
 
-{ TFile }
-
-constructor TFile.Create(const AFileStream: TStream; const AFileName: string;
-  const AContentType: string);
+constructor TFile.Create(const AFileStream: TStream; const AFileName: string; const AContentType: string);
 begin
   FFileStream := AFileStream;
-  FFileName   := AFileName;
+  FFileName := AFileName;
   FContentType := AContentType;
 end;
 
@@ -121,12 +110,10 @@ begin
   inherited Destroy;
 end;
 
-{ TRequestFPHTTPClient }
-
 procedure TRequestFPHTTPClient.ExecuteRequest(const AMethod: TMethodRequest);
 var
   LAttempts: Integer;
-  LBound, LContent, LFieldName: String;
+  LBound, LContent, LFieldName: string;
   LFile: TFile;
   LStream: TStream;
 begin
@@ -136,7 +123,7 @@ begin
   begin
     try
       DoBeforeExecute(FFPHTTPClient);
-      LStream := TStringStream.Create('', TEncoding.UTF8);
+      LStream := TstringStream.Create('', TEncoding.UTF8);
       try
         if AMethod <> mrGET then
         begin
@@ -160,7 +147,7 @@ begin
               LContent := sLineBreak + '--' + LBound + sLineBreak +
                           'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') +';' +
                           sLineBreak + #9'filename=' + AnsiQuotedStr(LFile.FFileName, '"') +
-                          sLineBreak + 'Content-Type: '+AnsiQuotedStr(LFile.FContentType, '"')  + sLineBreak + sLineBreak;
+                          sLineBreak + 'Content-Type: '+AnsiQuotedStr(LFile.FContentType, '"') + sLineBreak + sLineBreak;
               LStream.Write(PAnsiChar(LContent)^, Length(LContent));
               LFile.FFileStream.Position := 0;
               LStream.Write(LFile.FFileStream, LFile.FFileStream.Size);
@@ -176,18 +163,24 @@ begin
         end;
 
         case AMethod of
-          mrGET   : FFPHTTPClient.Get   (MakeURL, FResponse.ContentStream);
-          mrPOST  : FFPHTTPClient.Post  (MakeURL, FResponse.ContentStream);
-          mrPUT   : FFPHTTPClient.Put   (MakeURL, FResponse.ContentStream);
-          mrPATCH : FFPHTTPClient.Put   (MakeURL, FResponse.ContentStream);
-          mrDELETE: FFPHTTPClient.Delete(MakeURL, FResponse.ContentStream);
+          mrGET:
+            FFPHTTPClient.Get(MakeURL, FResponse.ContentStream);
+          mrPOST:
+            FFPHTTPClient.Post(MakeURL, FResponse.ContentStream);
+          mrPUT:
+            FFPHTTPClient.Put(MakeURL, FResponse.ContentStream);
+          mrPATCH:
+            FFPHTTPClient.Put(MakeURL, FResponse.ContentStream);
+          mrDELETE:
+            FFPHTTPClient.Delete(MakeURL, FResponse.ContentStream);
         end;
 
         LAttempts := 0;
       finally
         if Assigned(LStream) then
-        LStream.Free;
+          LStream.Free;
       end;
+
       DoAfterExecute(Self, FResponse);
     except
       LAttempts := LAttempts - 1;
@@ -196,13 +189,13 @@ begin
     end;
   end;
 end;
+
 function TRequestFPHTTPClient.AcceptEncoding: string;
 begin
   Result := FFPHTTPClient.GetHeader('Accept-Encoding');
 end;
 
-function TRequestFPHTTPClient.AcceptEncoding(const AAcceptEncoding: string
-  ): IRequest;
+function TRequestFPHTTPClient.AcceptEncoding(const AAcceptEncoding: string): IRequest;
 begin
   Result := Self;
   FFPHTTPClient.AddHeader('Accept-Encoding', AAcceptEncoding);
@@ -213,8 +206,7 @@ begin
   Result := FFPHTTPClient.GetHeader('Accept-Charset');
 end;
 
-function TRequestFPHTTPClient.AcceptCharset(const AAcceptCharset: string
-  ): IRequest;
+function TRequestFPHTTPClient.AcceptCharset(const AAcceptCharset: string): IRequest;
 begin
   Result := Self;
   FFPHTTPClient.AddHeader('Accept-Charset', AAcceptCharset);
@@ -242,8 +234,7 @@ begin
   FFPHTTPClient.ConnectTimeout := ATimeout;
 end;
 
-function TRequestFPHTTPClient.DataSetAdapter(const ADataSet: TDataSet
-  ): IRequest;
+function TRequestFPHTTPClient.DataSetAdapter(const ADataSet: TDataSet): IRequest;
 begin
   Result := Self;
   FDataSetAdapter := ADataSet;
@@ -276,8 +267,7 @@ begin
   Result := False;
 end;
 
-function TRequestFPHTTPClient.RaiseExceptionOn500(const ARaiseException: Boolean
-  ): IRequest;
+function TRequestFPHTTPClient.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
 begin
   raise Exception.Create('Not implemented');
 end;
@@ -287,8 +277,7 @@ begin
   Result := FResource;
 end;
 
-function TRequestFPHTTPClient.ResourceSuffix(const AResourceSuffix: string
-  ): IRequest;
+function TRequestFPHTTPClient.ResourceSuffix(const AResourceSuffix: string): IRequest;
 begin
   Result := Self;
   FResourceSuffix := AResourceSuffix;
@@ -311,8 +300,7 @@ begin
   Self.AddHeader('Authorization', 'Bearer ' + AToken);
 end;
 
-function TRequestFPHTTPClient.BasicAuthentication(const AUsername,
-  APassword: string): IRequest;
+function TRequestFPHTTPClient.BasicAuthentication(const AUsername, APassword: string): IRequest;
 begin
   Result := Self;
   FFPHTTPClient.UserName := AUsername;
@@ -321,7 +309,7 @@ end;
 
 function TRequestFPHTTPClient.Retry(const ARetries: Integer): IRequest;
 begin
-  Result   := Self;
+  Result := Self;
   FRetries := ARetries;
 end;
 
@@ -355,8 +343,7 @@ begin
   ExecuteRequest(mrPATCH);
 end;
 
-function TRequestFPHTTPClient.FullRequestURL(const AIncludeParams: Boolean
-  ): string;
+function TRequestFPHTTPClient.FullRequestURL(const AIncludeParams: Boolean): string;
 begin
   Result := Self.MakeURL(AIncludeParams);
 end;
@@ -372,62 +359,49 @@ function TRequestFPHTTPClient.AddBody(const AContent: string): IRequest;
 begin
   Result := Self;
   if not Assigned(FStreamSend) then
-    FStreamSend := TStringStream.Create(AContent, TEncoding.UTF8)
+    FStreamSend := TstringStream.Create(AContent, TEncoding.UTF8)
   else
-    TStringStream(FStreamSend).WriteString(AContent);
+    TstringStream(FStreamSend).Writestring(AContent);
   FStreamSend.Position := 0;
 end;
 
-function TRequestFPHTTPClient.AddBody(const AContent: TJSONObject;
-  const AOwns: Boolean): IRequest;
+function TRequestFPHTTPClient.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
 begin
   Result := Self.AddBody(AContent.AsJSON);
-
   if AOwns then
-  begin
     AContent.Free;
-  end;
 end;
 
-function TRequestFPHTTPClient.AddBody(const AContent: TJSONArray;
-  const AOwns: Boolean): IRequest;
+function TRequestFPHTTPClient.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
 begin
   Result := Self.AddBody(AContent.AsJSON);
-
   if AOwns then
-  begin
     AContent.Free;
-  end;
 end;
 
-function TRequestFPHTTPClient.AddBody(const AContent: TObject;
-  const AOwns: Boolean): IRequest;
+function TRequestFPHTTPClient.AddBody(const AContent: TObject; const AOwns: Boolean): IRequest;
 var
   LJSONStreamer: TJSONStreamer;
-  LJSONObject  : TJSONObject;
+  LJSONObject: TJSONObject;
 begin
   LJSONStreamer := TJSONStreamer.Create(NIL);
-  LJSONObject   := LJSONStreamer.ObjectToJSON(AContent);
+  LJSONObject := LJSONStreamer.ObjectToJSON(AContent);
   try
     Result := Self.AddBody(LJSONObject, False);
   finally
     LJSONStreamer.Free;
-
     if AOwns then
-    begin
       AContent.Free;
-    end;
   end;
 end;
 
-function TRequestFPHTTPClient.AddBody(const AContent: TStream;
-  const AOwns: Boolean): IRequest;
+function TRequestFPHTTPClient.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
   try
     if not Assigned(FStreamSend) then
-      FStreamSend := TStringStream.Create;
-    TStringStream(FStreamSend).CopyFrom(AContent, AContent.Size);
+      FStreamSend := TstringStream.Create;
+    TstringStream(FStreamSend).CopyFrom(AContent, AContent.Size);
     FStreamSend.Position := 0;
   finally
     if AOwns then
@@ -435,8 +409,7 @@ begin
   end;
 end;
 
-function TRequestFPHTTPClient.AddUrlSegment(const AName, AValue: string
-  ): IRequest;
+function TRequestFPHTTPClient.AddUrlSegment(const AName, AValue: string): IRequest;
 begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
@@ -458,7 +431,6 @@ begin
     Exit;
   if FHeaders.IndexOf(AName) < 0 then
     FHeaders.Add(AName);
-
   FFPHTTPClient.AddHeader(AName, AValue);
 end;
 
@@ -480,24 +452,20 @@ begin
   FFPHTTPClient.AddHeader('User-Agent', AName);
 end;
 
-function TRequestFPHTTPClient.AddCookies(const ACookies: TStrings): IRequest;
+function TRequestFPHTTPClient.AddCookies(const ACookies: Tstrings): IRequest;
 var
   I: Integer;
 begin
   Result := Self;
-
   for I := 0 to ACookies.Count - 1 do
-  begin
     FFPHTTPClient.Cookies.Add(ACookies.Text[I]);
-  end;
 end;
 
-function TRequestFPHTTPClient.AddCookie(const ACookieName, ACookieValue: string
-  ): IRequest;
+function TRequestFPHTTPClient.AddCookie(const ACookieName, ACookieValue: string): IRequest;
 var
-  LCookies: TStringList;
+  LCookies: TstringList;
 begin
-  LCookies := TStringList.Create;
+  LCookies := TstringList.Create;
   try
     LCookies.AddPair(ACookieName, ACookieValue);
     Result := AddCookies(LCookies);
@@ -513,24 +481,20 @@ begin
     FParams.Add(AName + '=' + AValue);
 end;
 
-function TRequestFPHTTPClient.AddField(const AFieldName: string;
-  const AValue: string): IRequest;
+function TRequestFPHTTPClient.AddField(const AFieldName: string; const AValue: string): IRequest;
 begin
   Result := Self;
   if (not AFieldName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
     FFields.AddOrSetValue(AFieldName, AValue);
 end;
 
-function TRequestFPHTTPClient.AddFile(const AFieldName: string;
-  const AFileName: string; const AContentType: string): IRequest;
+function TRequestFPHTTPClient.AddFile(const AFieldName: string; const AFileName: string; const AContentType: string): IRequest;
 var
   LStream: TMemoryStream;
 begin
   Result := Self;
-
   if not FileExists(AFileName) then
     Exit;
-
   LStream := TMemoryStream.Create;
   try
     LStream.LoadFromFile(AFileName);
@@ -541,17 +505,13 @@ begin
   end;
 end;
 
-function TRequestFPHTTPClient.AddFile(const AFieldName: string;
-  const AValue: TStream; const AFileName: string; const AContentType: string
-  ): IRequest;
+function TRequestFPHTTPClient.AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string; const AContentType: string): IRequest;
 var
   LFile: TFile;
 begin
   Result := Self;
-
   if not Assigned(AValue) then
     Exit;
-
   if (AValue <> Nil) and (AValue.Size > 0) then
   begin
     LFile := TFile.Create(AValue, AFileName, AContentType);
@@ -580,8 +540,8 @@ begin
   begin
     for I := 0 to Pred(FUrlSegments.Count) do
     begin
-      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
+      Result := stringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
+      Result := stringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
     end;
   end;
   if not AIncludeParams then
@@ -593,37 +553,33 @@ begin
     begin
       if I > 0 then
         Result := Result + '&';
-      Result := Result + FParams.Strings[I];
+      Result := Result + FParams.strings[I];
     end;
   end;
 end;
 
-function TRequestFPHTTPClient.Proxy(const AServer, APassword,
-  AUsername: string; const APort: Integer): IRequest;
+function TRequestFPHTTPClient.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
 begin
   Result := Self;
-
-  FFPHTTPClient.Proxy.Host     := AServer;
+  FFPHTTPClient.Proxy.Host := AServer;
   FFPHTTPClient.Proxy.Password := APassword;
   FFPHTTPClient.Proxy.UserName := AUsername;
-  FFPHTTPClient.Proxy.Port     := APort;
+  FFPHTTPClient.Proxy.Port := APort;
 end;
 
 function TRequestFPHTTPClient.DeactivateProxy: IRequest;
 begin
   Result := Self;
-  FFPHTTPClient.Proxy.Host     := EmptyStr;
+  FFPHTTPClient.Proxy.Host := EmptyStr;
   FFPHTTPClient.Proxy.Password := EmptyStr;
   FFPHTTPClient.Proxy.UserName := EmptyStr;
-  FFPHTTPClient.Proxy.Port     := 0;
+  FFPHTTPClient.Proxy.Port := 0;
 end;
 
-procedure TRequestFPHTTPClient.DoAfterExecute(const Sender: TObject;
-  const AResponse: IResponse);
+procedure TRequestFPHTTPClient.DoAfterExecute(const Sender: TObject; const AResponse: IResponse);
 begin
   if not Assigned(FDataSetAdapter) then
     Exit;
-
   FDataSetAdapter.LoadFromJSON(FResponse.Content);
 end;
 
@@ -631,7 +587,6 @@ procedure TRequestFPHTTPClient.DoBeforeExecute(const Sender: TFPHTTPClient);
 begin
   // virtual method
 end;
-
 
 constructor TRequestFPHTTPClient.Create;
 begin
@@ -641,12 +596,12 @@ begin
   FFPHTTPClient.RequestHeaders.Clear;
   FFPHTTPClient.ResponseHeaders.Clear;
 
-  FHeaders     := TStringList.Create;
-  FResponse    := TResponseFpHTTPClient.Create(FFPHTTPClient);
-  FParams      := TStringList.Create;
-  FFields      := TDictionary<String, String>.Create;;
-  FUrlSegments := TStringList.Create;
-  FFiles       := TDictionary<String, TFile>.Create;
+  FHeaders := TstringList.Create;
+  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FParams := TstringList.Create;
+  FFields := TDictionary<string, string>.Create;;
+  FUrlSegments := TstringList.Create;
+  FFiles := TDictionary<string, TFile>.Create;
 
   UserAgent('Mozilla/5.0 (compatible; fpweb)');
 end;
@@ -655,18 +610,14 @@ destructor TRequestFPHTTPClient.Destroy;
 begin
   if Assigned(FStreamSend) then
     FreeAndNil(FStreamSend);
-
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
   FreeAndNil(FFields);
   FreeAndNil(FFields);
   FreeAndNil(FUrlSegments);
   FreeAndNil(FFiles);
-
   FreeAndNil(FFPHTTPClient);
-
   inherited Destroy;
 end;
 
 end.
-

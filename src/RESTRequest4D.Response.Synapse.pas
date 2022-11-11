@@ -6,25 +6,21 @@ unit RESTRequest4D.Response.Synapse;
 
 interface
 
-uses Classes, SysUtils, RESTRequest4D.Response.Contract,
-     httpsend, ssl_openssl,
-   {$IFDEF FPC}
-     fpjson, jsonparser;
-   {$ELSE}
+uses Classes, SysUtils, RESTRequest4D.Response.Contract, httpsend, ssl_openssl,
+  {$IFDEF FPC}
+    fpjson, jsonparser;
+  {$ELSE}
     System.Json;
-   {$ENDIF}
+  {$ENDIF}
 
 type
-
-  { TResponseSynapse }
-
   TResponseSynapse = class(TInterfacedObject, IResponse)
   private
-    {$IFDEF FPC}
+  {$IFDEF FPC}
     FJSONValue: TJSONData;
-    {$ELSE}
+  {$ELSE}
     FJSONValue: TJSONValue;
-    {$ENDIF}
+  {$ENDIF}
     FHTTPSend: THTTPSend;
     FStreamResult: TStringStream;
     FContent: TStringStream;
@@ -36,20 +32,18 @@ type
     function StatusCode: Integer;
     function StatusText: string;
     function RawBytes: TBytes;
-    {$IFDEF FPC}
-    function JSONValue: TJSONData;
-    {$ELSE}
-    function JSONValue: TJSONValue;
-    {$ENDIF}
     function Headers: TStrings;
+  {$IFDEF FPC}
+    function JSONValue: TJSONData;
+  {$ELSE}
+    function JSONValue: TJSONValue;
+  {$ENDIF}
   public
     constructor Create(const AHTTPSend: THTTPSend);
     destructor Destroy; override;
   end;
 
 implementation
-
-{ TResponseSynapse }
 
 function TResponseSynapse.Content: string;
 begin
@@ -58,7 +52,7 @@ end;
 
 function TResponseSynapse.ContentLength: Cardinal;
 begin
-  Result := StrToInt64Def( FHTTPSend.Headers.Values['Content-Length'], 0 );
+  Result := StrToInt64Def(FHTTPSend.Headers.Values['Content-Length'], 0);
 end;
 
 function TResponseSynapse.ContentType: string;
@@ -96,7 +90,7 @@ end;
 function TResponseSynapse.JSONValue: TJSONData;
 var
   LContent: string;
-  LJSONParser : TJSONParser;
+  LJSONParser: TJSONParser;
 begin
   if not(Assigned(FJSONValue)) then
   begin
@@ -115,7 +109,9 @@ begin
   end;
   Result := FJSONValue;
 end;
+
 {$ELSE}
+
 function TResponseSynapse.JSONValue: TJSONValue;
 var
   LContent: string;
@@ -144,7 +140,6 @@ begin
   FHTTPSend := AHTTPSend;
   FHTTPSend.KeepAlive := True;
   FHTTPSend.Headers.Clear;
-
   FStreamResult := TStringStream.Create;
 end;
 
@@ -153,9 +148,7 @@ begin
   FreeAndNil(FStreamResult);
   if Assigned(FJSONValue) then
     FJSONValue.Free;
-
   inherited Destroy;
 end;
 
 end.
-

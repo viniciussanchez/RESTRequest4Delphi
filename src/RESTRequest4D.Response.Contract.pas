@@ -20,12 +20,12 @@ type
     function StatusCode: Integer;
     function StatusText: string;
     function RawBytes: TBytes;
+    function Headers: TStrings;
   {$IFDEF FPC}
     function JSONValue: TJSONData;
   {$ELSE}
     function JSONValue: TJSONValue;
   {$ENDIF}
-    function Headers: TStrings;
   end;
 
 implementation

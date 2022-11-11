@@ -6,42 +6,34 @@ unit RESTRequest4D.Request.Synapse;
 
 interface
 
-uses Classes, SysUtils, DB,
-    RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract,
-    RESTRequest4D.Utils, DataSet.Serialize,
-    httpsend, ssl_openssl,
-    {$IFDEF FPC}
-    fpjson, fpjsonrtti, base64,
-    {$ELSE}
+uses Classes, SysUtils, DB, RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, RESTRequest4D.Utils,
+  DataSet.Serialize, httpsend, ssl_openssl, Generics.Collections,
+  {$IFDEF FPC}
+    fpjson, fpjsonrtti, base64;
+  {$ELSE}
     System.Json,
     System.NetEncoding,
-    REST.Json,
-    {$ENDIF}
-    Generics.Collections;
+    REST.Json;
+  {$ENDIF}
 
 type
-
-  { TFile }
-
   TFile = class
   private
     FFileStream: TStream;
-    FFileName: String;
-    FContentType: String;
+    FFileName: string;
+    FContentType: string;
   public
     constructor Create(const AFileStream: TStream; const AFileName: string; const AContentType: string); overload;
     destructor Destroy; override;
   end;
 
-  { TRequestSynapse }
-
   TRequestSynapse = class(TInterfacedObject, IRequest)
   private
-    FHeaders: TStrings;
-    FParams: TStringList;
-    FFiles: TDictionary<String, TFile>;
-    FFields: TDictionary<String, String>;
-    FUrlSegments: TStrings;
+    FHeaders: Tstrings;
+    FParams: TstringList;
+    FFiles: TDictionary<string, TFile>;
+    FFields: TDictionary<string, string>;
+    FUrlSegments: Tstrings;
     FHTTPSend: THTTPSend;
     FBaseURL: string;
     FResource: string;
@@ -91,7 +83,7 @@ type
     function ClearParams: IRequest;
     function ContentType(const AContentType: string): IRequest;
     function UserAgent(const AName: string): IRequest;
-    function AddCookies(const ACookies: TStrings): IRequest;
+    function AddCookies(const ACookies: Tstrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
     function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
@@ -110,16 +102,12 @@ type
 
 implementation
 
-uses
-    RESTRequest4D.Response.Synapse;
+uses RESTRequest4D.Response.Synapse;
 
-{ TFile }
-
-constructor TFile.Create(const AFileStream: TStream; const AFileName: string;
-  const AContentType: string);
+constructor TFile.Create(const AFileStream: TStream; const AFileName: string; const AContentType: string);
 begin
   FFileStream := AFileStream;
-  FFileName   := AFileName;
+  FFileName := AFileName;
   FContentType := AContentType;
 end;
 
@@ -128,12 +116,10 @@ begin
   inherited Destroy;
 end;
 
-{ TRequestSynapse }
-
 procedure TRequestSynapse.ExecuteRequest(const AMethod: TMethodRequest);
 var
   LAttempts: Integer;
-  LBound, LContent, LFieldName: String;
+  LBound, LContent, LFieldName: string;
   LFile: TFile;
   LStream: TStream;
 begin
@@ -143,7 +129,7 @@ begin
   begin
     try
       DoBeforeExecute(FHTTPSend);
-      LStream := TStringStream.Create('', TEncoding.UTF8);
+      LStream := TstringStream.Create('', TEncoding.UTF8);
       try
         if AMethod <> mrGET then
         begin
@@ -167,7 +153,7 @@ begin
               LContent := sLineBreak + '--' + LBound + sLineBreak +
                           'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') +';' +
                           sLineBreak + #9'filename=' + AnsiQuotedStr(LFile.FFileName, '"') +
-                          sLineBreak + 'Content-Type: '+AnsiQuotedStr(LFile.FContentType, '"')  + sLineBreak + sLineBreak;
+                          sLineBreak + 'Content-Type: '+AnsiQuotedStr(LFile.FContentType, '"') + sLineBreak + sLineBreak;
               LStream.Write(PAnsiChar(LContent)^, Length(LContent));
               LFile.FFileStream.Position := 0;
               LStream.Write(LFile.FFileStream, LFile.FFileStream.Size);
@@ -186,20 +172,27 @@ begin
         end;
 
         case AMethod of
-          mrGET   : FHTTPSend.HTTPMethod('GET', MakeURL);
-          mrPOST  : FHTTPSend.HTTPMethod('POST', MakeURL);
-          mrPUT   : FHTTPSend.HTTPMethod('PUT', MakeURL);
-          mrPATCH : FHTTPSend.HTTPMethod('PATCH', MakeURL);
-          mrDELETE: FHTTPSend.HTTPMethod('DELETE', MakeURL);
+          mrGET:
+            FHTTPSend.HTTPMethod('GET', MakeURL);
+          mrPOST:
+            FHTTPSend.HTTPMethod('POST', MakeURL);
+          mrPUT:
+            FHTTPSend.HTTPMethod('PUT', MakeURL);
+          mrPATCH:
+            FHTTPSend.HTTPMethod('PATCH', MakeURL);
+          mrDELETE:
+            FHTTPSend.HTTPMethod('DELETE', MakeURL);
         end;
+
         FHTTPSend.Document.Position := 0;
         FResponse.ContentStream.CopyFrom(FHTTPSend.Document, FHTTPSend.Document.Size);
 
         LAttempts := 0;
       finally
         if Assigned(LStream) then
-        LStream.Free;
+          LStream.Free;
       end;
+
       DoAfterExecute(Self, FResponse);
     except
       LAttempts := LAttempts - 1;
@@ -208,13 +201,13 @@ begin
     end;
   end;
 end;
+
 function TRequestSynapse.AcceptEncoding: string;
 begin
   Result := FHTTPSend.Headers.Values['Accept-Encoding'];
 end;
 
-function TRequestSynapse.AcceptEncoding(const AAcceptEncoding: string
-  ): IRequest;
+function TRequestSynapse.AcceptEncoding(const AAcceptEncoding: string): IRequest;
 begin
   Result := Self;
   FHTTPSend.Headers.AddPair('Accept-Encoding', AAcceptEncoding);
@@ -225,8 +218,7 @@ begin
   Result := FHTTPSend.Headers.Values['Accept-Charset'];
 end;
 
-function TRequestSynapse.AcceptCharset(const AAcceptCharset: string
-  ): IRequest;
+function TRequestSynapse.AcceptCharset(const AAcceptCharset: string): IRequest;
 begin
   Result := Self;
   FHTTPSend.Headers.AddPair('Accept-Charset', AAcceptCharset);
@@ -254,8 +246,7 @@ begin
   FHTTPSend.Timeout := ATimeout;
 end;
 
-function TRequestSynapse.DataSetAdapter(const ADataSet: TDataSet
-  ): IRequest;
+function TRequestSynapse.DataSetAdapter(const ADataSet: TDataSet): IRequest;
 begin
   Result := Self;
   FDataSetAdapter := ADataSet;
@@ -288,8 +279,7 @@ begin
   Result := False;
 end;
 
-function TRequestSynapse.RaiseExceptionOn500(const ARaiseException: Boolean
-  ): IRequest;
+function TRequestSynapse.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
 begin
   raise Exception.Create('Not implemented');
 end;
@@ -299,8 +289,7 @@ begin
   Result := FResource;
 end;
 
-function TRequestSynapse.ResourceSuffix(const AResourceSuffix: string
-  ): IRequest;
+function TRequestSynapse.ResourceSuffix(const AResourceSuffix: string): IRequest;
 begin
   Result := Self;
   FResourceSuffix := AResourceSuffix;
@@ -323,12 +312,11 @@ begin
   Self.AddHeader('Authorization', 'Bearer ' + AToken);
 end;
 
-function TRequestSynapse.BasicAuthentication(const AUsername,
-  APassword: string): IRequest;
+function TRequestSynapse.BasicAuthentication(const AUsername, APassword: string): IRequest;
 begin
   Result := Self;
 {$IFDEF FPC}
-  FHTTPSend.Headers.Add(Format('Authorization: Basic %s', [EncodeStringBase64(AUsername+':'+APassword)]));
+  FHTTPSend.Headers.Add(Format('Authorization: Basic %s', [EncodestringBase64(AUsername+':'+APassword)]));
 {$ELSE}
   FHTTPSend.Headers.Add(Format('Authorization: Basic %s', [TNetEncoding.Base64.Encode(AUsername+':'+APassword)]));
 {$ENDIF}
@@ -336,7 +324,7 @@ end;
 
 function TRequestSynapse.Retry(const ARetries: Integer): IRequest;
 begin
-  Result   := Self;
+  Result := Self;
   FRetries := ARetries;
 end;
 
@@ -370,8 +358,7 @@ begin
   ExecuteRequest(mrPATCH);
 end;
 
-function TRequestSynapse.FullRequestURL(const AIncludeParams: Boolean
-  ): string;
+function TRequestSynapse.FullRequestURL(const AIncludeParams: Boolean): string;
 begin
   Result := Self.MakeURL(AIncludeParams);
 end;
@@ -387,14 +374,13 @@ function TRequestSynapse.AddBody(const AContent: string): IRequest;
 begin
   Result := Self;
   if not Assigned(FStreamSend) then
-    FStreamSend := TStringStream.Create(AContent, TEncoding.UTF8)
+    FStreamSend := TstringStream.Create(AContent, TEncoding.UTF8)
   else
-    TStringStream(FStreamSend).WriteString(AContent);
+    TstringStream(FStreamSend).Writestring(AContent);
   FStreamSend.Position := 0;
 end;
 
-function TRequestSynapse.AddBody(const AContent: TJSONObject;
-  const AOwns: Boolean): IRequest;
+function TRequestSynapse.AddBody(const AContent: TJSONObject; const AOwns: Boolean): IRequest;
 begin
 {$IFDEF FPC}
   Result := Self.AddBody(AContent.AsJSON);
@@ -411,8 +397,7 @@ begin
   end;
 end;
 
-function TRequestSynapse.AddBody(const AContent: TJSONArray;
-  const AOwns: Boolean): IRequest;
+function TRequestSynapse.AddBody(const AContent: TJSONArray; const AOwns: Boolean): IRequest;
 begin
 {$IFDEF FPC}
   Result := Self.AddBody(AContent.AsJSON);
@@ -433,7 +418,7 @@ function TRequestSynapse.AddBody(const AContent: TObject; const AOwns: Boolean):
 var
   LJSONObject: TJSONObject;
 {$IFDEF FPC}
-  LJSONStreamer : TJSONStreamer;
+  LJSONStreamer: TJSONStreamer;
 {$ENDIF}
 begin
 {$IFDEF FPC}
@@ -460,14 +445,13 @@ begin
   end;
 end;
 
-function TRequestSynapse.AddBody(const AContent: TStream;
-  const AOwns: Boolean): IRequest;
+function TRequestSynapse.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
 begin
   Result := Self;
   try
     if not Assigned(FStreamSend) then
-      FStreamSend := TStringStream.Create;
-    TStringStream(FStreamSend).CopyFrom(AContent, AContent.Size);
+      FStreamSend := TstringStream.Create;
+    TstringStream(FStreamSend).CopyFrom(AContent, AContent.Size);
     FStreamSend.Position := 0;
   finally
     if AOwns then
@@ -475,8 +459,7 @@ begin
   end;
 end;
 
-function TRequestSynapse.AddUrlSegment(const AName, AValue: string
-  ): IRequest;
+function TRequestSynapse.AddUrlSegment(const AName, AValue: string): IRequest;
 begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
@@ -498,7 +481,6 @@ begin
     Exit;
   if FHeaders.IndexOf(AName) < 0 then
     FHeaders.Add(AName);
-
   FHTTPSend.Headers.Add(AName+': '+ AValue);
 end;
 
@@ -520,24 +502,20 @@ begin
   Self.AddHeader('User-Agent', AName);
 end;
 
-function TRequestSynapse.AddCookies(const ACookies: TStrings): IRequest;
+function TRequestSynapse.AddCookies(const ACookies: Tstrings): IRequest;
 var
   I: Integer;
 begin
   Result := Self;
-
   for I := 0 to ACookies.Count - 1 do
-  begin
     FHTTPSend.Cookies.Add(ACookies.Text[I]);
-  end;
 end;
 
-function TRequestSynapse.AddCookie(const ACookieName, ACookieValue: string
-  ): IRequest;
+function TRequestSynapse.AddCookie(const ACookieName, ACookieValue: string): IRequest;
 var
-  LCookies: TStringList;
+  LCookies: TstringList;
 begin
-  LCookies := TStringList.Create;
+  LCookies := TstringList.Create;
   try
     LCookies.AddPair(ACookieName, ACookieValue);
     Result := AddCookies(LCookies);
@@ -553,24 +531,20 @@ begin
     FParams.Add(AName + '=' + AValue);
 end;
 
-function TRequestSynapse.AddField(const AFieldName: string;
-  const AValue: string): IRequest;
+function TRequestSynapse.AddField(const AFieldName: string; const AValue: string): IRequest;
 begin
   Result := Self;
   if (not AFieldName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
     FFields.AddOrSetValue(AFieldName, AValue);
 end;
 
-function TRequestSynapse.AddFile(const AFieldName: string;
-  const AFileName: string; const AContentType: string): IRequest;
+function TRequestSynapse.AddFile(const AFieldName: string; const AFileName: string; const AContentType: string): IRequest;
 var
   LStream: TMemoryStream;
 begin
   Result := Self;
-
   if not FileExists(AFileName) then
     Exit;
-
   LStream := TMemoryStream.Create;
   try
     LStream.LoadFromFile(AFileName);
@@ -581,17 +555,13 @@ begin
   end;
 end;
 
-function TRequestSynapse.AddFile(const AFieldName: string;
-  const AValue: TStream; const AFileName: string; const AContentType: string
-  ): IRequest;
+function TRequestSynapse.AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string; const AContentType: string): IRequest;
 var
   LFile: TFile;
 begin
   Result := Self;
-
   if not Assigned(AValue) then
     Exit;
-
   if (AValue <> Nil) and (AValue.Size > 0) then
   begin
     LFile := TFile.Create(AValue, AFileName, AContentType);
@@ -620,8 +590,8 @@ begin
   begin
     for I := 0 to Pred(FUrlSegments.Count) do
     begin
-      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
+      Result := stringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
+      Result := stringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
     end;
   end;
   if not AIncludeParams then
@@ -633,16 +603,14 @@ begin
     begin
       if I > 0 then
         Result := Result + '&';
-      Result := Result + FParams.Strings[I];
+      Result := Result + FParams.strings[I];
     end;
   end;
 end;
 
-function TRequestSynapse.Proxy(const AServer, APassword,
-  AUsername: string; const APort: Integer): IRequest;
+function TRequestSynapse.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
 begin
   Result := Self;
-
   FHTTPSend.ProxyHost := AServer;
   FHTTPSend.ProxyPass := APassword;
   FHTTPSend.ProxyUser := AUsername;
@@ -658,12 +626,10 @@ begin
   FHTTPSend.ProxyPort := EmptyStr;
 end;
 
-procedure TRequestSynapse.DoAfterExecute(const Sender: TObject;
-  const AResponse: IResponse);
+procedure TRequestSynapse.DoAfterExecute(const Sender: TObject; const AResponse: IResponse);
 begin
   if not Assigned(FDataSetAdapter) then
     Exit;
-
   FDataSetAdapter.LoadFromJSON(FResponse.Content);
 end;
 
@@ -672,18 +638,17 @@ begin
   // virtual method
 end;
 
-
 constructor TRequestSynapse.Create;
 begin
   FHTTPSend := THTTPSend.Create;
   FHTTPSend.Headers.NameValueSeparator := ':';
 
-  FHeaders     := TStringList.Create;
-  FResponse    := TResponseSynapse.Create(FHTTPSend);
-  FParams      := TStringList.Create;
-  FFields      := TDictionary<String, String>.Create;;
-  FUrlSegments := TStringList.Create;
-  FFiles       := TDictionary<String, TFile>.Create;
+  FHeaders := TstringList.Create;
+  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FParams := TstringList.Create;
+  FFields := TDictionary<string, string>.Create;;
+  FUrlSegments := TstringList.Create;
+  FFiles := TDictionary<string, TFile>.Create;
 
   UserAgent('Mozilla/5.0 (compatible; fpweb)');
 end;
@@ -692,18 +657,14 @@ destructor TRequestSynapse.Destroy;
 begin
   if Assigned(FStreamSend) then
     FreeAndNil(FStreamSend);
-
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
   FreeAndNil(FFields);
   FreeAndNil(FFields);
   FreeAndNil(FUrlSegments);
   FreeAndNil(FFiles);
-
   FreeAndNil(FHTTPSend);
-
   inherited Destroy;
 end;
 
 end.
-

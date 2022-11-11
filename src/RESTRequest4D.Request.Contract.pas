@@ -70,7 +70,7 @@ type
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
-   {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_NETHTTP)}
+    {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_NETHTTP)}
     function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
     function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
     {$ELSE}

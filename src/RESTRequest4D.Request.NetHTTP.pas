@@ -233,23 +233,20 @@ begin
   FUseMultipartFormData := True;
 end;
 
-function TRequestNetHTTP.AddFile(const AFieldName: string; const AFileName: string;
-  const AContentType: string): IRequest;
+function TRequestNetHTTP.AddFile(const AFieldName: string; const AFileName: string; const AContentType: string): IRequest;
 begin
   Result := Self;
   if not FileExists(AFileName) then
     Exit;
-
   {$IF COMPILERVERSION >= 33.0}
-  FMultipartFormData.AddFile(AFieldName, AFileName, AContentType);
+    FMultipartFormData.AddFile(AFieldName, AFileName, AContentType);
   {$ELSE}
-  FMultipartFormData.AddFile(AFieldName, AFileName);
+    FMultipartFormData.AddFile(AFieldName, AFileName);
   {$ENDIF}
   FUseMultipartFormData := True;
 end;
 
-function TRequestNetHTTP.AddFile(const AFieldName: string; const AValue: TStream;
-  const AFileName: string; const AContentType: string): IRequest;
+function TRequestNetHTTP.AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string; const AContentType: string): IRequest;
 {$IF COMPILERVERSION >= 33.0}
 var
   lFileName: string;
@@ -258,15 +255,13 @@ begin
   Result := Self;
   if not Assigned(AValue) then
     Exit;
-
   {$IF COMPILERVERSION >= 33.0}
-  lFileName := Trim(AFileName);
-  if (lFileName = EmptyStr) then
-    lFileName := AFieldName;
-
-  AValue.Position := 0;
-  FMultipartFormData.AddStream(AFieldName, AValue, lFileName, AContentType);
-  FUseMultipartFormData := True;
+    lFileName := Trim(AFileName);
+    if (lFileName = EmptyStr) then
+      lFileName := AFieldName;
+    AValue.Position := 0;
+    FMultipartFormData.AddStream(AFieldName, AValue, lFileName, AContentType);
+    FUseMultipartFormData := True;
   {$ENDIF}
 end;
 
@@ -275,11 +270,11 @@ begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
-{$IF COMPILERVERSION >= 34}
-  FNetHTTPClient.CustHeaders.Add(AName, AValue);
-{$ELSE}
-  {TODO -oAll -cCustoms Headers : Add headers with NetHTTPClient in versions below of 10.4 Sydney}
-{$ENDIF}
+  {$IF COMPILERVERSION >= 34}
+    FNetHTTPClient.CustHeaders.Add(AName, AValue);
+  {$ELSE}
+    {TODO -oAll -cCustoms Headers : Add headers with NetHTTPClient in versions below of 10.4 Sydney}
+  {$ENDIF}
 end;
 
 function TRequestNetHTTP.AddParam(const AName, AValue: string): IRequest;
@@ -340,12 +335,12 @@ var
 {$ENDIF}
 begin
   Result := Self;
-{$IF COMPILERVERSION >= 34}
-  for I := 0 to Pred(FNetHTTPClient.CustHeaders.Count) do
-    FNetHTTPClient.CustHeaders.Delete(I);
-{$ELSE}
-  {TODO -oAll -cCustom Headers : Clear headers with NetHTTPClient in versions below of 10.4 Sydney}
-{$ENDIF}
+  {$IF COMPILERVERSION >= 34}
+    for I := 0 to Pred(FNetHTTPClient.CustHeaders.Count) do
+      FNetHTTPClient.CustHeaders.Delete(I);
+  {$ELSE}
+    {TODO -oAll -cCustom Headers : Clear headers with NetHTTPClient in versions below of 10.4 Sydney}
+  {$ENDIF}
 end;
 
 function TRequestNetHTTP.ClearParams: IRequest;
@@ -477,7 +472,7 @@ begin
             FNetHTTPClient.ContentType := EmptyStr;
             FUseMultipartFormData := False;
             {$IF COMPILERVERSION >= 33.0}
-            Result := FNetHTTPClient.Put(TIdURI.URLEncode(MakeURL), FMultipartFormData, FStreamResult);
+              Result := FNetHTTPClient.Put(TIdURI.URLEncode(MakeURL), FMultipartFormData, FStreamResult);
             {$ENDIF}
           end
           else

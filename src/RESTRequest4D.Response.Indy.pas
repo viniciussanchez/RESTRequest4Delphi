@@ -30,12 +30,12 @@ type
     function StatusCode: Integer;
     function StatusText: string;
     function RawBytes: TBytes;
+    function Headers: TStrings;
   {$IFDEF FPC}
     function JSONValue: TJSONData;
   {$ELSE}
     function JSONValue: TJSONValue;
   {$ENDIF}
-    function Headers: TStrings;
   public
     constructor Create(const AIdHTTP: TIdHTTP);
     destructor Destroy; override;
@@ -47,7 +47,7 @@ implementation
 function TResponseIndy.JSONValue: TJSONData;
 var
   LContent: string;
-  LJSONParser : TJSONParser;
+  LJSONParser: TJSONParser;
 begin
   if not(Assigned(FJSONValue)) then
   begin
@@ -66,7 +66,9 @@ begin
   end;
   Result := FJSONValue;
 end;
+
 {$ELSE}
+
 function TResponseIndy.JSONValue: TJSONValue;
 var
   LContent: string;
