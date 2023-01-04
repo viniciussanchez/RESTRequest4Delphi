@@ -1,4 +1,4 @@
-unit RESTRequest4D.Response.Indy;
+unit RESTRequest4D.Response.Synapse;
 
 {$IFDEF FPC}
   {$mode delphi}
@@ -6,22 +6,24 @@ unit RESTRequest4D.Response.Indy;
 
 interface
 
-uses RESTRequest4D.Response.Contract, IdHTTP,
+uses Classes, SysUtils, RESTRequest4D.Response.Contract, httpsend, ssl_openssl,
   {$IFDEF FPC}
-    SysUtils, fpjson, Classes, jsonparser;
+    fpjson, jsonparser;
   {$ELSE}
-    System.SysUtils, System.JSON, System.Classes;
+    System.Json;
   {$ENDIF}
 
 type
-  TResponseIndy = class(TInterfacedObject, IResponse)
+  TResponseSynapse = class(TInterfacedObject, IResponse)
   private
   {$IFDEF FPC}
     FJSONValue: TJSONData;
   {$ELSE}
     FJSONValue: TJSONValue;
   {$ENDIF}
-    FIdHTTP: TIdHTTP;
+    FHTTPSend: THTTPSend;
+    FStreamResult: TStringStream;
+    FContent: TStringStream;
     function Content: string;
     function ContentLength: Cardinal;
     function ContentType: string;
@@ -37,14 +39,55 @@ type
     function JSONValue: TJSONValue;
   {$ENDIF}
   public
-    constructor Create(const AIdHTTP: TIdHTTP);
+    constructor Create(const AHTTPSend: THTTPSend);
     destructor Destroy; override;
   end;
 
 implementation
 
+function TResponseSynapse.Content: string;
+begin
+  Result := FStreamResult.DataString;
+end;
+
+function TResponseSynapse.ContentLength: Cardinal;
+begin
+  Result := StrToInt64Def(FHTTPSend.Headers.Values['Content-Length'], 0);
+end;
+
+function TResponseSynapse.ContentType: string;
+begin
+  Result := FHTTPSend.Headers.Values['Content-Type'];
+end;
+
+function TResponseSynapse.ContentEncoding: string;
+begin
+  Result := FHTTPSend.Headers.Values['Content-Encoding'];
+end;
+
+function TResponseSynapse.ContentStream: TStream;
+begin
+  Result := FStreamResult;
+  Result.Position := 0;
+end;
+
+function TResponseSynapse.StatusCode: Integer;
+begin
+  Result := FHTTPSend.ResultCode;
+end;
+
+function TResponseSynapse.StatusText: string;
+begin
+  Result := FHTTPSend.ResultString;
+end;
+
+function TResponseSynapse.RawBytes: TBytes;
+begin
+  Result := FStreamResult.Bytes;
+end;
+
 {$IFDEF FPC}
-function TResponseIndy.JSONValue: TJSONData;
+function TResponseSynapse.JSONValue: TJSONData;
 var
   LContent: string;
   LJSONParser: TJSONParser;
@@ -69,7 +112,7 @@ end;
 
 {$ELSE}
 
-function TResponseIndy.JSONValue: TJSONValue;
+function TResponseSynapse.JSONValue: TJSONValue;
 var
   LContent: string;
 begin
@@ -87,66 +130,25 @@ begin
 end;
 {$ENDIF}
 
-function TResponseIndy.RawBytes: TBytes;
+function TResponseSynapse.Headers: TStrings;
 begin
-  Result := TStringStream(FIdHTTP.Response.ContentStream).Bytes;
+  Result := FHTTPSend.Headers;
 end;
 
-function TResponseIndy.Content: string;
+constructor TResponseSynapse.Create(const AHTTPSend: THTTPSend);
 begin
-  Result := TStringStream(FIdHTTP.Response.ContentStream).DataString;
+  FHTTPSend := AHTTPSend;
+  FHTTPSend.KeepAlive := True;
+  FHTTPSend.Headers.Clear;
+  FStreamResult := TStringStream.Create;
 end;
 
-function TResponseIndy.Headers: TStrings;
-var
-  I: Integer;
+destructor TResponseSynapse.Destroy;
 begin
-  Result := TStringList.Create;
-  for I := 0 to Pred(FIdHTTP.Response.RawHeaders.Count) do
-    Result.Values[FIdHTTP.Response.RawHeaders.Names[I]] := FIdHTTP.Response.RawHeaders.Values[FIdHTTP.Response.RawHeaders.Names[I]];
-end;
-
-function TResponseIndy.ContentEncoding: string;
-begin
-  Result := FIdHTTP.Response.ContentEncoding;
-end;
-
-function TResponseIndy.ContentLength: Cardinal;
-begin
-  Result := FIdHTTP.Response.ContentLength;
-end;
-
-function TResponseIndy.ContentStream: TStream;
-begin
-  Result := FIdHTTP.Response.ContentStream;
-  Result.Position := 0;
-end;
-
-function TResponseIndy.ContentType: string;
-begin
-  Result := FIdHTTP.Response.ContentType;
-end;
-
-constructor TResponseIndy.Create(const AIdHTTP: TIdHTTP);
-begin
-  FIdHTTP := AIdHTTP;
-end;
-
-destructor TResponseIndy.Destroy;
-begin
+  FreeAndNil(FStreamResult);
   if Assigned(FJSONValue) then
     FJSONValue.Free;
-  inherited;
-end;
-
-function TResponseIndy.StatusCode: Integer;
-begin
-  Result := FIdHTTP.Response.ResponseCode;
-end;
-
-function TResponseIndy.StatusText: string;
-begin
-  Result := FIdHTTP.Response.ResponseText;
+  inherited Destroy;
 end;
 
 end.

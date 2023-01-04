@@ -1,4 +1,4 @@
-object frmMain: TfrmMain
+object FrmMain: TFrmMain
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
@@ -11,11 +11,9 @@ object frmMain: TfrmMain
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnDestroy = FormDestroy
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object bvlDivisao: TBevel
     AlignWithMargins = True

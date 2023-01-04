@@ -2,7 +2,7 @@ program Server;
 
 uses
   Vcl.Forms,
-  Main in 'Main.pas' {frmMain};
+  Main in 'Main.pas' {FrmMain};
 
 {$R *.res}
 
@@ -11,6 +11,6 @@ begin
 
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TfrmMain, frmMain);
+  Application.CreateForm(TFrmMain, FrmMain);
   Application.Run;
 end.

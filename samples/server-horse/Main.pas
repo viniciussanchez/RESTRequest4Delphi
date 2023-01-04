@@ -2,13 +2,11 @@ unit Main;
 
 interface
 
-uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.Imaging.pngimage, Horse;
+uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
+  Vcl.Dialogs, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.Imaging.pngimage, Horse;
 
 type
-  TfrmMain = class(TForm)
+  TFrmMain = class(TForm)
     pnlLeft: TPanel;
     lblPort: TLabel;
     btnStop: TBitBtn;
@@ -30,71 +28,65 @@ type
     procedure FormShow(Sender: TObject);
     procedure lblMultipartFormDataFileClick(Sender: TObject);
   private
-    { Private declarations }
     procedure Status;
     procedure Start;
     procedure Stop;
-    procedure FormData(pReq: THorseRequest; pRes: THorseResponse; pNext: TNextProc);
-  public
-    { Public declarations }
+    procedure FormData(Req: THorseRequest; Res: THorseResponse; Next: TNextProc);
   end;
 
 var
-  frmMain: TfrmMain;
+  FrmMain: TFrmMain;
 
 implementation
 
-uses
-  Vcl.Imaging.jpeg, Winapi.ShellApi, System.JSON, System.Win.ComObj, System.StrUtils, REST.JSON, Web.ReqMulti;
+uses Vcl.Imaging.jpeg, Winapi.ShellApi, System.JSON, System.Win.ComObj, System.StrUtils, REST.JSON, Web.ReqMulti;
 
 {$R *.dfm}
 
-{ TfrmMain }
-
 procedure ViewImageFromStream(pImage: TImage; pData: TStream);
 var
-  JPEGImage: TJPEGImage;
+  LJPEGImage: TJPEGImage;
 begin
   pData.Position := 0;
-  JPEGImage := TJPEGImage.Create;
+  LJPEGImage := TJPEGImage.Create;
   try
-    JPEGImage.LoadFromStream(pData);
-    pImage.Picture.Assign(JPEGImage);
+    LJPEGImage.LoadFromStream(pData);
+    pImage.Picture.Assign(LJPEGImage);
   finally
-    JPEGImage.Free;
+    LJPEGImage.Free;
   end;
 end;
 
-procedure TfrmMain.btnStartClick(Sender: TObject);
+procedure TFrmMain.btnStartClick(Sender: TObject);
 begin
   Start;
   Status;
 end;
 
-procedure TfrmMain.btnStopClick(Sender: TObject);
+procedure TFrmMain.btnStopClick(Sender: TObject);
 begin
   Stop;
   Status;
 end;
 
-procedure TfrmMain.FormDestroy(Sender: TObject);
+procedure TFrmMain.FormDestroy(Sender: TObject);
 begin
   if THorse.IsRunning then
     Stop;
 end;
 
-procedure TfrmMain.FormShow(Sender: TObject);
+procedure TFrmMain.FormShow(Sender: TObject);
 begin
   btnStart.Click;
 end;
 
-procedure TfrmMain.lblMultipartFormDataFileClick(Sender: TObject);
+procedure TFrmMain.lblMultipartFormDataFileClick(Sender: TObject);
 begin
   if (lblMultipartFormDataFile.Caption <> EmptyStr) then
     ShellExecute(0, 'open', PChar(lblMultipartFormDataFile.Caption), nil, nil, SW_SHOWNORMAL);
 end;
 
-procedure TfrmMain.Start;
+procedure TFrmMain.Start;
 begin
   THorse.MaxConnections := 100;
 
@@ -110,56 +102,52 @@ begin
   THorse.Listen(StrToInt(edtPort.Text));
 end;
 
-procedure TfrmMain.Status;
+procedure TFrmMain.Status;
 begin
   btnStop.Enabled := THorse.IsRunning;
   btnStart.Enabled := not THorse.IsRunning;
   edtPort.Enabled := not THorse.IsRunning;
 end;
 
-procedure TfrmMain.Stop;
+procedure TFrmMain.Stop;
 begin
   THorse.StopListen;
 end;
 
-procedure TfrmMain.FormData(pReq: THorseRequest; pRes: THorseResponse;
-  pNext: TNextProc);
+procedure TFrmMain.FormData(Req: THorseRequest; Res: THorseResponse; Next: TNextProc);
 var
-  lFile: TMemoryStream;
   I: Integer;
+  LFile: TMemoryStream;
 begin
-
-  //stream(arrived as file) - pReq.RawWebRequest.Files
-  if (pReq.ContentFields.Field('stream').AsStream <> nil) then //Horse version 3.0.2
+  if (Req.ContentFields.Field('stream').AsStream <> nil) then
   begin
     imgMultipartFormDataStream.Picture.Assign(nil);
     {$IF COMPILERVERSION >=32.0}
-    imgMultipartFormDataStream.Picture.LoadFromStream(pReq.ContentFields.Field('stream').AsStream); //Horse version 3.0.2
+      imgMultipartFormDataStream.Picture.LoadFromStream(Req.ContentFields.Field('stream').AsStream);
     {$ENDIF}
   end;
 
-  //text
-  if pReq.ContentFields.ContainsKey('text') then //Horse version 3.0.2
-    edtMultipartFormDataText.Text := pReq.ContentFields.Field('text').AsString; //Horse version 3.0.2
+  if Req.ContentFields.ContainsKey('text') then
+    edtMultipartFormDataText.Text := Req.ContentFields.Field('text').AsString;
 
-  //file
-  for I := 0 to Pred(pReq.RawWebRequest.Files.Count) do
+  for I := 0 to Pred(Req.RawWebRequest.Files.Count) do
   begin
-    if (pReq.RawWebRequest.Files.Items[I].FieldName = 'file') then
+    if (Req.RawWebRequest.Files.Items[I].FieldName = 'file') then
     begin
-      lFile := TMemoryStream.Create;
+      LFile := TMemoryStream.Create;
       try
-        lFile.LoadFromStream(pReq.RawWebRequest.Files.Items[I].Stream);
-        lFile.Position := 0;
-        lFile.SaveToFile(ExtractFilePath(ParamStr(0)) + pReq.RawWebRequest.Files.Items[I].FileName);
-        lblMultipartFormDataFile.Caption := Format('%s%s', [ExtractFilePath(ParamStr(0)), pReq.RawWebRequest.Files.Items[I].FileName]);
+        LFile.LoadFromStream(Req.RawWebRequest.Files.Items[I].Stream);
+        LFile.Position := 0;
+        LFile.SaveToFile(ExtractFilePath(ParamStr(0)) + Req.RawWebRequest.Files.Items[I].FileName);
+        lblMultipartFormDataFile.Caption :=
+          Format('%s%s', [ExtractFilePath(ParamStr(0)), Req.RawWebRequest.Files.Items[I].FileName]);
       finally
-        lFile.Free;
+        LFile.Free;
       end;
     end;
   end;
 
-  pRes.Send('Ok').Status(200);
+  Res.Send('Ok').Status(200);
 end;
 
 end.
