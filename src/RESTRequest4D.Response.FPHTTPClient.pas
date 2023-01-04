@@ -39,17 +39,17 @@ end;
 
 function TResponseFPHTTPClient.ContentLength: Cardinal;
 begin
-  Result := StrToInt64Def(FFPHTTPClient.GetHeader('Content-Length'), 0);
+  Result := StrToInt64Def(FFPHTTPClient.GetHeader(Headers, 'Content-Length'), 0);
 end;
 
 function TResponseFPHTTPClient.ContentType: string;
 begin
-  Result := FFPHTTPClient.GetHeader('Content-Type');
+  Result := FFPHTTPClient.GetHeader(Headers, 'Content-Type');
 end;
 
 function TResponseFPHTTPClient.ContentEncoding: string;
 begin
-  Result := FFPHTTPClient.GetHeader('Content-Encoding');
+  Result := FFPHTTPClient.GetHeader(Headers, 'Content-Encoding');
 end;
 
 function TResponseFPHTTPClient.ContentStream: TStream;
