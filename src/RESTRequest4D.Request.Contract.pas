@@ -21,6 +21,8 @@ type
     function AcceptCharset(const AAcceptCharset: string): IRequest; overload;
     function Accept: string; overload;
     function Accept(const AAccept: string): IRequest; overload;
+    function MimeType: string; overload;
+    function MimeType(const AMimeType: string): IRequest; overload;
     function Timeout: Integer; overload;
     function Timeout(const ATimeout: Integer): IRequest; overload;
     function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;

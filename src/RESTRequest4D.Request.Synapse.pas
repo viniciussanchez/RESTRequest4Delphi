@@ -49,6 +49,8 @@ type
     function AcceptCharset(const AAcceptCharset: string): IRequest; overload;
     function Accept: string; overload;
     function Accept(const AAccept: string): IRequest; overload;
+    function MimeType: string; overload;
+    function MimeType(const AMimeType: string): IRequest; overload;
     function Timeout: Integer; overload;
     function Timeout(const ATimeout: Integer): IRequest; overload;
     function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
@@ -606,6 +608,17 @@ begin
       Result := Result + FParams.strings[I];
     end;
   end;
+end;
+
+function TRequestSynapse.MimeType(const AMimeType: string): IRequest;
+begin
+  Result := Self;
+  FHTTPSend.MimeType := AMimeType;
+end;
+
+function TRequestSynapse.MimeType: string;
+begin
+  Result := FHTTPSend.MimeType;
 end;
 
 function TRequestSynapse.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
