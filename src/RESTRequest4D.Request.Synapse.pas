@@ -368,17 +368,13 @@ end;
 function TRequestSynapse.ClearBody: IRequest;
 begin
   Result := Self;
-  if Assigned(FStreamSend) then
-    FreeAndNil(FStreamSend);
+  FreeAndNil(FStreamSend);
 end;
 
 function TRequestSynapse.AddBody(const AContent: string): IRequest;
 begin
   Result := Self;
-  if not Assigned(FStreamSend) then
-    FStreamSend := TstringStream.Create(AContent, TEncoding.UTF8)
-  else
-    TstringStream(FStreamSend).Writestring(AContent);
+  TStringStream(FStreamSend).Writestring(AContent);
   FStreamSend.Position := 0;
 end;
 
@@ -451,8 +447,6 @@ function TRequestSynapse.AddBody(const AContent: TStream; const AOwns: Boolean):
 begin
   Result := Self;
   try
-    if not Assigned(FStreamSend) then
-      FStreamSend := TstringStream.Create;
     TstringStream(FStreamSend).CopyFrom(AContent, AContent.Size);
     FStreamSend.Position := 0;
   finally
@@ -662,14 +656,14 @@ begin
   FFields := TDictionary<string, string>.Create;;
   FUrlSegments := TstringList.Create;
   FFiles := TDictionary<string, TFile>.Create;
-
   UserAgent('Mozilla/5.0 (compatible; fpweb)');
+
+  FStreamSend := TStringStream.Create('', TEncoding.UTF8)
 end;
 
 destructor TRequestSynapse.Destroy;
 begin
-  if Assigned(FStreamSend) then
-    FreeAndNil(FStreamSend);
+  FreeAndNil(FStreamSend);
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
   FreeAndNil(FFields);
