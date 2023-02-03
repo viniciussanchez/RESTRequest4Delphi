@@ -368,7 +368,8 @@ end;
 function TRequestSynapse.ClearBody: IRequest;
 begin
   Result := Self;
-  FreeAndNil(FStreamSend);
+  FStreamSend.Position := 0;
+  FStreamSend.Size := 0;
 end;
 
 function TRequestSynapse.AddBody(const AContent: string): IRequest;
