@@ -6,6 +6,9 @@ uses RESTRequest4D.Response.Contract,
   {$IF NOT (DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP))}
     REST.Types,
   {$ENDIF}
+  {$IFDEF RR4D_INDY}
+    IdHTTP,
+  {$ENDIF}
   {$IFDEF FPC}
     SysUtils, fpjson, Classes, DB;
   {$ELSE}
@@ -86,6 +89,7 @@ type
     {$IF DEFINED(RR4D_INDY)}
     function CertFile(const APath: string): IRequest;
     function KeyFile(const APath: string): IRequest;
+    function HTTPOptions(const AHTTPOptions: TIdHTTPOptions): IRequest;
     {$ENDIF}
   end;
 
