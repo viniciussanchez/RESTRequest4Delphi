@@ -16,14 +16,9 @@ uses Classes, SysUtils, RESTRequest4D.Response.Contract, httpsend, ssl_openssl,
 type
   TResponseSynapse = class(TInterfacedObject, IResponse)
   private
-  {$IFDEF FPC}
-    FJSONValue: TJSONData;
-  {$ELSE}
-    FJSONValue: TJSONValue;
-  {$ENDIF}
+    FJSONValue: {$IFDEF FPC}TJSONData;{$ELSE}TJSONValue;{$ENDIF}
     FHTTPSend: THTTPSend;
     FStreamResult: TStringStream;
-    FContent: TStringStream;
     function Content: string;
     function ContentLength: Cardinal;
     function ContentType: string;
@@ -33,11 +28,8 @@ type
     function StatusText: string;
     function RawBytes: TBytes;
     function Headers: TStrings;
-  {$IFDEF FPC}
-    function JSONValue: TJSONData;
-  {$ELSE}
-    function JSONValue: TJSONValue;
-  {$ENDIF}
+    function JSONValue: {$IFDEF FPC}TJSONData;{$ELSE}TJSONValue;{$ENDIF}
+    function GetCookie(const ACookieName: string): string;
   public
     constructor Create(const AHTTPSend: THTTPSend);
     destructor Destroy; override;
@@ -149,6 +141,11 @@ begin
   if Assigned(FJSONValue) then
     FJSONValue.Free;
   inherited Destroy;
+end;
+
+function TResponseSynapse.GetCookie(const ACookieName: string): string;
+begin
+  Result := FHTTPSend.Cookies.Values[ACookieName];
 end;
 
 end.

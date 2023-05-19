@@ -19,6 +19,7 @@ type
     function RawBytes: TBytes;
     function JSONValue: TJSONValue;
     function Headers: TStrings;
+    function GetCookie(const ACookieName: string): string;
   public
     constructor Create(const ARESTResponse: TRESTResponse);
     destructor Destroy; override;
@@ -36,6 +37,17 @@ begin
   if Assigned(FStreamValue) then
     FreeAndNil(FStreamValue);
   inherited;
+end;
+
+function TResponseClient.GetCookie(const ACookieName: string): string;
+var
+  I: Integer;
+begin
+  for I := 0 to Pred(FRESTResponse.Cookies.Count) do
+  begin
+    if Trim(LowerCase(ACookieName)) = Trim(LowerCase(FRESTResponse.Cookies.Items[I].Name)) then
+      Result := FRESTResponse.Cookies.Items[I].Value;
+  end;
 end;
 
 function TResponseClient.Content: string;

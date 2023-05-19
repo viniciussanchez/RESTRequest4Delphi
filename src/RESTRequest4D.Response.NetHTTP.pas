@@ -21,6 +21,7 @@ type
     function RawBytes: TBytes;
     function JSONValue: TJSONValue;
     function Headers: TStrings;
+    function GetCookie(const ACookieName: string): string;
   public
     procedure SetContent(const AContent: TStringStream);
     procedure SetHTTPResponse(const AHTTPResponse: IHTTPResponse);
@@ -88,6 +89,17 @@ begin
   if Assigned(FJSONValue) then
     FJSONValue.Free;
   inherited;
+end;
+
+function TResponseNetHTTP.GetCookie(const ACookieName: string): string;
+var
+  I: Integer;
+begin
+  for I := 0 to Pred(FHTTPResponse.Cookies.Count) do
+  begin
+    if Trim(LowerCase(ACookieName)) = Trim(LowerCase(FHTTPResponse.Cookies.Items[I].Name)) then
+      Result := FHTTPResponse.Cookies.Items[I].Value;
+  end;
 end;
 
 function TResponseNetHTTP.Headers: TStrings;

@@ -25,6 +25,7 @@ type
     function RawBytes: TBytes;
     function JSONValue: TJSONData;
     function Headers: TStrings;
+    function GetCookie(const ACookieName: string): string;
   public
     constructor Create(const AFPHTTPClient: TFPHTTPClient);
     destructor Destroy; override;
@@ -113,6 +114,11 @@ begin
   if Assigned(FJSONValue) then
     FJSONValue.Free;
   inherited Destroy;
+end;
+
+function TResponseFPHTTPClient.GetCookie(const ACookieName: string): string;
+begin
+  Result := FFPHTTPClient.Cookies.Values[ACookieName];
 end;
 
 end.

@@ -31,6 +31,7 @@ type
     function StatusText: string;
     function RawBytes: TBytes;
     function Headers: TStrings;
+    function GetCookie(const ACookieName: string): string;
   {$IFDEF FPC}
     function JSONValue: TJSONData;
   {$ELSE}
@@ -137,6 +138,17 @@ begin
   if Assigned(FJSONValue) then
     FJSONValue.Free;
   inherited;
+end;
+
+function TResponseIndy.GetCookie(const ACookieName: string): string;
+var
+  I: Integer;
+begin
+  for I := 0 to Pred(FIdHTTP.CookieManager.CookieCollection.Count) do
+  begin
+    if Trim(LowerCase(FIdHTTP.CookieManager.CookieCollection.Cookies[I].CookieName)) = Trim(LowerCase(ACookieName)) then
+      Result := FIdHTTP.CookieManager.CookieCollection.Cookies[I].CookieText;
+  end;
 end;
 
 function TResponseIndy.StatusCode: Integer;

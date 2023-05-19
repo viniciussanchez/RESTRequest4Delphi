@@ -4,8 +4,8 @@
 	"installedModules": {
 		"github.com/viniciussanchez/dataset-serialize": {
 			"name": "dataset-serialize",
-			"version": "v2.3.5",
-			"hash": "08f417d6c8e8bfb1f4855cc1656e3cde",
+			"version": "v2.4.9",
+			"hash": "0df5fa71a508ce66a50ef649231af9c9",
 			"artifacts": {},
 			"failed": false,
 			"changed": false
