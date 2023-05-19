@@ -83,6 +83,7 @@ type
     function DeactivateProxy: IRequest;
     function CertFile(const APath: string): IRequest;
     function KeyFile(const APath: string): IRequest;
+    function HTTPOptions(const AHTTPOptions: TIdHTTPOptions): IRequest;
     procedure OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
   protected
     procedure DoAfterExecute; virtual;
@@ -278,6 +279,12 @@ function TRequestIndy.Get: IResponse;
 begin
   Result := FResponse;
   ExecuteRequest(mrGET);
+end;
+
+function TRequestIndy.HTTPOptions(const AHTTPOptions: TIdHTTPOptions): IRequest;
+begin
+  Result := Self;
+  FIdHTTP.HTTPOptions := AHTTPOptions;
 end;
 
 function TRequestIndy.DeactivateProxy: IRequest;
