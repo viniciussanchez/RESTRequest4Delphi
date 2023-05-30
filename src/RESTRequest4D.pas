@@ -6,10 +6,11 @@ uses
   {$IF NOT (DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP))}
     REST.Types,
   {$ENDIF}
-  RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract;
+  RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, RESTRequest4D.Request.Adapter.Contract;
 
 type
   IRequest = RESTRequest4D.Request.Contract.IRequest;
+  IRequestAdapter = RESTRequest4D.Request.Adapter.Contract.IRequestAdapter;
   IResponse = RESTRequest4D.Response.Contract.IResponse;
 
   TRequest = class

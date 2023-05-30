@@ -49,6 +49,7 @@ type
     Panel8: TPanel;
     lblRESTRequest4DelphiComponent: TLabel;
     btnMultipartFormDataPut: TButton;
+    FDMemTable1: TFDMemTable;
     procedure btnGETClick(Sender: TObject);
     procedure btnPOSTClick(Sender: TObject);
     procedure btnPUTClick(Sender: TObject);

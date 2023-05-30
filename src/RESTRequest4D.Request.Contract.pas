@@ -1,8 +1,12 @@
 unit RESTRequest4D.Request.Contract;
 
+{$IFDEF FPC}
+  {$mode delphi}
+{$ENDIF}
+
 interface
 
-uses RESTRequest4D.Response.Contract,
+uses RESTRequest4D.Response.Contract, RESTRequest4D.Request.Adapter.Contract,
   {$IF NOT (DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP))}
     REST.Types,
   {$ENDIF}
@@ -30,8 +34,9 @@ type
 	{$ENDIF}
     function Timeout: Integer; overload;
     function Timeout(const ATimeout: Integer): IRequest; overload;
-    function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
-    function DataSetAdapter: TDataSet; overload;
+    function Adapters(const AAdapter: IRequestAdapter): IRequest; overload;
+    function Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest; overload;
+    function Adapters: TArray<IRequestAdapter>; overload;
     function BaseURL(const ABaseURL: string): IRequest; overload;
     function BaseURL: string; overload;
     function Resource(const AResource: string): IRequest; overload;

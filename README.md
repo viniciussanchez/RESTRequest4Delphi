@@ -14,8 +14,6 @@
  
 ## ⚙️ Installation 
 
-*Prerequisites*: [**DataSet-Serialize**](https://github.com/viniciussanchez/dataset-serialize) - This is a DataSet serializer for Delphi
-
 * **Manual installation**: Add the following folders to your project, in *Project > Options > Resource Compiler > Directories and Conditionals > Include file search path*
 
 ```
@@ -33,6 +31,10 @@ boss install github.com/viniciussanchez/RESTRequest4Delphi
 By default, the components **TRESTRequest**, **TRESTResponse** and **TRESTClient** are used to make requests when your using Delphi. If you use Lazarus, the [**fphttpclient**](https://wiki.lazarus.freepascal.org/fphttpclient) components are used by default. The RESTRequest4Delphi has support to four engines to make requests: RESTClient, [**Synapse**](http://www.ararat.cz/synapse/doku.php/download), Indy and NetHTTP. You can change the engine to make requests. To do this, simply define in: *Project > Options > Delphi Compiler > Conditional defines* the compiler directive `RR4D_INDY`, `RR4D_SYNAPSE` or `RR4D_NETHTTP`
 
 **Note**: for Lazarus, the **fphttpclient** engine is the default. But you can switch to **Indy** setting `RR4D_INDY` directive or to [**Synapse**](http://www.ararat.cz/synapse/doku.php/download) setting `RR4D_SYNAPSE` directive.
+
+## 🔌 Adapters
+Adapters allow you to extend the functionality of RESTREquest4Delphi without changing the core of the project. See the list of adapters available by the community:
+* [**DataSet-Serialize**](https://github.com/viniciussanchez/dataset-serialize-adapter-restrequest4delphi) - Adapter to load a DataSet using the DataSet-Serialize library at the time of the request;
 
 ## ⚡️ Quickstart
 
@@ -58,13 +60,13 @@ begin
 end;
 ``` 
 
-* **GET AS DATASET**
+* **GET AS DATASET USING ADAPTERS**
 
 ```pascal
 begin
   TRequest.New.BaseURL('http://localhost:8888/users')
+    .Adapters(TDataSetSerializeAdapter.New(FDMemTable))
     .Accept('application/json')
-    .DataSetAdapter(FDMemTable)
     .Get;
 end;
 ``` 

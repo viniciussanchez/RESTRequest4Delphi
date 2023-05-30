@@ -7,8 +7,8 @@ unit RESTRequest4D.Request.FPHTTPClient;
 interface
 
 uses Classes, SysUtils, DB, RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract,
-  RESTRequest4D.Utils, DataSet.Serialize, FPHTTPClient, openssl, opensslsockets, fpjson, fpjsonrtti,
-  Generics.Collections;
+  RESTRequest4D.Utils, FPHTTPClient, openssl, opensslsockets, fpjson, fpjsonrtti,
+  RESTRequest4D.Request.Adapter.Contract, Generics.Collections;
 
 type
   TFile = class
@@ -32,7 +32,7 @@ type
     FBaseURL: string;
     FResource: string;
     FResourceSuffix: string;
-    FDataSetAdapter: TDataSet;
+    FAdapters: TArray<IRequestAdapter>;
     FResponse: IResponse;
     FStreamSend: TStream;
     FRetries: Integer;
@@ -45,8 +45,9 @@ type
     function Accept(const AAccept: string): IRequest; overload;
     function Timeout: Integer; overload;
     function Timeout(const ATimeout: Integer): IRequest; overload;
-    function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
-    function DataSetAdapter: TDataSet; overload;
+    function Adapters(const AAdapter: IRequestAdapter): IRequest; overload;
+    function Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest; overload;
+    function Adapters: TArray<IRequestAdapter>; overload;
     function BaseURL(const ABaseURL: string): IRequest; overload;
     function BaseURL: string; overload;
     function Resource(const AResource: string): IRequest; overload;
@@ -232,17 +233,6 @@ function TRequestFPHTTPClient.Timeout(const ATimeout: Integer): IRequest;
 begin
   Result := Self;
   FFPHTTPClient.ConnectTimeout := ATimeout;
-end;
-
-function TRequestFPHTTPClient.DataSetAdapter(const ADataSet: TDataSet): IRequest;
-begin
-  Result := Self;
-  FDataSetAdapter := ADataSet;
-end;
-
-function TRequestFPHTTPClient.DataSetAdapter: TDataSet;
-begin
-  Result := FDataSetAdapter;
 end;
 
 function TRequestFPHTTPClient.BaseURL(const ABaseURL: string): IRequest;
@@ -576,11 +566,28 @@ begin
   FFPHTTPClient.Proxy.Port := 0;
 end;
 
-procedure TRequestFPHTTPClient.DoAfterExecute(const Sender: TObject; const AResponse: IResponse);
+function TRequestFPHTTPClient.Adapters(const AAdapter: IRequestAdapter): IRequest;
 begin
-  if not Assigned(FDataSetAdapter) then
-    Exit;
-  FDataSetAdapter.LoadFromJSON(FResponse.Content);
+  Result := Adapters([AAdapter]);
+end;
+
+function TRequestFPHTTPClient.Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest;
+begin
+  FAdapters := AAdapters;
+  Result := Self;
+end;
+
+function TRequestFPHTTPClient.Adapters: TArray<IRequestAdapter>;
+begin
+  Result := FAdapters;
+end;
+
+procedure TRequestFPHTTPClient.DoAfterExecute(const Sender: TObject; const AResponse: IResponse);
+var
+  LAdapter: IRequestAdapter;
+begin
+  for LAdapter in FAdapters do
+    LAdapter.Execute(FResponse.Content);
 end;
 
 procedure TRequestFPHTTPClient.DoBeforeExecute(const Sender: TFPHTTPClient);

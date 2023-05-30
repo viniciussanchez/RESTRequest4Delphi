@@ -5,7 +5,5 @@
 	"homepage": "",
 	"mainsrc": "src",
 	"projects": [],
-	"dependencies": {
-		"github.com/viniciussanchez/dataset-serialize": "^v2.2.9"
-	}
+	"dependencies": {}
 }

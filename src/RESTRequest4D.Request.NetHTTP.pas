@@ -3,8 +3,8 @@ unit RESTRequest4D.Request.NetHTTP;
 interface
 
 uses System.Net.Mime, System.Net.HttpClientComponent, System.Net.HttpClient, RESTRequest4D.Request.Contract, System.Classes,
-  Data.DB, System.JSON, System.SysUtils, REST.Json, IdURI, System.NetEncoding, RESTRequest4D.Utils, DataSet.Serialize,
-  RESTRequest4D.Response.NetHTTP, RESTRequest4D.Response.Contract, System.Net.URLClient;
+  Data.DB, System.JSON, System.SysUtils, REST.Json, IdURI, System.NetEncoding, RESTRequest4D.Utils, System.Net.URLClient,
+  RESTRequest4D.Response.NetHTTP, RESTRequest4D.Request.Adapter.Contract, RESTRequest4D.Response.Contract;
 
 type
   TRequestNetHTTP = class(TInterfacedObject, IRequest)
@@ -17,7 +17,7 @@ type
     FBaseURL: string;
     FResource: string;
     FResourceSuffix: string;
-    FDataSetAdapter: TDataSet;
+    FAdapters: TArray<IRequestAdapter>;
     FResponse: IResponse;
     FStreamSend: TStream;
     FStreamResult: TStringStream;
@@ -31,8 +31,9 @@ type
     function Accept(const AAccept: string): IRequest; overload;
     function Timeout: Integer; overload;
     function Timeout(const ATimeout: Integer): IRequest; overload;
-    function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
-    function DataSetAdapter: TDataSet; overload;
+    function Adapters(const AAdapter: IRequestAdapter): IRequest; overload;
+    function Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest; overload;
+    function Adapters: TArray<IRequestAdapter>; overload;
     function BaseURL(const ABaseURL: string): IRequest; overload;
     function BaseURL: string; overload;
     function Resource(const AResource: string): IRequest; overload;
@@ -383,17 +384,6 @@ begin
   FUseMultipartFormData := False;
 end;
 
-function TRequestNetHTTP.DataSetAdapter: TDataSet;
-begin
-  Result := FDataSetAdapter;
-end;
-
-function TRequestNetHTTP.DataSetAdapter(const ADataSet: TDataSet): IRequest;
-begin
-  Result := Self;
-  FDataSetAdapter := ADataSet;
-end;
-
 function TRequestNetHTTP.DeactivateProxy: IRequest;
 begin
   Result := Self;
@@ -424,13 +414,28 @@ begin
   inherited;
 end;
 
-procedure TRequestNetHTTP.DoAfterExecute(const Sender: TObject; const AResponse: IHTTPResponse);
+function TRequestNetHTTP.Adapters(const AAdapter: IRequestAdapter): IRequest;
 begin
-  if not Assigned(FDataSetAdapter) then
-    Exit;
-  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter, False);
-  FDataSetAdapter.LoadFromJSON(FResponse.Content);
-  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
+  Result := Adapters([AAdapter]);
+end;
+
+function TRequestNetHTTP.Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest;
+begin
+  FAdapters := AAdapters;
+  Result := Self;
+end;
+
+function TRequestNetHTTP.Adapters: TArray<IRequestAdapter>;
+begin
+  Result := FAdapters;
+end;
+
+procedure TRequestNetHTTP.DoAfterExecute(const Sender: TObject; const AResponse: IHTTPResponse);
+var
+  LAdapter: IRequestAdapter;
+begin
+  for LAdapter in FAdapters do
+    LAdapter.Execute(FResponse.Content);
 end;
 
 procedure TRequestNetHTTP.DoBeforeExecute(const Sender: TNetHTTPClient);

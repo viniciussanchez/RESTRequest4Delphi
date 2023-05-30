@@ -4,7 +4,8 @@ interface
 
 uses RESTRequest4D.Request.Contract, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
   RESTRequest4D.Response.Contract, System.JSON{$IF COMPILERVERSION >= 33.0}, System.Net.HttpClient{$ENDIF},
-  REST.Authenticator.Basic {$IF COMPILERVERSION <= 32.0}, IPPeerClient, IPPeerCommon{$ENDIF};
+  REST.Authenticator.Basic {$IF COMPILERVERSION <= 32.0}, IPPeerClient, IPPeerCommon{$ENDIF},
+  RESTRequest4D.Request.Adapter.Contract;
 
 type
   TRequestClient = class(TInterfacedObject, IRequest)
@@ -14,7 +15,7 @@ type
     FHeaders: TStrings;
     FHTTPBasicAuthenticator: THTTPBasicAuthenticator;
     FRESTRequest: TRESTRequest;
-    FDataSetAdapter: TDataSet;
+    FAdapters: TArray<IRequestAdapter>;
     FRESTResponse: TRESTResponse;
     FRESTClient: TRESTClient;
     FRetries: Integer;
@@ -27,8 +28,9 @@ type
     function AcceptCharset(const AAcceptCharset: string): IRequest; overload;
     function Accept: string; overload;
     function Accept(const AAccept: string): IRequest; overload;
-    function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
-    function DataSetAdapter: TDataSet; overload;
+    function Adapters(const AAdapter: IRequestAdapter): IRequest; overload;
+    function Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest; overload;
+    function Adapters: TArray<IRequestAdapter>; overload;
     function BaseURL(const ABaseURL: string): IRequest; overload;
     function BaseURL: string; overload;
     function Resource(const AResource: string): IRequest; overload;
@@ -82,8 +84,7 @@ type
 
 implementation
 
-uses DataSet.Serialize, System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client, RESTRequest4D.Response.Client,
-  RESTRequest4D.Utils;
+uses System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client, RESTRequest4D.Response.Client;
 
 function TRequestClient.AddBody(const AContent: string; const AContentType: TRESTContentType): IRequest;
 begin
@@ -327,12 +328,11 @@ begin
 end;
 
 procedure TRequestClient.DoAfterExecute(Sender: TCustomRESTRequest);
+var
+  LAdapter: IRequestAdapter;
 begin
-  if not Assigned(FDataSetAdapter) then
-    Exit;
-  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter, False);
-  FDataSetAdapter.LoadFromJSON(FRESTResponse.Content);
-  TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
+  for LAdapter in FAdapters do
+    LAdapter.Execute(FRESTResponse.Content);
 end;
 
 procedure TRequestClient.DoBeforeExecute(Sender: TCustomRESTRequest);
@@ -397,11 +397,6 @@ end;
 function TRequestClient.BaseURL: string;
 begin
   Result := FRESTClient.BaseURL;
-end;
-
-function TRequestClient.DataSetAdapter: TDataSet;
-begin
-  Result := FDataSetAdapter;
 end;
 
 function TRequestClient.FallbackCharsetEncoding(const AFallbackCharsetEncoding: string): IRequest;
@@ -523,12 +518,6 @@ begin
   FRESTClient.BaseURL := PrepareUrlSegments(ABaseURL);
 end;
 
-function TRequestClient.DataSetAdapter(const ADataSet: TDataSet): IRequest;
-begin
-  Result := Self;
-  FDataSetAdapter := ADataSet;
-end;
-
 function TRequestClient.RaiseExceptionOn500: Boolean;
 begin
   Result := FRESTClient.RaiseExceptionOn500;
@@ -577,6 +566,22 @@ begin
   if AToken.Trim.IsEmpty then
     Exit;
   Self.Token('Bearer ' + AToken);
+end;
+
+function TRequestClient.Adapters(const AAdapter: IRequestAdapter): IRequest;
+begin
+  Result := Adapters([AAdapter]);
+end;
+
+function TRequestClient.Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest;
+begin
+  FAdapters := AAdapters;
+  Result := Self;
+end;
+
+function TRequestClient.Adapters: TArray<IRequestAdapter>;
+begin
+  Result := FAdapters;
 end;
 
 function TRequestClient.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;

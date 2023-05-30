@@ -7,7 +7,7 @@ unit RESTRequest4D.Request.Synapse;
 interface
 
 uses Classes, SysUtils, DB, RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, RESTRequest4D.Utils,
-  DataSet.Serialize, httpsend, ssl_openssl, Generics.Collections,
+  httpsend, ssl_openssl, Generics.Collections, RESTRequest4D.Request.Adapter.Contract,
   {$IFDEF FPC}
     fpjson, fpjsonrtti, base64;
   {$ELSE}
@@ -38,7 +38,7 @@ type
     FBaseURL: string;
     FResource: string;
     FResourceSuffix: string;
-    FDataSetAdapter: TDataSet;
+    FAdapters: TArray<IRequestAdapter>;
     FResponse: IResponse;
     FStreamSend: TStream;
     FRetries: Integer;
@@ -47,14 +47,15 @@ type
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
     function AcceptCharset: string; overload;
     function AcceptCharset(const AAcceptCharset: string): IRequest; overload;
+    function Adapters(const AAdapter: IRequestAdapter): IRequest; overload;
+    function Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest; overload;
+    function Adapters: TArray<IRequestAdapter>; overload;
     function Accept: string; overload;
     function Accept(const AAccept: string): IRequest; overload;
     function MimeType: string; overload;
     function MimeType(const AMimeType: string): IRequest; overload;
     function Timeout: Integer; overload;
     function Timeout(const ATimeout: Integer): IRequest; overload;
-    function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
-    function DataSetAdapter: TDataSet; overload;
     function BaseURL(const ABaseURL: string): IRequest; overload;
     function BaseURL: string; overload;
     function Resource(const AResource: string): IRequest; overload;
@@ -145,7 +146,7 @@ begin
               LContent := sLineBreak + '--' + LBound + sLineBreak +
                           'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') + sLineBreak + sLineBreak +
                           FFields.Items[LFieldName]+ sLineBreak + sLineBreak;
-              LStream.Write(PAnsiChar(LContent)^, Length(LContent));
+              LStream.Write(PAnsiChar(AnsiString(LContent))^, Length(LContent));
             end;
 
             for LFieldName in FFiles.Keys do
@@ -156,13 +157,13 @@ begin
                           'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') +';' +
                           sLineBreak + #9'filename=' + AnsiQuotedStr(LFile.FFileName, '"') +
                           sLineBreak + 'Content-Type: '+AnsiQuotedStr(LFile.FContentType, '"') + sLineBreak + sLineBreak;
-              LStream.Write(PAnsiChar(LContent)^, Length(LContent));
+              LStream.Write(PAnsiChar(AnsiString(LContent))^, Length(LContent));
               LFile.FFileStream.Position := 0;
               LStream.Write(LFile.FFileStream, LFile.FFileStream.Size);
             end;
 
             LBound := '--' +LBound+ '--' +sLineBreak;
-            LStream.Write(PAnsiChar(LBound)^, Length(LBound));
+            LStream.Write(PAnsiChar(AnsiString(LBound))^, Length(LBound));
             LStream.Position := 0;
             FHTTPSend.Document.LoadFromStream(LStream);
           end
@@ -246,17 +247,6 @@ function TRequestSynapse.Timeout(const ATimeout: Integer): IRequest;
 begin
   Result := Self;
   FHTTPSend.Timeout := ATimeout;
-end;
-
-function TRequestSynapse.DataSetAdapter(const ADataSet: TDataSet): IRequest;
-begin
-  Result := Self;
-  FDataSetAdapter := ADataSet;
-end;
-
-function TRequestSynapse.DataSetAdapter: TDataSet;
-begin
-  Result := FDataSetAdapter;
 end;
 
 function TRequestSynapse.BaseURL(const ABaseURL: string): IRequest;
@@ -442,6 +432,22 @@ begin
       {$ENDIF}
     end;
   end;
+end;
+
+function TRequestSynapse.Adapters(const AAdapter: IRequestAdapter): IRequest;
+begin
+  Result := Adapters([AAdapter]);
+end;
+
+function TRequestSynapse.Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest;
+begin
+  FAdapters := AAdapters;
+  Result := Self;
+end;
+
+function TRequestSynapse.Adapters: TArray<IRequestAdapter>;
+begin
+  Result := FAdapters;
 end;
 
 function TRequestSynapse.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
@@ -635,10 +641,11 @@ begin
 end;
 
 procedure TRequestSynapse.DoAfterExecute(const Sender: TObject; const AResponse: IResponse);
+var
+  LAdapter: IRequestAdapter;
 begin
-  if not Assigned(FDataSetAdapter) then
-    Exit;
-  FDataSetAdapter.LoadFromJSON(FResponse.Content);
+  for LAdapter in FAdapters do
+    LAdapter.Execute(FResponse.Content);
 end;
 
 procedure TRequestSynapse.DoBeforeExecute(const Sender: THTTPSend);

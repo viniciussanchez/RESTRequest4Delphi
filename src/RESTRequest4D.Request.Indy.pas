@@ -7,7 +7,7 @@ unit RESTRequest4D.Request.Indy;
 interface
 
 uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL, IdCTypes, IdSSLOpenSSLHeaders,
-  RESTRequest4D.Utils, IdMultipartFormData,
+  RESTRequest4D.Utils, RESTRequest4D.Request.Adapter.Contract, IdMultipartFormData,
   {$IFDEF FPC}
     DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
   {$ELSE}
@@ -26,7 +26,7 @@ type
     FBaseURL: string;
     FResource: string;
     FResourceSuffix: string;
-    FDataSetAdapter: TDataSet;
+    FAdapters: TArray<IRequestAdapter>;
     FResponse: IResponse;
     FStreamSend: TStream;
     FStreamResult: TStringStream;
@@ -40,8 +40,9 @@ type
     function Accept(const AAccept: string): IRequest; overload;
     function Timeout: Integer; overload;
     function Timeout(const ATimeout: Integer): IRequest; overload;
-    function DataSetAdapter(const ADataSet: TDataSet): IRequest; overload;
-    function DataSetAdapter: TDataSet; overload;
+    function Adapters(const AAdapter: IRequestAdapter): IRequest; overload;
+    function Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest; overload;
+    function Adapters: TArray<IRequestAdapter>; overload;
     function BaseURL(const ABaseURL: string): IRequest; overload;
     function BaseURL: string; overload;
     function Resource(const AResource: string): IRequest; overload;
@@ -94,7 +95,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Response.Indy, IdURI, DataSet.Serialize, IdCookieManager;
+uses RESTRequest4D.Response.Indy, IdURI, IdCookieManager;
 
 function TRequestIndy.AddField(const AFieldName: string; const AValue: string): IRequest;
 begin
@@ -193,17 +194,28 @@ begin
     FIdHTTP.HTTPOptions := FIdHTTP.HTTPOptions + [hoNoProtocolErrorException];
 end;
 
-procedure TRequestIndy.DoAfterExecute;
+function TRequestIndy.Adapters(const AAdapter: IRequestAdapter): IRequest;
 begin
-  if not Assigned(FDataSetAdapter) then
-    Exit;
-  {$IF DEFINED(FPC)}
-    FDataSetAdapter.LoadFromJSON(FResponse.Content);
-  {$ELSE}
-    TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter, False);
-    FDataSetAdapter.LoadFromJSON(FResponse.Content);
-    TRESTRequest4DelphiUtils.ActiveCachedUpdates(FDataSetAdapter);
-  {$ENDIF}
+  Result := Adapters([AAdapter]);
+end;
+
+function TRequestIndy.Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest;
+begin
+  FAdapters := AAdapters;
+  Result := Self;
+end;
+
+function TRequestIndy.Adapters: TArray<IRequestAdapter>;
+begin
+  Result := FAdapters;
+end;
+
+procedure TRequestIndy.DoAfterExecute;
+var
+  LAdapter: IRequestAdapter;
+begin
+  for LAdapter in FAdapters do
+    LAdapter.Execute(FResponse.Content);
 end;
 
 procedure TRequestIndy.ExecuteRequest(const AMethod: TMethodRequest);
@@ -499,17 +511,6 @@ begin
       AContent.DisposeOf;
     {$ENDIF}
   end;
-end;
-
-function TRequestIndy.DataSetAdapter(const ADataSet: TDataSet): IRequest;
-begin
-  Result := Self;
-  FDataSetAdapter := ADataSet;
-end;
-
-function TRequestIndy.DataSetAdapter: TDataSet;
-begin
-  Result := FDataSetAdapter;
 end;
 
 function TRequestIndy.ClearHeaders: IRequest;
