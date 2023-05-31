@@ -595,6 +595,7 @@ begin
   Self.ContentType('application/json');
   FRetries := 0;
   FIdMultiPartFormDataStream := TIdMultiPartFormDataStream.Create;
+  FIdHTTP.HTTPOptions:= [hoKeepOrigProtocol];
 end;
 
 destructor TRequestIndy.Destroy;
