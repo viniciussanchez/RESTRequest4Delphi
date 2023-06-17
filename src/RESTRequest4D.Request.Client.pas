@@ -84,7 +84,7 @@ type
 
 implementation
 
-uses System.Generics.Collections, FireDAC.Comp.DataSet, FireDAC.Comp.Client, RESTRequest4D.Response.Client;
+uses System.Generics.Collections, RESTRequest4D.Response.Client;
 
 function TRequestClient.AddBody(const AContent: string; const AContentType: TRESTContentType): IRequest;
 begin
