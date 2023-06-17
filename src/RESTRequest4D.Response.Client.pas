@@ -54,7 +54,6 @@ begin
   {$ELSE}
   raise Exception.Create('GetCookie is not supported in Delphi version.');
   {$IFEND}
-
 end;
 
 function TResponseClient.Content: string;
