@@ -3,7 +3,7 @@ unit RESTRequest4D.Request.NetHTTP;
 interface
 
 uses System.Net.Mime, System.Net.HttpClientComponent, System.Net.HttpClient, RESTRequest4D.Request.Contract, System.Classes,
-  Data.DB, System.JSON, System.SysUtils, REST.Json, IdURI, System.NetEncoding, RESTRequest4D.Utils, System.Net.URLClient,
+  System.JSON, System.SysUtils, REST.Json, IdURI, System.NetEncoding, RESTRequest4D.Utils, System.Net.URLClient,
   RESTRequest4D.Response.NetHTTP, RESTRequest4D.Request.Adapter.Contract, RESTRequest4D.Response.Contract;
 
 type

@@ -11,6 +11,7 @@ type
     FJSONValue: TJSONValue;
     FHTTPResponse: IHTTPResponse;
     FContent: TStringStream;
+    FHeaders: TStrings;
     function Content: string;
     function ContentLength: Cardinal;
     function ContentType: string;
@@ -23,6 +24,8 @@ type
     function Headers: TStrings;
     function GetCookie(const ACookieName: string): string;
   public
+    constructor Create;
+    class function New: IResponse;
     procedure SetContent(const AContent: TStringStream);
     procedure SetHTTPResponse(const AHTTPResponse: IHTTPResponse);
     destructor Destroy; override;
@@ -46,6 +49,11 @@ begin
       raise Exception.Create('The return content is not a valid JSON value.');
   end;
   Result := FJSONValue;
+end;
+
+class function TResponseNetHTTP.New: IResponse;
+begin
+  Result := TResponseNetHTTP.Create;
 end;
 
 function TResponseNetHTTP.Content: string;
@@ -83,9 +91,16 @@ begin
     Result := FHTTPResponse.HeaderValue['Content-Type'];
 end;
 
+constructor TResponseNetHTTP.Create;
+begin
+  FHeaders := TStrings.Create;
+end;
+
 destructor TResponseNetHTTP.Destroy;
 begin
   FHTTPResponse := nil;
+  if Assigned(FHeaders) then
+    FHeaders.Free;
   if Assigned(FJSONValue) then
     FJSONValue.Free;
   inherited;
@@ -106,10 +121,11 @@ function TResponseNetHTTP.Headers: TStrings;
 var
   LHeader: TNameValuePair;
 begin
-  Result := TStringList.Create;
+  FHeaders.Clear;
   if Assigned(FHTTPResponse) then
     for LHeader in FHTTPResponse.Headers do
-      Result.Add(LHeader.Name + '=' + LHeader.Value);
+      FHeaders.Add(LHeader.Name + '=' + LHeader.Value);
+  Result := FHeaders;
 end;
 
 function TResponseNetHTTP.RawBytes: TBytes;
