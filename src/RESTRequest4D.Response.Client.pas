@@ -40,14 +40,21 @@ begin
 end;
 
 function TResponseClient.GetCookie(const ACookieName: string): string;
+{$IF CompilerVersion > 28.0}
 var
   I: Integer;
+{$IFEND}
 begin
+  {$IF CompilerVersion > 28.0}
   for I := 0 to Pred(FRESTResponse.Cookies.Count) do
   begin
     if Trim(LowerCase(ACookieName)) = Trim(LowerCase(FRESTResponse.Cookies.Items[I].Name)) then
       Result := FRESTResponse.Cookies.Items[I].Value;
   end;
+  {$ELSE}
+  raise Exception.Create('GetCookie is not supported in Delphi version.');
+  {$IFEND}
+
 end;
 
 function TResponseClient.Content: string;
