@@ -59,7 +59,7 @@ end;
 function TResponseNetHTTP.Content: string;
 begin
   if Assigned(FHTTPResponse) then
-    Result := FHTTPResponse.ContentAsString;
+    Result := TStringStream(FHTTPResponse.ContentStream).DataString;
 end;
 
 function TResponseNetHTTP.ContentEncoding: string;
