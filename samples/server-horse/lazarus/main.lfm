@@ -1,0 +1,119 @@
+object FrmMain: TFrmMain
+  Left = 403
+  Height = 230
+  Top = 236
+  Width = 1000
+  Caption = 'FrmMain'
+  ClientHeight = 230
+  ClientWidth = 1000
+  OnShow = FormShow
+  LCLVersion = '2.2.6.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 230
+    Top = 0
+    Width = 210
+    Align = alLeft
+    ClientHeight = 230
+    ClientWidth = 210
+    TabOrder = 0
+    object lblPort: TLabel
+      Left = 8
+      Height = 15
+      Top = 12
+      Width = 25
+      Caption = 'Port:'
+      ParentColor = False
+    end
+    object edtPort: TEdit
+      Left = 40
+      Height = 23
+      Top = 8
+      Width = 155
+      TabOrder = 0
+      Text = '9000'
+    end
+    object btnStart: TBitBtn
+      Left = 8
+      Height = 25
+      Top = 48
+      Width = 90
+      Caption = 'Start'
+      OnClick = btnStartClick
+      TabOrder = 1
+    end
+    object btnStop: TBitBtn
+      Left = 112
+      Height = 25
+      Top = 48
+      Width = 90
+      Caption = 'Stop'
+      OnClick = btnStopClick
+      TabOrder = 2
+    end
+  end
+  object Panel2: TPanel
+    Left = 210
+    Height = 230
+    Top = 0
+    Width = 790
+    Align = alClient
+    ClientHeight = 230
+    ClientWidth = 790
+    TabOrder = 1
+    object Label1: TLabel
+      Left = 16
+      Height = 15
+      Top = 12
+      Width = 37
+      Caption = 'Stream'
+      ParentColor = False
+    end
+    object Label2: TLabel
+      Left = 288
+      Height = 15
+      Top = 16
+      Width = 21
+      Caption = 'Text'
+      ParentColor = False
+    end
+    object Label3: TLabel
+      Left = 617
+      Height = 15
+      Top = 16
+      Width = 18
+      Caption = 'File'
+      ParentColor = False
+    end
+    object imgMultipartFormDataStream: TImage
+      Left = 17
+      Height = 150
+      Top = 40
+      Width = 150
+    end
+    object edtMultipartFormDataText: TEdit
+      Left = 288
+      Height = 23
+      Top = 40
+      Width = 150
+      TabOrder = 0
+    end
+    object lblMultipartFormDataFile: TLabel
+      Cursor = crHandPoint
+      Left = 616
+      Height = 15
+      Top = 40
+      Width = 9
+      Caption = '...'
+      ParentColor = False
+      OnClick = lblMultipartFormDataFileClick
+    end
+  end
+  object Bevel1: TBevel
+    Left = 210
+    Height = 230
+    Top = 0
+    Width = 0
+    Align = alLeft
+  end
+end
