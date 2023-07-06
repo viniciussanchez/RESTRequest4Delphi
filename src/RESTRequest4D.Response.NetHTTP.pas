@@ -93,7 +93,7 @@ end;
 
 constructor TResponseNetHTTP.Create;
 begin
-  FHeaders := TStrings.Create;
+  FHeaders := TStringList.Create;
 end;
 
 destructor TResponseNetHTTP.Destroy;
