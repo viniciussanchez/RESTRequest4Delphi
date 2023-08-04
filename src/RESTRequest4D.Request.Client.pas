@@ -162,10 +162,12 @@ end;
 function TRequestClient.AddFile(const AFieldName: string; const AFileName: string; const AContentType: TRESTContentType): IRequest;
 begin
   Result := Self;
-  if not FileExists(AFileName) then
-    Exit;
   {$IF COMPILERVERSION >= 32.0}
+    if not FileExists(AFileName) then
+      Exit;
     FRESTRequest.AddFile(AFieldName, AFileName, AContentType);
+  {$ELSE}
+    raise Exception.Create('Method not implemented for your Delphi version. Try changing the engine or submitting a pull request.');
   {$ENDIF}
 end;
 
@@ -176,9 +178,9 @@ var
 {$ENDIF}
 begin
   Result := Self;
-  if not Assigned(AValue) then
-    Exit;
   {$IF COMPILERVERSION >= 33.0}
+    if not Assigned(AValue) then
+      Exit;
     lFileName := Trim(AFileName);
     if (lFileName = EmptyStr) then
       lFileName := AFieldName;
@@ -191,6 +193,8 @@ begin
       Kind := TRESTRequestParameterKind.pkFILE;
       ContentType := AContentType;
     end;
+  {$ELSE}
+    raise Exception.Create('Method not implemented for your Delphi version. Try changing the engine or submitting a pull request.');
   {$ENDIF}
 end;
 
