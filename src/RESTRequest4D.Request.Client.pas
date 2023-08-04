@@ -3,9 +3,8 @@ unit RESTRequest4D.Request.Client;
 interface
 
 uses RESTRequest4D.Request.Contract, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
-  RESTRequest4D.Response.Contract, System.JSON{$IF COMPILERVERSION >= 33.0}, System.Net.HttpClient{$ENDIF},
-  REST.Authenticator.Basic {$IF COMPILERVERSION <= 32.0}{$IF DEFINED(RR4D_INDY)}, IPPeerClient, IPPeerCommon{$ENDIF}{$ENDIF},
-  RESTRequest4D.Request.Adapter.Contract;
+  RESTRequest4D.Response.Contract, REST.Authenticator.Basic{$IF COMPILERVERSION >= 33.0}, System.Net.HttpClient{$ENDIF},
+  System.JSON, RESTRequest4D.Request.Adapter.Contract;
 
 type
   TRequestClient = class(TInterfacedObject, IRequest)
@@ -434,7 +433,7 @@ end;
 
 function TRequestClient.Timeout: Integer;
 begin
-  Result := FRESTRequest.Timeout;
+  Result := FRESTRequest.ConnectTimeout;
 end;
 
 function TRequestClient.Patch: IResponse;
@@ -544,7 +543,8 @@ end;
 function TRequestClient.Timeout(const ATimeout: Integer): IRequest;
 begin
   Result := Self;
-  FRESTRequest.Timeout := ATimeout;
+  FRESTRequest.ConnectTimeout := ATimeout;
+  FRESTRequest.ReadTimeout := ATimeout;
 end;
 
 function TRequestClient.Token(const AToken: string): IRequest;
