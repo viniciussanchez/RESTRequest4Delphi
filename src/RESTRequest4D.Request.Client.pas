@@ -4,7 +4,7 @@ interface
 
 uses RESTRequest4D.Request.Contract, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
   RESTRequest4D.Response.Contract, System.JSON{$IF COMPILERVERSION >= 33.0}, System.Net.HttpClient{$ENDIF},
-  REST.Authenticator.Basic {$IF COMPILERVERSION <= 32.0}, IPPeerClient, IPPeerCommon{$ENDIF},
+  REST.Authenticator.Basic {$IF COMPILERVERSION <= 32.0}{$IF DEFINED(RR4D_INDY)}, IPPeerClient, IPPeerCommon{$ENDIF}{$ENDIF},
   RESTRequest4D.Request.Adapter.Contract;
 
 type
