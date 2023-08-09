@@ -332,13 +332,13 @@ end;
 function TRequestNetHTTP.ClearHeaders: IRequest;
 {$IF COMPILERVERSION >= 34}
 var
-  I: Integer;
+  LURLHeaders:TNetHeader;
 {$ENDIF}
 begin
   Result := Self;
   {$IF COMPILERVERSION >= 34}
-    for I := 0 to Pred(FNetHTTPClient.CustHeaders.Count) do
-      FNetHTTPClient.CustHeaders.Delete(I);
+    for LURLHeaders in FNetHTTPClient.CustHeaders do
+      FNetHTTPClient.CustHeaders.Delete(LURLHeaders.Name);
   {$ELSE}
     {TODO -oAll -cCustom Headers : Clear headers with NetHTTPClient in versions below of 10.4 Sydney}
   {$ENDIF}
