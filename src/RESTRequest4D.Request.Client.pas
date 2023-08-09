@@ -437,10 +437,10 @@ end;
 
 function TRequestClient.Timeout: Integer;
 begin
-  {$IF COMPILERVERSION <= 32.0}
-  Result := FRESTRequest.Timeout;
+  {$IF COMPILERVERSION <= 32}
+    Result := FRESTRequest.Timeout;
   {$ELSE}
-  Result := FRESTRequest.ConnectTimeout;
+    Result := FRESTRequest.ConnectTimeout;
   {$ENDIF}
 end;
 
@@ -551,12 +551,11 @@ end;
 function TRequestClient.Timeout(const ATimeout: Integer): IRequest;
 begin
   Result := Self;
-
-  {$IF COMPILERVERSION <= 32.0}
-  FRESTRequest.Timeout := ATimeout;
+  {$IF COMPILERVERSION <= 32}
+    FRESTRequest.Timeout := ATimeout;
   {$ELSE}
-  FRESTRequest.ConnectTimeout := ATimeout;
-  FRESTRequest.ReadTimeout := ATimeout;
+    FRESTRequest.ConnectTimeout := ATimeout;
+    FRESTRequest.ReadTimeout := ATimeout;
   {$ENDIF}
 end;
 
