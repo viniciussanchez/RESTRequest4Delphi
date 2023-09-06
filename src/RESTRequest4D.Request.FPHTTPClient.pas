@@ -171,7 +171,7 @@ begin
           mrPUT:
             FFPHTTPClient.Put(MakeURL, FResponse.ContentStream);
           mrPATCH:
-            FFPHTTPClient.Put(MakeURL, FResponse.ContentStream);
+            FFPHTTPClient.HTTPMethod('PATCH', MakeURL, FResponse.ContentStream, []);
           mrDELETE:
             FFPHTTPClient.Delete(MakeURL, FResponse.ContentStream);
         end;
