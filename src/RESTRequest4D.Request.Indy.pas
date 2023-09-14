@@ -176,7 +176,11 @@ var
   cookies: TStringList;
 begin
   cookies := TStringList.Create;
-  cookies.AddPair(ACookieName, ACookieValue);
+  {$IF COMPILERVERSION <= 28.0}
+    cookies.Values[ACookieName] := ACookieValue;
+  {$ELSE}
+    cookies.AddPair(ACookieName, ACookieValue);
+  {$ENDIF}
   Result := AddCookies(cookies);
 end;
 
