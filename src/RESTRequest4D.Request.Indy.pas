@@ -587,7 +587,15 @@ begin
 
   FIdSSLIOHandlerSocketOpenSSL := TIdSSLIOHandlerSocketOpenSSL.Create;
   FIdHTTP.IOHandler := FIdSSLIOHandlerSocketOpenSSL;
-  FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions := [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
+
+  {$IF COMPILERVERSION > 28.0}
+    FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions := FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions +
+      [sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
+  {$ELSE}
+    FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions := FIdSSLIOHandlerSocketOpenSSL.SSLOptions.SSLVersions +
+      [sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2];
+  {$ENDIF}
+
   FIdSSLIOHandlerSocketOpenSSL.OnStatusInfoEx := Self.OnStatusInfoEx;
 
   FHeaders := TStringList.Create;
