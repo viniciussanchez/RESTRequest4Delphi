@@ -271,7 +271,8 @@ end;
 
 function TRequestClient.ContentType: string;
 begin
-  Result := FRESTRequest.Params.ParameterByName('Content-Type').Value;
+  if Assigned(FRESTRequest.Params.ParameterByName('Content-Type')) then
+    Result := FRESTRequest.Params.ParameterByName('Content-Type').Value;
 end;
 
 function TRequestClient.ContentType(const AContentType: string): IRequest;
