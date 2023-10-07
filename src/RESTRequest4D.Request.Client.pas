@@ -63,7 +63,8 @@ type
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function ClearParams: IRequest;
-    function ContentType(const AContentType: string): IRequest;
+    function ContentType(const AContentType: string): IRequest; overload;
+    function ContentType: string; overload;
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
@@ -266,6 +267,12 @@ begin
   Result := Self;
   for I := 0 to Pred(FParams.Count) do
     FRESTRequest.Params.Delete(FRESTRequest.Params.ParameterByName(FParams[I]));
+end;
+
+function TRequestClient.ContentType: string;
+begin
+  if Assigned(FRESTRequest.Params.ParameterByName('Content-Type')) then
+    Result := FRESTRequest.Params.ParameterByName('Content-Type').Value;
 end;
 
 function TRequestClient.ContentType(const AContentType: string): IRequest;
