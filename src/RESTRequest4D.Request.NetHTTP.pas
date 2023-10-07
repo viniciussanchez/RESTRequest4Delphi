@@ -62,7 +62,8 @@ type
     function ClearHeaders: IRequest;
     function AddHeader(const AName, AValue: string): IRequest;
     function ClearParams: IRequest;
-    function ContentType(const AContentType: string): IRequest;
+    function ContentType(const AContentType: string): IRequest; overload;
+    function ContentType: string; overload;
     function UserAgent(const AName: string): IRequest;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
@@ -348,6 +349,11 @@ function TRequestNetHTTP.ClearParams: IRequest;
 begin
   Result := Self;
   FParams.Clear;
+end;
+
+function TRequestNetHTTP.ContentType: string;
+begin
+  Result := FNetHTTPClient.CustHeaders.Value['Content-Type'];
 end;
 
 function TRequestNetHTTP.ContentType(const AContentType: string): IRequest;
