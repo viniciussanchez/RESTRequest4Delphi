@@ -49,6 +49,8 @@ type
     function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Retry(const ARetries: Integer): IRequest;
+    function OnBeforeExecute(const AOnBeforeExecute: TProc<IRequest>): IRequest;
+    function OnAfterExecute(const AOnAfterExecute: TProc<IRequest,IResponse>): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
