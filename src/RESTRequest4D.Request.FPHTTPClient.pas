@@ -21,6 +21,8 @@ type
     destructor Destroy; override;
   end;
 
+  { TRequestFPHTTPClient }
+
   TRequestFPHTTPClient = class(TInterfacedObject, IRequest)
   private
     FHeaders: Tstrings;
@@ -36,6 +38,8 @@ type
     FResponse: IResponse;
     FStreamSend: TStream;
     FRetries: Integer;
+    FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
+    FOnAfterExecute: TRR4DCallbackOnAfterExecute;
     procedure ExecuteRequest(const AMethod: TMethodRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -60,6 +64,8 @@ type
     function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Retry(const ARetries: Integer): IRequest;
+    function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
+    function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -302,6 +308,18 @@ function TRequestFPHTTPClient.Retry(const ARetries: Integer): IRequest;
 begin
   Result := Self;
   FRetries := ARetries;
+end;
+
+function TRequestFPHTTPClient.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
+begin
+  Result := Self;
+  FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestFPHTTPClient.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  FOnAfterExecute := AOnAfterExecute;
 end;
 
 function TRequestFPHTTPClient.Get: IResponse;
@@ -592,13 +610,16 @@ procedure TRequestFPHTTPClient.DoAfterExecute(const Sender: TObject; const AResp
 var
   LAdapter: IRequestAdapter;
 begin
+  if Assigned(FOnAfterExecute) then
+    FOnAfterExecute(Self, FResponse);
   for LAdapter in FAdapters do
     LAdapter.Execute(FResponse.Content);
 end;
 
 procedure TRequestFPHTTPClient.DoBeforeExecute(const Sender: TFPHTTPClient);
 begin
-  // virtual method
+  if Assigned(FOnBeforeExecute) then
+    FOnBeforeExecute(Self);
 end;
 
 constructor TRequestFPHTTPClient.Create;

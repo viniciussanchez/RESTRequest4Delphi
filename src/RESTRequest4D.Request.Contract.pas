@@ -20,6 +20,16 @@ uses RESTRequest4D.Response.Contract, RESTRequest4D.Request.Adapter.Contract,
   {$ENDIF}
 
 type
+  IRequest = interface;
+
+{$IF DEFINED(FPC)}
+  TRR4DCallbackOnBeforeExecute = procedure(const Req: IRequest);
+  TRR4DCallbackOnAfterExecute = procedure(const Req: IRequest; const Res: IResponse);
+{$ELSE}
+  TRR4DCallbackOnBeforeExecute = reference to procedure(const Req: IRequest);
+  TRR4DCallbackOnAfterExecute = reference to procedure(const Req: IRequest; const Res: IResponse);
+{$ENDIF}
+
   IRequest = interface
     ['{2C882459-F4C3-4854-8F7A-F68E8F8DE98E}']
     function AcceptEncoding: string; overload;
@@ -49,8 +59,8 @@ type
     function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Retry(const ARetries: Integer): IRequest;
-    function OnBeforeExecute(const AOnBeforeExecute: TProc<IRequest>): IRequest;
-    function OnAfterExecute(const AOnAfterExecute: TProc<IRequest,IResponse>): IRequest;
+    function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
+    function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;

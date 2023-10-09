@@ -42,8 +42,8 @@ type
     FResponse: IResponse;
     FStreamSend: TStream;
     FRetries: Integer;
-    FOnBeforeExecute: TProc<IRequest>;
-    FOnAfterExecute: TProc<IRequest,IResponse>;
+    FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
+    FOnAfterExecute: TRR4DCallbackOnAfterExecute;
     procedure ExecuteRequest(const AMethod: TMethodRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -70,8 +70,8 @@ type
     function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Retry(const ARetries: Integer): IRequest;
-    function OnBeforeExecute(const AOnBeforeExecute: TProc<IRequest>): IRequest;
-    function OnAfterExecute(const AOnAfterExecute: TProc<IRequest,IResponse>): IRequest;
+    function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
+    function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -325,13 +325,13 @@ begin
   FRetries := ARetries;
 end;
 
-function TRequestSynapse.OnBeforeExecute(const AOnBeforeExecute: TProc<IRequest>): IRequest;
+function TRequestSynapse.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
 begin
   Result := Self;
   FOnBeforeExecute := AOnBeforeExecute;
 end;
 
-function TRequestSynapse.OnAfterExecute(const AOnAfterExecute: TProc<IRequest,IResponse>): IRequest;
+function TRequestSynapse.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
 begin
   Result := Self;
   FOnAfterExecute := AOnAfterExecute;
@@ -668,7 +668,6 @@ var
 begin
   if Assigned(FOnAfterExecute) then
     FOnAfterExecute(Self, FResponse);
-
   for LAdapter in FAdapters do
     LAdapter.Execute(FResponse.Content);
 end;
