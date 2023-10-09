@@ -22,6 +22,8 @@ type
     FStreamSend: TStream;
     FStreamResult: TStringStream;
     FRetries: Integer;
+    FOnBeforeExecute: TProc<IRequest>;
+    FOnAfterExecute: TProc<IRequest,IResponse>;
     function ExecuteRequest(const AMethod: TMethodRequest): IHTTPResponse;
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -46,6 +48,8 @@ type
     function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Retry(const ARetries: Integer): IRequest;
+    function OnBeforeExecute(const AOnBeforeExecute: TProc<IRequest>): IRequest;
+    function OnAfterExecute(const AOnAfterExecute: TProc<IRequest,IResponse>): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -440,13 +444,17 @@ procedure TRequestNetHTTP.DoAfterExecute(const Sender: TObject; const AResponse:
 var
   LAdapter: IRequestAdapter;
 begin
+  if Assigned(FOnAfterExecute) then
+    FOnAfterExecute(Self, FResponse);
+
   for LAdapter in FAdapters do
     LAdapter.Execute(FResponse.Content);
 end;
 
 procedure TRequestNetHTTP.DoBeforeExecute(const Sender: TNetHTTPClient);
 begin
-  // virtual method
+  if Assigned(FOnBeforeExecute) then
+    FOnBeforeExecute(Self);
 end;
 
 procedure TRequestNetHTTP.DoHTTPProtocolError(const Sender: TObject; const AError: string);
@@ -622,6 +630,18 @@ function TRequestNetHTTP.Retry(const ARetries: Integer): IRequest;
 begin
   Result := Self;
   FRetries := ARetries;
+end;
+
+function TRequestNetHTTP.OnBeforeExecute(const AOnBeforeExecute: TProc<IRequest>): IRequest;
+begin
+  Result := Self;
+  FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestNetHTTP.OnAfterExecute(const AOnAfterExecute: TProc<IRequest,IResponse>): IRequest;
+begin
+  Result := Self;
+  FOnAfterExecute := AOnAfterExecute;
 end;
 
 function TRequestNetHTTP.Timeout: Integer;

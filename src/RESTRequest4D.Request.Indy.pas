@@ -31,6 +31,8 @@ type
     FStreamSend: TStream;
     FStreamResult: TStringStream;
     FRetries: Integer;
+    FOnBeforeExecute: TProc<IRequest>;
+    FOnAfterExecute: TProc<IRequest,IResponse>;
     procedure ExecuteRequest(const AMethod: TMethodRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -55,6 +57,8 @@ type
     function TokenBearer(const AToken: string): IRequest;
     function BasicAuthentication(const AUsername, APassword: string): IRequest;
     function Retry(const ARetries: Integer): IRequest;
+    function OnBeforeExecute(const AOnBeforeExecute: TProc<IRequest>): IRequest;
+    function OnAfterExecute(const AOnAfterExecute: TProc<IRequest,IResponse>): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -88,6 +92,7 @@ type
     function HTTPOptions(const AHTTPOptions: TIdHTTPOptions): IRequest;
     procedure OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
   protected
+    procedure DoBeforeExecute; virtual;
     procedure DoAfterExecute; virtual;
   public
     constructor Create;
@@ -215,10 +220,19 @@ begin
   Result := FAdapters;
 end;
 
+procedure TRequestIndy.DoBeforeExecute;
+begin
+  if Assigned(FOnBeforeExecute) then
+    FOnBeforeExecute(Self);
+end;
+
 procedure TRequestIndy.DoAfterExecute;
 var
   LAdapter: IRequestAdapter;
 begin
+  if Assigned(FOnAfterExecute) then
+    FOnAfterExecute(Self, FResponse);
+
   for LAdapter in FAdapters do
     LAdapter.Execute(FResponse.Content);
 end;
@@ -231,6 +245,7 @@ begin
   while LAttempts > 0 do
   begin
     try
+      Self.DoBeforeExecute;
       case AMethod of
         mrGET:
           FIdHTTP.Get(TIdURI.URLEncode(MakeURL), FStreamResult);
@@ -657,6 +672,18 @@ function TRequestIndy.Retry(const ARetries: Integer): IRequest;
 begin
   Result := Self;
   FRetries := ARetries;
+end;
+
+function TRequestIndy.OnBeforeExecute(const AOnBeforeExecute: TProc<IRequest>): IRequest;
+begin
+  Result := Self;
+  FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestIndy.OnAfterExecute(const AOnAfterExecute: TProc<IRequest,IResponse>): IRequest;
+begin
+  Result := Self;
+  FOnAfterExecute := AOnAfterExecute;
 end;
 
 function TRequestIndy.Timeout: Integer;
