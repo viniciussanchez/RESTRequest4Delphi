@@ -76,7 +76,7 @@ type
     function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
     function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
     function Asynchronous(const AValue: Boolean): IRequest;
-    function SynchronizeEvents(const AValue: Boolean): IRequest;
+    function SynchronizedEvents(const AValue: Boolean): IRequest;
     function MakeURL(const AIncludeParams: Boolean = True): string;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
@@ -312,7 +312,7 @@ begin
   FNetHTTPClient.Asynchronous := AValue;
 end;
 
-function TRequestNetHTTP.SynchronizeEvents(const AValue: Boolean): IRequest;
+function TRequestNetHTTP.SynchronizedEvents(const AValue: Boolean): IRequest;
 begin
   Result := Self;
   FNetHTTPClient.SynchronizeEvents := AValue;

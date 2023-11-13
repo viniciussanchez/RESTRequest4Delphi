@@ -70,7 +70,7 @@ type
     function ClearBody: IRequest;
     {$IF DEFINED(RR4D_NETHTTP)}
     function Asynchronous(const AValue: Boolean): IRequest;
-    function SynchronizeEvents(const AValue: Boolean): IRequest;
+    function SynchronizedEvents(const AValue: Boolean): IRequest;
     {$ENDIF}
     {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_NETHTTP)}
     function AddParam(const AName, AValue: string): IRequest;
