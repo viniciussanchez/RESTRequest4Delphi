@@ -55,7 +55,7 @@ type
     function Delete: IResponse;
     function Patch: IResponse;
     function ClearBody: IRequest;
-    function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}): IRequest;
+    function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
@@ -214,13 +214,13 @@ begin
   FRESTRequest.Params.ParameterByName(AName).Options := AOptions;
 end;
 
-function TRequestClient.AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind): IRequest;
+function TRequestClient.AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}; const AOptions: TRESTRequestParameterOptions = []): IRequest;
 begin
   Result := Self;
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
   FParams.Add(AName);
-  FRESTRequest.AddParameter(AName, AValue, AKind);
+  FRESTRequest.AddParameter(AName, AValue, AKind, AOptions);
 end;
 
 function TRequestClient.AddUrlSegment(const AName, AValue: string): IRequest;
