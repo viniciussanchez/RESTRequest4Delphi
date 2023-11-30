@@ -117,7 +117,11 @@ begin
     {$IFDEF MSWINDOWS}
       AContent.Free;
     {$ELSE}
-      AContent.DisposeOf;
+      {$IF COMPILERVERSION <= 35}
+        AContent.DisposeOf;
+      {$ELSE}
+        AContent.Free;
+      {$ENDIF}
     {$ENDIF}
   end;
 end;
@@ -133,7 +137,11 @@ begin
     {$IFDEF MSWINDOWS}
       AContent.Free;
     {$ELSE}
-      AContent.DisposeOf;
+      {$IF COMPILERVERSION <= 35}
+        AContent.DisposeOf;
+      {$ELSE}
+        AContent.Free;
+      {$ENDIF}
     {$ENDIF}
   end;
 end;
@@ -153,7 +161,11 @@ begin
     {$IFDEF MSWINDOWS}
       AContent.Free;
     {$ELSE}
-      AContent.DisposeOf;
+      {$IF COMPILERVERSION <= 35}
+        AContent.DisposeOf;
+      {$ELSE}
+        AContent.Free;
+      {$ENDIF}
     {$ENDIF}
   end;
 end;
@@ -637,7 +649,11 @@ begin
     {$IFDEF MSWINDOWS}
       AContent.Free;
     {$ELSE}
-      AContent.DisposeOf;
+      {$IF COMPILERVERSION <= 35}
+        AContent.DisposeOf;
+      {$ELSE}
+        AContent.Free;
+      {$ENDIF}
     {$ENDIF}
   end;
 end;
