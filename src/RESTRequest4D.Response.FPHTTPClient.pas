@@ -6,7 +6,7 @@ unit RESTRequest4D.Response.FPHTTPClient;
 
 interface
 
-uses Classes, SysUtils, RESTRequest4D.Response.Contract, FPHTTPClient, openssl, fpjson, jsonparser;
+uses Classes, SysUtils, RESTRequest4D.Response.Contract, FPHTTPClient, openssl, fpjson, jsonparser, ZStream;
 
 type
   TResponseFPHTTPClient = class(TInterfacedObject, IResponse)
@@ -26,6 +26,7 @@ type
     function JSONValue: TJSONData;
     function Headers: TStrings;
     function GetCookie(const ACookieName: string): string;
+    function OnDeflate(const AStream: TStream): string;
   public
     constructor Create(const AFPHTTPClient: TFPHTTPClient);
     destructor Destroy; override;
@@ -35,6 +36,8 @@ implementation
 
 function TResponseFPHTTPClient.Content: string;
 begin
+  if FFPHTTPClient.ResponseHeaders.Values['Content-Encoding'].ToLower.Contains('deflate') then
+    Exit(OnDeflate(FStreamResult));
   Result := FStreamResult.DataString;
 end;
 
@@ -54,9 +57,22 @@ begin
 end;
 
 function TResponseFPHTTPClient.ContentStream: TStream;
+var
+  LStream: TStringStream;
 begin
+  FStreamResult.Position := 0;
+  if FFPHTTPClient.ResponseHeaders.Values['Content-Encoding'].ToLower.Contains('deflate') then
+  begin
+    LStream := TStringStream.Create(OnDeflate(FStreamResult));
+    try
+      FStreamResult.Clear;
+      FStreamResult.CopyFrom(LStream, LStream.Size);
+      FStreamResult.Position := 0;
+    finally
+      LStream.Free;
+    end;
+  end;
   Result := FStreamResult;
-  Result.Position := 0;
 end;
 
 function TResponseFPHTTPClient.StatusCode: Integer;
@@ -95,6 +111,26 @@ begin
     end;
   end;
   Result := FJSONValue;
+end;
+
+function TResponseFPHTTPClient.OnDeflate(const AStream: TStream): string;
+var
+  LStream: TStringStream;
+  LDecompressor: TDecompressionStream;
+begin
+  AStream.Position := 0;
+  LDecompressor := TDecompressionStream.Create(AStream);
+  try
+    LStream := TStringStream.Create();
+    try
+      LStream.CopyFrom(LDecompressor, AStream.Size);
+      Result := LStream.DataString;
+    finally
+      LStream.Free;
+    end;
+  finally
+    LDecompressor.Free;
+  end;
 end;
 
 function TResponseFPHTTPClient.Headers: TStrings;
