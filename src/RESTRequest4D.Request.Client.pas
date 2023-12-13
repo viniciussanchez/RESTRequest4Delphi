@@ -3,7 +3,9 @@ unit RESTRequest4D.Request.Client;
 interface
 
 uses RESTRequest4D.Request.Contract, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
-  RESTRequest4D.Response.Contract, REST.Authenticator.Basic{$IF COMPILERVERSION >= 33.0}, System.Net.HttpClient{$ENDIF},
+  RESTRequest4D.Response.Contract, REST.Authenticator.Basic,
+  {$IF COMPILERVERSION >= 33.0}System.Net.HttpClient,{$ENDIF}
+  {$IF COMPILERVERSION >= 36.0}System.NetEncoding,{$ENDIF}
   System.JSON, RESTRequest4D.Request.Adapter.Contract;
 
 type
@@ -232,7 +234,11 @@ begin
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
   FParams.Add(AName);
-  FRESTRequest.AddParameter(AName, AValue, AKind, AOptions);
+{$IF COMPILERVERSION >= 36}
+  FRESTRequest.AddParameter(AName, TNetEncoding.URL.Encode(AValue), AKind, [TRESTRequestParameterOption.poDoNotEncode]);
+{$ELSE}
+  FRESTRequest.AddParameter(AName, AValue, AKind);
+{$ENDIF}
 end;
 
 function TRequestClient.AddUrlSegment(const AName, AValue: string): IRequest;
