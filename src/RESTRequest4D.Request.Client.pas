@@ -469,6 +469,7 @@ end;
 
 function TRequestClient.SynchronizedEvents(const AValue: Boolean): IRequest;
 begin
+  Result := Self;
   FRESTClient.SynchronizedEvents := AValue;
   FRESTRequest.SynchronizedEvents := AValue;
 end;
