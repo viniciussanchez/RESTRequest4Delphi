@@ -14,7 +14,7 @@
  
 ## ⚙️ Installation 
 
-* **Manual installation**: Add the following folders to your project, in *Project > Options > Resource Compiler > Directories and Conditionals > Include file search path*
+* **Manual installation**: Add the following folders to your project, in *Project > Options > Building > Delphi Compiler > Search path*
 
 ```
 ../RESTRequest4Delphi/src
