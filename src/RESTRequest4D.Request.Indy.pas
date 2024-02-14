@@ -240,6 +240,10 @@ procedure TRequestIndy.ExecuteRequest(const AMethod: TMethodRequest);
 var
   LAttempts: Integer;
 begin
+  if not FBaseURL.ToUpper.Trim.StartsWith('HTTPS') then
+    FIdHTTP.IOHandler := nil
+  else
+    FIdHTTP.IOHandler := FIdSSLIOHandlerSocketOpenSSL;
   LAttempts := FRetries + 1;
   while LAttempts > 0 do
   begin
