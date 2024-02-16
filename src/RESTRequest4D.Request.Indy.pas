@@ -366,7 +366,7 @@ begin
     Exit;
   if FHeaders.IndexOf(AName) < 0 then
     FHeaders.Add(AName);
-  FIdHTTP.Request.CustomHeaders.AddValue(AName, AValue);
+  FIdHTTP.Request.CustomHeaders.Values[AName] := AValue;
 end;
 
 function TRequestIndy.Token(const AToken: string): IRequest;
