@@ -4,7 +4,7 @@
   </a>  
 </p><br>
 <p align="center">
-  <b>RESTRequest4Delphi</b> is a API to consume <a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> services written in <b>any</b> programming language.<br>Designed to facilitate development, in a <b>simple</b> and <b>minimalist</b> way.
+  <b>RESTRequest4Delphi</b> is a API to consume <a href="https://en.wikipedia.org/wiki/Representational_state_transfer"><b>REST</b></a> services written in <b>any</b> programming language.<br>Designed to facilitate development, in a <b>simple</b> and <b>minimalist</b> way. <br>Buy our official training by <a href="https://go.hotmart.com/U88695509H"><b>clicking here</b></a>!
  
 </p><br>
 <p align="center">
