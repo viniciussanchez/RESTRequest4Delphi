@@ -4,7 +4,7 @@ interface
 
 uses RESTRequest4D.Request.Contract, Data.DB, REST.Client, REST.Response.Adapter, REST.Types, System.SysUtils, System.Classes,
   RESTRequest4D.Response.Contract, REST.Authenticator.Basic{$IF COMPILERVERSION >= 33.0}, System.Net.HttpClient{$ENDIF},
-  System.JSON, RESTRequest4D.Request.Adapter.Contract;
+  System.JSON, RESTRequest4D.Request.Adapter.Contract{$IF COMPILERVERSION <= 32.0}, IPPeerClient, IPPeerCommon{$ENDIF};
 
 type
   TRequestClient = class(TInterfacedObject, IRequest)
