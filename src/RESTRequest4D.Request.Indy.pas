@@ -240,6 +240,10 @@ procedure TRequestIndy.ExecuteRequest(const AMethod: TMethodRequest);
 var
   LAttempts: Integer;
 begin
+  if not FBaseURL.ToUpper.Trim.StartsWith('HTTPS') then
+    FIdHTTP.IOHandler := nil
+  else
+    FIdHTTP.IOHandler := FIdSSLIOHandlerSocketOpenSSL;
   LAttempts := FRetries + 1;
   while LAttempts > 0 do
   begin
@@ -362,7 +366,7 @@ begin
     Exit;
   if FHeaders.IndexOf(AName) < 0 then
     FHeaders.Add(AName);
-  FIdHTTP.Request.CustomHeaders.AddValue(AName, AValue);
+  FIdHTTP.Request.CustomHeaders.Values[AName] := AValue;
 end;
 
 function TRequestIndy.Token(const AToken: string): IRequest;

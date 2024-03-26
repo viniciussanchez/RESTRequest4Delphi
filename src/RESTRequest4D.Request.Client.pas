@@ -475,6 +475,7 @@ end;
 
 function TRequestClient.SynchronizedEvents(const AValue: Boolean): IRequest;
 begin
+  Result := Self;
   FRESTClient.SynchronizedEvents := AValue;
   FRESTRequest.SynchronizedEvents := AValue;
 end;
@@ -507,15 +508,19 @@ end;
 function TRequestClient.PrepareUrlSegments(const AValue: string): string;
 var
   LSplitedPath: TArray<string>;
-  LPart: string;
-  LPreparedUrl: string;
+  LPart, LName, LPreparedUrl: string;
 begin
   LSplitedPath := AValue.Split(['/', '?', '=', '&']);
   LPreparedUrl := AValue;
   for LPart in LSplitedPath do
   begin
     if LPart.StartsWith(':') then
-      LPreparedUrl := StringReplace(LPreparedUrl, LPart, Format('{%s}', [LPart.TrimLeft([':'])]), []);
+    begin
+      LName := LPart.TrimLeft([':']);
+      LPreparedUrl := StringReplace(LPreparedUrl, LPart, Format('{%s}', [LName]), []);
+      if not FRESTRequest.Params.ContainsParameter(LName) then
+        FRESTRequest.Params.AddItem.Name := LName;
+    end;
   end;
   Result := LPreparedUrl;
 end;
