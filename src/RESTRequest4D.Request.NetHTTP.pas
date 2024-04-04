@@ -256,18 +256,22 @@ end;
 function TRequestNetHTTP.AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string; const AContentType: string): IRequest;
 {$IF COMPILERVERSION >= 33.0}
 var
-  lFileName: string;
+  LFileName: string;
 {$ENDIF}
 begin
   Result := Self;
   if not Assigned(AValue) then
     Exit;
   {$IF COMPILERVERSION >= 33.0}
-    lFileName := Trim(AFileName);
-    if (lFileName = EmptyStr) then
-      lFileName := AFieldName;
+    LFileName := Trim(AFileName);
+    if (LFileName = EmptyStr) then
+      LFileName := AFieldName;
     AValue.Position := 0;
-    FMultipartFormData.AddStream(AFieldName, AValue, lFileName, AContentType);
+  {$IF COMPILERVERSION >= 34.0}
+    FMultipartFormData.AddStream(AFieldName, AValue, True, LFileName, AContentType);
+  {$ELSE}
+    FMultipartFormData.AddStream(AFieldName, AValue, LFileName, AContentType);
+  {$ENDIF}
     FUseMultipartFormData := True;
   {$ENDIF}
 end;
