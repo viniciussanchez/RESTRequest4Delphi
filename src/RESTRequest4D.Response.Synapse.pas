@@ -6,7 +6,7 @@ unit RESTRequest4D.Response.Synapse;
 
 interface
 
-uses Classes, SysUtils, RESTRequest4D.Response.Contract, httpsend, ssl_openssl,
+uses Classes, SysUtils, RESTRequest4D.Response.Contract, RESTRequest4D.Config, httpsend, ssl_openssl,
   {$IFDEF FPC}
     fpjson, jsonparser;
   {$ELSE}
@@ -112,9 +112,9 @@ begin
   begin
     LContent := Content.Trim;
     if LContent.StartsWith('{') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
+      FJSONValue := (TJSONObject.ParseJSONValue(TRESTRequest4DConfig.GetInstance.ParseJSONEncoding.GetBytes(LContent), 0) as TJSONObject)
     else if LContent.StartsWith('[') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
+      FJSONValue := (TJSONObject.ParseJSONValue(TRESTRequest4DConfig.GetInstance.ParseJSONEncoding.GetBytes(LContent), 0) as TJSONArray)
     else
       raise Exception.Create('The return content is not a valid JSON value.');
   end;

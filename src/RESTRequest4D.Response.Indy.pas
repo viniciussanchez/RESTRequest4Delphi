@@ -6,7 +6,7 @@ unit RESTRequest4D.Response.Indy;
 
 interface
 
-uses RESTRequest4D.Response.Contract, IdHTTP,
+uses RESTRequest4D.Response.Contract, RESTRequest4D.Config, IdHTTP,
   {$IFDEF FPC}
     SysUtils, fpjson, Classes, jsonparser;
   {$ELSE}
@@ -78,9 +78,9 @@ begin
   begin
     LContent := Content.Trim;
     if LContent.StartsWith('{') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
+      FJSONValue := (TJSONObject.ParseJSONValue(TRESTRequest4DConfig.GetInstance.ParseJSONEncoding.GetBytes(LContent), 0) as TJSONObject)
     else if LContent.StartsWith('[') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
+      FJSONValue := (TJSONObject.ParseJSONValue(TRESTRequest4DConfig.GetInstance.ParseJSONEncoding.GetBytes(LContent), 0) as TJSONArray)
     else
       raise Exception.Create('The return content is not a valid JSON value.');
   end;

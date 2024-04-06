@@ -3,7 +3,7 @@ unit RESTRequest4D.Response.NetHTTP;
 interface
 
 uses RESTRequest4D.Response.Contract, System.Net.HttpClientComponent, System.Net.HttpClient, System.Net.URLClient,
-  System.SysUtils, System.JSON, System.Classes;
+  System.SysUtils, System.JSON, System.Classes, RESTRequest4D.Config;
 
 type
   TResponseNetHTTP = class(TInterfacedObject, IResponse)
@@ -42,9 +42,9 @@ begin
     if Assigned(FHTTPResponse) then
       LContent := FHTTPResponse.ContentAsString.Trim;
     if LContent.StartsWith('{') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
+      FJSONValue := (TJSONObject.ParseJSONValue(TRESTRequest4DConfig.GetInstance.ParseJSONEncoding.GetBytes(LContent), 0) as TJSONObject)
     else if LContent.StartsWith('[') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
+      FJSONValue := (TJSONObject.ParseJSONValue(TRESTRequest4DConfig.GetInstance.ParseJSONEncoding.GetBytes(LContent), 0) as TJSONArray)
     else
       raise Exception.Create('The return content is not a valid JSON value.');
   end;
