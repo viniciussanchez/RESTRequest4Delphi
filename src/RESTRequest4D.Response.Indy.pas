@@ -35,7 +35,8 @@ type
   {$IFDEF FPC}
     function JSONValue: TJSONData;
   {$ELSE}
-    function JSONValue: TJSONValue;
+    function JSONValue: TJSONValue; overload;
+    function JSONValue(const AEncoding: TEncoding): TJSONValue; overload;
   {$ENDIF}
   public
     constructor Create(const AIdHTTP: TIdHTTP);
@@ -67,10 +68,13 @@ begin
   end;
   Result := FJSONValue;
 end;
-
 {$ELSE}
-
 function TResponseIndy.JSONValue: TJSONValue;
+begin
+  Result := Self.JSONValue(TEncoding.UTF8);
+end;
+
+function TResponseIndy.JSONValue(const AEncoding: TEncoding): TJSONValue;
 var
   LContent: string;
 begin
@@ -78,9 +82,9 @@ begin
   begin
     LContent := Content.Trim;
     if LContent.StartsWith('{') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
+      FJSONValue := (TJSONObject.ParseJSONValue(AEncoding.GetBytes(LContent), 0) as TJSONObject)
     else if LContent.StartsWith('[') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
+      FJSONValue := (TJSONObject.ParseJSONValue(AEncoding.GetBytes(LContent), 0) as TJSONArray)
     else
       raise Exception.Create('The return content is not a valid JSON value.');
   end;

@@ -7,6 +7,7 @@ uses RESTRequest4D.Response.Contract, REST.Client, System.SysUtils, System.JSON,
 type
   TResponseClient = class(TInterfacedObject, IResponse)
   private
+    FJSONValue: TJSONValue;
     FRESTResponse: TRESTResponse;
     FStreamValue: TMemoryStream;
     function Content: string;
@@ -17,7 +18,8 @@ type
     function StatusCode: Integer;
     function StatusText: string;
     function RawBytes: TBytes;
-    function JSONValue: TJSONValue;
+    function JSONValue: TJSONValue; overload;
+    function JSONValue(const AEncoding: TEncoding): TJSONValue; overload;
     function Headers: TStrings;
     function GetCookie(const ACookieName: string): string;
   public
@@ -34,6 +36,8 @@ end;
 
 destructor TResponseClient.Destroy;
 begin
+  if Assigned(FJSONValue) then
+    FJSONValue.Free;
   if Assigned(FStreamValue) then
     FreeAndNil(FStreamValue);
   inherited;
@@ -92,9 +96,26 @@ begin
   Result := FRESTResponse.ContentType;
 end;
 
+function TResponseClient.JSONValue(const AEncoding: TEncoding): TJSONValue;
+var
+  LContent: string;
+begin
+  if not(Assigned(FJSONValue)) then
+  begin
+    LContent := Content.Trim;
+    if LContent.StartsWith('{') then
+      FJSONValue := (TJSONObject.ParseJSONValue(AEncoding.GetBytes(LContent), 0) as TJSONObject)
+    else if LContent.StartsWith('[') then
+      FJSONValue := (TJSONObject.ParseJSONValue(AEncoding.GetBytes(LContent), 0) as TJSONArray)
+    else
+      raise Exception.Create('The return content is not a valid JSON value.');
+  end;
+  Result := FJSONValue;
+end;
+
 function TResponseClient.JSONValue: TJSONValue;
 begin
-  Result := FRESTResponse.JSONValue;
+  Result := Self.JSONValue(TEncoding.UTF8);
 end;
 
 function TResponseClient.RawBytes: TBytes;

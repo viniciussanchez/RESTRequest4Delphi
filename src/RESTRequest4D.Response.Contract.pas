@@ -25,7 +25,8 @@ type
   {$IFDEF FPC}
     function JSONValue: TJSONData;
   {$ELSE}
-    function JSONValue: TJSONValue;
+    function JSONValue: TJSONValue; overload;
+    function JSONValue(const AEncoding: TEncoding): TJSONValue; overload;
   {$ENDIF}
   end;
 

@@ -20,7 +20,8 @@ type
     function StatusCode: Integer;
     function StatusText: string;
     function RawBytes: TBytes;
-    function JSONValue: TJSONValue;
+    function JSONValue: TJSONValue; overload;
+    function JSONValue(const AEncoding: TEncoding): TJSONValue; overload;
     function Headers: TStrings;
     function GetCookie(const ACookieName: string): string;
   public
@@ -34,21 +35,8 @@ type
 implementation
 
 function TResponseNetHTTP.JSONValue: TJSONValue;
-var
-  LContent: string;
 begin
-  if not(Assigned(FJSONValue)) then
-  begin
-    if Assigned(FHTTPResponse) then
-      LContent := FHTTPResponse.ContentAsString.Trim;
-    if LContent.StartsWith('{') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONObject)
-    else if LContent.StartsWith('[') then
-      FJSONValue := (TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(LContent), 0) as TJSONArray)
-    else
-      raise Exception.Create('The return content is not a valid JSON value.');
-  end;
-  Result := FJSONValue;
+  Result := Self.JSONValue(TEncoding.UTF8);
 end;
 
 class function TResponseNetHTTP.New: IResponse;
@@ -126,6 +114,24 @@ begin
     for LHeader in FHTTPResponse.Headers do
       FHeaders.Add(LHeader.Name + '=' + LHeader.Value);
   Result := FHeaders;
+end;
+
+function TResponseNetHTTP.JSONValue(const AEncoding: TEncoding): TJSONValue;
+var
+  LContent: string;
+begin
+  if not(Assigned(FJSONValue)) then
+  begin
+    if Assigned(FHTTPResponse) then
+      LContent := FHTTPResponse.ContentAsString.Trim;
+    if LContent.StartsWith('{') then
+      FJSONValue := (TJSONObject.ParseJSONValue(AEncoding.GetBytes(LContent), 0) as TJSONObject)
+    else if LContent.StartsWith('[') then
+      FJSONValue := (TJSONObject.ParseJSONValue(AEncoding.GetBytes(LContent), 0) as TJSONArray)
+    else
+      raise Exception.Create('The return content is not a valid JSON value.');
+  end;
+  Result := FJSONValue;
 end;
 
 function TResponseNetHTTP.RawBytes: TBytes;
