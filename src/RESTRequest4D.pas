@@ -53,6 +53,8 @@ uses
     RESTRequest4D.Request.NetHTTP;
   {$ELSEIF DEFINED(RR4D_SYNAPSE)}
     RESTRequest4D.Request.Synapse;
+  {$ELSEIF DEFINED(RR4D_ICS)}
+    RESTRequest4D.Request.ICS;
   {$ELSE}
     RESTRequest4D.Request.Client;
   {$ENDIF}
@@ -67,6 +69,8 @@ begin
     Result := TRequestNetHTTP.Create;
   {$ELSEIF DEFINED(RR4D_SYNAPSE)}
     Result := TRequestSynapse.Create;
+  {$ELSEIF DEFINED(RR4D_ICS)}
+    Result := TRequestICS.Create;
   {$ELSE}
     Result := TRequestClient.Create;
   {$ENDIF}

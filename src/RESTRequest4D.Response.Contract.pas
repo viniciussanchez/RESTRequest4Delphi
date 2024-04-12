@@ -13,7 +13,6 @@ type
   IResponse = interface
     ['{A3BB1797-E99E-4C72-8C4A-925825A50C27}']
     function Content: string;
-    function ContentLength: Cardinal;
     function ContentType: string;
     function ContentEncoding: string;
     function ContentStream: TStream;
@@ -27,6 +26,12 @@ type
   {$ELSE}
     function JSONValue: TJSONValue; overload;
     function JSONValue(const AEncoding: TEncoding): TJSONValue; overload;
+  {$ENDIF}
+  {$IF DEFINED(RR4D_ICS)}
+  function ICSLog: String;
+  function ContentLength: int64;
+  {$ELSE}
+  function ContentLength: Cardinal;
   {$ENDIF}
   end;
 
