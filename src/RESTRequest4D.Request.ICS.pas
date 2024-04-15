@@ -1,19 +1,12 @@
 unit RESTRequest4D.Request.ICS;
 
-{$IFDEF FPC} {$mode delphi} {$ENDIF}
-
 interface
 
 uses
   RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, OverbyteIcsLogger, OverbyteIcsSSLEAY,
   OverbyteIcsWndControl, OverbyteIcsHttpProt, OverbyteIcsUrl, OverbyteIcsWSocket, RESTRequest4D.Utils,
-  OverbyteIcsSslHttpRest, NetEncoding, RESTRequest4D.Request.Adapter.Contract
-  {$IFDEF FPC}
-    , DB, Classes, fpjson, jsonparser, fpjsonrtti
-  {$ELSE}
-    , Data.DB, System.Classes, System.JSON
-  {$ENDIF}
-;
+  OverbyteIcsSslHttpRest, NetEncoding, RESTRequest4D.Request.Adapter.Contract,
+  Data.DB, System.Classes, System.JSON;
 
 type
   TRequestICS = class(TInterfacedObject, IRequest)
@@ -95,13 +88,7 @@ type
 implementation
 
 uses
-  RESTRequest4D.Response.ICS
-  {$IFDEF FPC}
-    , SysUtils
-  {$ELSE}
-    , System.SysUtils, REST.Json
-  {$ENDIF}
-;
+  RESTRequest4D.Response.ICS, System.SysUtils, REST.Json;
 
 function TRequestICS.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
 begin

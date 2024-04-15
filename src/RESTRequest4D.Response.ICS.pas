@@ -1,17 +1,9 @@
 unit RESTRequest4D.Response.ICS;
 
-{$IFDEF FPC}
-  {$mode delphi}
-{$ENDIF}
-
 interface
 
 uses RESTRequest4D.Response.Contract, OverbyteIcsSslHttpRest, OverbyteIcsLogger,
-  {$IFDEF FPC}
-    SysUtils, fpjson, Classes, jsonparser;
-  {$ELSE}
     System.SysUtils, System.JSON, System.Classes;
-  {$ENDIF}
 
 type
   TResponseICS = class(TInterfacedObject, IResponse)
@@ -28,12 +20,8 @@ type
     function StatusText: string;
     function RawBytes: TBytes;
      function GetCookie(const ACookieName: string): string;
-    {$IFDEF FPC}
-    function JSONValue: TJSONData;
-    {$ELSE}
     function JSONValue: TJSONValue; overload;
     function JSONValue(const AEncoding: TEncoding): TJSONValue; overload;
-    {$ENDIF}
     function Headers: TStrings;
     procedure HttpRest1HttpRestProg(Sender: TObject;LogOption: TLogOption; const Msg: string);
     function ICSLog: String;
@@ -91,9 +79,7 @@ var
   I: Integer;
 begin
   Result := TStringList.Create;
-  Result.NameValueSeparator := ':';
-  for I := 1 to Pred(FSslHttpRest.RcvdHeader.Count) do
-    Result.Values[Copy(FSslHttpRest.RcvdHeader.KeyNames[i], 0, Pos(':', FSslHttpRest.RcvdHeader.KeyNames[i])-1)] := Copy(FSslHttpRest.RcvdHeader.KeyNames[i], Pos(':', FSslHttpRest.RcvdHeader.KeyNames[i])+1, length(FSslHttpRest.RcvdHeader.KeyNames[i]))
+  Result := FSslHttpRest.RcvdHeader;
 end;
 
 procedure TResponseICS.HttpRest1HttpRestProg(Sender: TObject; LogOption: TLogOption; const Msg: string);
