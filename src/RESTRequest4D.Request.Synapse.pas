@@ -100,6 +100,8 @@ type
     function MakeURL(const AIncludeParams: Boolean = True): string;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
+    function CertFile(const APath: string): IRequest;
+    function KeyFile(const APath: string): IRequest;
   protected
     procedure DoAfterExecute(const Sender: TObject; const AResponse: IResponse); virtual;
     procedure DoBeforeExecute(const Sender: THTTPSend); virtual;
@@ -343,6 +345,12 @@ begin
   ExecuteRequest(mrGET);
 end;
 
+function TRequestSynapse.KeyFile(const APath: string): IRequest;
+begin
+  Result := Self;
+  FHTTPSend.Sock.SSL.PrivateKeyFile := APath;
+end;
+
 function TRequestSynapse.Post: IResponse;
 begin
   Result := FResponse;
@@ -370,6 +378,12 @@ end;
 function TRequestSynapse.FullRequestURL(const AIncludeParams: Boolean): string;
 begin
   Result := Self.MakeURL(AIncludeParams);
+end;
+
+function TRequestSynapse.CertFile(const APath: string): IRequest;
+begin
+  Result := Self;
+  FHTTPSend.Sock.SSL.CertificateFile := APath;
 end;
 
 function TRequestSynapse.ClearBody: IRequest;
