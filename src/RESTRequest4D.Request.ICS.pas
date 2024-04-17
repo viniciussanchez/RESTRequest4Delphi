@@ -2,11 +2,9 @@ unit RESTRequest4D.Request.ICS;
 
 interface
 
-uses
-  RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, OverbyteIcsLogger, OverbyteIcsSSLEAY,
-  OverbyteIcsWndControl, OverbyteIcsHttpProt, OverbyteIcsUrl, OverbyteIcsWSocket, RESTRequest4D.Utils,
-  OverbyteIcsSslHttpRest, NetEncoding, RESTRequest4D.Request.Adapter.Contract,
-  Data.DB, System.Classes, System.JSON;
+uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, OverbyteIcsLogger, OverbyteIcsSSLEAY, OverbyteIcsWndControl,
+  OverbyteIcsHttpProt, OverbyteIcsUrl, OverbyteIcsWSocket, RESTRequest4D.Utils, OverbyteIcsSslHttpRest, NetEncoding,
+  RESTRequest4D.Request.Adapter.Contract, Data.DB, System.Classes, System.JSON;
 
 type
   TRequestICS = class(TInterfacedObject, IRequest)
@@ -70,7 +68,7 @@ type
     function ContentType: string; overload;
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
-    function AddFile(const AFileName: string; UploadStrat:THttpUploadStrat): IRequest; overload;
+    function AddFile(const AFileName: string; UploadStrat: THttpUploadStrat): IRequest; overload;
     function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
@@ -87,8 +85,7 @@ type
 
 implementation
 
-uses
-  RESTRequest4D.Response.ICS, System.SysUtils, REST.Json;
+uses RESTRequest4D.Response.ICS, System.SysUtils, REST.JSON;
 
 function TRequestICS.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
 begin
@@ -104,7 +101,7 @@ end;
 
 function TRequestICS.Adapters: TArray<IRequestAdapter>;
 begin
-    Result := FAdapters;
+  Result := FAdapters;
 end;
 
 function TRequestICS.Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest;
@@ -140,15 +137,15 @@ end;
 
 function TRequestICS.AddField(const AFieldName, AValue: string): IRequest;
 begin
-  result := self;
+  Result := Self;
   FSslHttpRest.RestParams.AddItem(AFieldName, AValue);
   FSslHttpRest.RestParams.PContent := PContUrlencoded;
 end;
 
 function TRequestICS.AddFile(const AFileName: string; UploadStrat: THttpUploadStrat): IRequest;
 begin
-  result := self;
-  FSslHttpRest.HttpUploadFile  := AFileName;
+  Result := Self;
+  FSslHttpRest.HttpUploadFile := AFileName;
   FSslHttpRest.HttpUploadStrat := UploadStrat;
 end;
 
@@ -251,7 +248,7 @@ end;
 
 function TRequestICS.MakeURL(const AIncludeParams: Boolean): string;
 var
-  I:Integer;
+  I: Integer;
 begin
   Result := FBaseURL;
   if not FResource.Trim.IsEmpty then
@@ -270,8 +267,10 @@ begin
   begin
     for I := 0 to Pred(FUrlSegments.Count) do
     begin
-      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
+      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I],
+        [rfReplaceAll, rfIgnoreCase]);
+      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I],
+        [rfReplaceAll, rfIgnoreCase]);
     end;
   end;
   if not AIncludeParams then
@@ -375,22 +374,24 @@ end;
 
 function TRequestICS.AcceptCharset(const AAcceptCharset: string): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  Self.AddHeader('Accept-Charset', AAcceptCharset);
 end;
 
 function TRequestICS.AcceptCharset: string;
 begin
-  raise Exception.Create('Not implemented');
+  Result := FSslHttpRest.ExtraHeaders.Values['Accept-Charset'];
 end;
 
 function TRequestICS.AcceptEncoding(const AAcceptEncoding: string): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  Self.AddHeader('Accept-Encoding', AAcceptEncoding);
 end;
 
 function TRequestICS.AcceptEncoding: string;
 begin
-  raise Exception.Create('Not implemented');
+  Result := FSslHttpRest.ExtraHeaders.Values['Accept-Encoding'];
 end;
 
 function TRequestICS.BaseURL: string;
@@ -417,10 +418,10 @@ begin
   FSslHttpRest := TSslHttpRest.Create(nil);
   OverbyteIcsWSocket.LoadSsl;
   FSslHttpRest.DebugLevel := DebugHdr;
-  FBodyRaw     := TStringList.Create;
+  FBodyRaw := TStringList.Create;
   FUrlSegments := TStringList.Create;
   FBodyRaw.LineBreak := '';
-  FResponse    := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(FSslHttpRest);
 end;
 
 destructor TRequestICS.Destroy;
@@ -523,8 +524,7 @@ end;
 function TRequestICS.UserAgent(const AName: string): IRequest;
 begin
   Result := Self;
-  FSslHttpRest.Agent := AName; 
+  FSslHttpRest.Agent := AName;
 end;
 
 end.
-

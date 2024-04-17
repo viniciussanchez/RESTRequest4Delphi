@@ -2,15 +2,14 @@ unit RESTRequest4D.Response.ICS;
 
 interface
 
-uses RESTRequest4D.Response.Contract, OverbyteIcsSslHttpRest, OverbyteIcsLogger,
-    System.SysUtils, System.JSON, System.Classes;
+uses RESTRequest4D.Response.Contract, OverbyteIcsSslHttpRest, OverbyteIcsLogger, System.SysUtils, System.JSON, System.Classes;
 
 type
   TResponseICS = class(TInterfacedObject, IResponse)
   private
     FJSONValue: TJSONValue;
     FSslHttpRest: TSslHttpRest;
-    FLogICS:TStringList;
+    FLogICS: TStringList;
     function Content: string;
     function ContentLength: int64;
     function ContentType: string;
@@ -19,12 +18,12 @@ type
     function StatusCode: Integer;
     function StatusText: string;
     function RawBytes: TBytes;
-     function GetCookie(const ACookieName: string): string;
+    function GetCookie(const ACookieName: string): string;
     function JSONValue: TJSONValue; overload;
     function JSONValue(const AEncoding: TEncoding): TJSONValue; overload;
     function Headers: TStrings;
-    procedure HttpRest1HttpRestProg(Sender: TObject;LogOption: TLogOption; const Msg: string);
-    function ICSLog: String;
+    procedure HttpRest1HttpRestProg(Sender: TObject; LogOption: TLogOption; const Msg: string);
+    function ICSLog: string;
   public
     constructor Create(const AFSslHttpRest: TSslHttpRest);
     destructor Destroy; override;
@@ -64,7 +63,7 @@ begin
   Result := FSslHttpRest.ResponseRaw;
 end;
 
-function TResponseICS.ICSLog:String;
+function TResponseICS.ICSLog: string;
 begin
   Result := FLogICS.Text;
 end;
@@ -74,11 +73,8 @@ begin
   raise Exception.Create('Not implemented');
 end;
 
-function TResponseICS.Headers:TStrings;
-var
-  I: Integer;
+function TResponseICS.Headers: TStrings;
 begin
-  Result := TStringList.Create;
   Result := FSslHttpRest.RcvdHeader;
 end;
 
@@ -102,7 +98,7 @@ begin
   Result := FSslHttpRest.ContentEncoding;
 end;
 
-function TResponseICS.ContentLength: Int64;
+function TResponseICS.ContentLength: int64;
 begin
   Result := FSslHttpRest.RcvdCount;
 end;
@@ -133,6 +129,4 @@ begin
   inherited;
 end;
 
-
 end.
-

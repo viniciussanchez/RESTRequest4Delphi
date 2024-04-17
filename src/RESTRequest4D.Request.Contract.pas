@@ -10,7 +10,9 @@ uses RESTRequest4D.Response.Contract, RESTRequest4D.Request.Adapter.Contract,
   {$IF NOT (DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_NETHTTP))}
     REST.Types,
   {$ENDIF}
-  {$IF DEFINED(RR4D_ICS)} OverbyteIcsSslHttpRest, {$ENDIF}
+  {$IF DEFINED(RR4D_ICS)}
+    OverbyteIcsSslHttpRest,
+  {$ENDIF}
   {$IFDEF RR4D_INDY}
     IdHTTP,
   {$ENDIF}

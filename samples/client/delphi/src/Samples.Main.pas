@@ -82,6 +82,8 @@ begin
   lblRESTRequest4DelphiComponent.Caption := 'RESTRequest4Delphi:  RR4D_NETHTTP';
 {$ELSEIF DEFINED(RR4D_SYNAPSE)}
   lblRESTRequest4DelphiComponent.Caption := 'RESTRequest4Delphi:  RR4D_SYNAPSE';
+{$ELSEIF DEFINED(RR4D_ICS)}
+  lblRESTRequest4DelphiComponent.Caption := 'RESTRequest4Delphi:  RR4D_ICS';
 {$ELSE}
   lblRESTRequest4DelphiComponent.Caption := 'RESTRequest4Delphi:  RR4D_RESTCLIENT';
 {$ENDIF}
@@ -126,8 +128,10 @@ begin
 
     LResponse := TRequest.New.BaseURL(edtMultipartFormDataBaseURL.Text)
       .AddField('text', edtMultipartFormDataText.Text)
+      {$IF NOT DEFINED(RR4D_ICS)}
       .AddFile('file', lblMultipartFormDataFile.Caption)
       .AddFile('stream', LStream)
+      {$ENDIF}
       .Post;
   finally
     LStream.Free;
@@ -152,8 +156,10 @@ begin
 
     LResponse := TRequest.New.BaseURL(edtMultipartFormDataBaseURL.Text)
       .AddField('text', edtMultipartFormDataText.Text)
+      {$IF NOT DEFINED(RR4D_ICS)}
       .AddFile('file', lblMultipartFormDataFile.Caption)
       .AddFile('stream', LStream)
+      {$ENDIF}
       .Put;
   finally
     LStream.Free;
