@@ -256,7 +256,9 @@ end;
 function TRequestFPHTTPClient.Resource(const AResource: string): IRequest;
 begin
   Result := Self;
-  FResource := AResource;
+  FResource := AResource.Trim;
+  if FResource.StartsWith('/') then
+    FResource := Copy(FResource, 2, Pred(Length(FResource)));
 end;
 
 function TRequestFPHTTPClient.RaiseExceptionOn500: Boolean;
@@ -277,7 +279,9 @@ end;
 function TRequestFPHTTPClient.ResourceSuffix(const AResourceSuffix: string): IRequest;
 begin
   Result := Self;
-  FResourceSuffix := AResourceSuffix;
+  FResourceSuffix := AResourceSuffix.Trim;
+  if FResourceSuffix.StartsWith('/') then
+    FResourceSuffix := Copy(FResourceSuffix, 2, Pred(Length(FResourceSuffix)));
 end;
 
 function TRequestFPHTTPClient.ResourceSuffix: string;
@@ -537,7 +541,7 @@ function TRequestFPHTTPClient.MakeURL(const AIncludeParams: Boolean): string;
 var
   I: Integer;
 begin
-  Result := FBaseURL;
+  Result := FBaseURL.Trim;
   if not FResource.Trim.IsEmpty then
   begin
     if not Result.EndsWith('/') then

@@ -6,7 +6,7 @@ object FrmMain: TFrmMain
   Caption = 'FrmMain'
   ClientHeight = 600
   ClientWidth = 1000
-  LCLVersion = '2.0.10.0'
+  LCLVersion = '2.2.6.0'
   object Panel1: TPanel
     Left = 0
     Height = 78
