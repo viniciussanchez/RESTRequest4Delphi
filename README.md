@@ -35,6 +35,7 @@ By default, the components **TRESTRequest**, **TRESTResponse** and **TRESTClient
 ## 🔌 Adapters
 Adapters allow you to extend the functionality of RESTREquest4Delphi without changing the core of the project. See the list of adapters available by the community:
 * [**dataset-serialize-adapter-restrequest4delphi**](https://github.com/viniciussanchez/dataset-serialize-adapter-restrequest4delphi) - Adapter to load a DataSet using the DataSet-Serialize library at the time of the request;
+* [**csv-adapter-restrequest4delphi**](https://github.com/Code4Delphi/csv-adapter-restrequest4delphi) - Allows you to generate a text or CSV file with the content of a request;
 
 ## ⚡️ Quickstart
 
