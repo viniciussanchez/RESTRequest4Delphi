@@ -99,6 +99,7 @@ type
     procedure DoBeforeExecute(const Sender: TFPHTTPClient); virtual;
   public
     constructor Create;
+    class function New: IRequest;
     destructor Destroy; override;
   end;
 
@@ -574,6 +575,11 @@ begin
       Result := Result + FParams.strings[I];
     end;
   end;
+end;
+
+class function TRequestFPHTTPClient.New: IRequest;
+begin
+  Result := TRequestFPHTTPClient.Create;
 end;
 
 function TRequestFPHTTPClient.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;

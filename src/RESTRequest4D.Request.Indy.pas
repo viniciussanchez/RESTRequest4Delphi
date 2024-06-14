@@ -96,6 +96,7 @@ type
     procedure DoAfterExecute; virtual;
   public
     constructor Create;
+    class function New: IRequest;
     destructor Destroy; override;
   end;
 
@@ -423,6 +424,11 @@ begin
       Result := Result + FParams.Strings[I];
     end;
   end;
+end;
+
+class function TRequestIndy.New: IRequest;
+begin
+  Result := TRequestIndy.Create;
 end;
 
 procedure TRequestIndy.OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);

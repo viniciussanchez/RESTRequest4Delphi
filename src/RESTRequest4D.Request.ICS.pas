@@ -80,6 +80,7 @@ type
     procedure DoAfterExecute; virtual;
   public
     constructor Create;
+    class function New: IRequest;
     destructor Destroy; override;
   end;
 
@@ -275,6 +276,11 @@ begin
   end;
   if not AIncludeParams then
     Exit;
+end;
+
+class function TRequestICS.New: IRequest;
+begin
+  Result := TRequestICS.Create;
 end;
 
 function TRequestICS.AddParam(const AName, AValue: string): IRequest;

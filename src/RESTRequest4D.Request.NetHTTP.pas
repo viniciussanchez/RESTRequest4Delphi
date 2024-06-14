@@ -86,6 +86,7 @@ type
     procedure DoHTTPProtocolError(const Sender: TObject; const AError: string); virtual;
   public
     constructor Create;
+    class function New: IRequest;
     destructor Destroy; override;
   end;
 
@@ -548,6 +549,11 @@ begin
       Result := Result + FParams.Strings[I];
     end;
   end;
+end;
+
+class function TRequestNetHTTP.New: IRequest;
+begin
+  Result := TRequestNetHTTP.Create;
 end;
 
 function TRequestNetHTTP.Patch: IResponse;

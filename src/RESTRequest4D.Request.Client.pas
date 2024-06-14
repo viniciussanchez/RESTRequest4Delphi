@@ -83,6 +83,7 @@ type
     procedure DoHTTPProtocolError(Sender: TCustomRESTRequest); virtual;
   public
     constructor Create; virtual;
+    class function New: IRequest;
     destructor Destroy; override;
   end;
 
@@ -406,6 +407,11 @@ begin
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmGET;
   ExecuteRequest;
+end;
+
+class function TRequestClient.New: IRequest;
+begin
+  Result := TRequestClient.Create;
 end;
 
 function TRequestClient.Accept: string;

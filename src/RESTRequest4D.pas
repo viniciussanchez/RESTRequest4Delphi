@@ -62,17 +62,17 @@ uses
 class function TRequest.New: IRequest;
 begin
   {$IF DEFINED(FPC) and (not DEFINED(RR4D_INDY)) and (not DEFINED(RR4D_SYNAPSE))}
-    Result := TRequestFPHTTPClient.Create;
+    Result := TRequestFPHTTPClient.New;
   {$ELSEIF DEFINED(RR4D_INDY)}
-    Result := TRequestIndy.Create;
+    Result := TRequestIndy.New;
   {$ELSEIF DEFINED(RR4D_NETHTTP)}
-    Result := TRequestNetHTTP.Create;
+    Result := TRequestNetHTTP.New;
   {$ELSEIF DEFINED(RR4D_SYNAPSE)}
-    Result := TRequestSynapse.Create;
+    Result := TRequestSynapse.New;
   {$ELSEIF DEFINED(RR4D_ICS)}
-    Result := TRequestICS.Create;
+    Result := TRequestICS.New;
   {$ELSE}
-    Result := TRequestClient.Create;
+    Result := TRequestClient.New;
   {$ENDIF}
 end;
 

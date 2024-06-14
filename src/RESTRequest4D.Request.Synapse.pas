@@ -107,6 +107,7 @@ type
     procedure DoBeforeExecute(const Sender: THTTPSend); virtual;
   public
     constructor Create;
+    class function New: IRequest;
     destructor Destroy; override;
   end;
 
@@ -651,6 +652,11 @@ function TRequestSynapse.MimeType(const AMimeType: string): IRequest;
 begin
   Result := Self;
   FHTTPSend.MimeType := AMimeType;
+end;
+
+class function TRequestSynapse.New: IRequest;
+begin
+  Result := TRequestSynapse.Create;
 end;
 
 function TRequestSynapse.MimeType: string;
