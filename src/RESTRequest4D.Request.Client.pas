@@ -317,7 +317,6 @@ begin
   FRESTRequest.SynchronizedEvents := False;
   FParams := TStringList.Create;
   FHeaders := TStringList.Create;
-  FResponse := TResponseClient.Create(FRESTResponse);
   FRESTRequest.OnAfterExecute := DoAfterExecute;
   FRESTRequest.OnHTTPProtocolError := DoHTTPProtocolError;
   DoJoinComponents;
@@ -336,6 +335,7 @@ end;
 
 function TRequestClient.Delete: IResponse;
 begin
+  FResponse := TResponseClient.Create(FRESTResponse);
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmDELETE;
@@ -403,6 +403,7 @@ end;
 
 function TRequestClient.Get: IResponse;
 begin
+  FResponse := TResponseClient.Create(FRESTResponse);
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmGET;
@@ -491,6 +492,7 @@ end;
 
 function TRequestClient.Patch: IResponse;
 begin
+  FResponse := TResponseClient.Create(FRESTResponse);
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmPATCH;
@@ -499,6 +501,7 @@ end;
 
 function TRequestClient.Post: IResponse;
 begin
+  FResponse := TResponseClient.Create(FRESTResponse);
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmPOST;
@@ -536,6 +539,7 @@ end;
 
 function TRequestClient.Put: IResponse;
 begin
+  FResponse := TResponseClient.Create(FRESTResponse);
   Result := FResponse;
   DoBeforeExecute(FRESTRequest);
   FRESTRequest.Method := TRESTRequestMethod.rmPUT;

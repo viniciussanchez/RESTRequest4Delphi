@@ -329,30 +329,35 @@ end;
 
 function TRequestFPHTTPClient.Get: IResponse;
 begin
+  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
   Result := FResponse;
   ExecuteRequest(mrGET);
 end;
 
 function TRequestFPHTTPClient.Post: IResponse;
 begin
+  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
   Result := FResponse;
   ExecuteRequest(mrPOST);
 end;
 
 function TRequestFPHTTPClient.Put: IResponse;
 begin
+  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
   Result := FResponse;
   ExecuteRequest(mrPUT);
 end;
 
 function TRequestFPHTTPClient.Delete: IResponse;
 begin
+  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
   Result := FResponse;
   ExecuteRequest(mrDELETE);
 end;
 
 function TRequestFPHTTPClient.Patch: IResponse;
 begin
+  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
   Result := FResponse;
   ExecuteRequest(mrPATCH);
 end;
@@ -641,7 +646,6 @@ begin
   FFPHTTPClient.ResponseHeaders.Clear;
 
   FHeaders := TstringList.Create;
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
   FParams := TstringList.Create;
   FFields := TDictionary<string, string>.Create;;
   FUrlSegments := TstringList.Create;

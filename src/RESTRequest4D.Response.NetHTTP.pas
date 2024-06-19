@@ -147,6 +147,11 @@ end;
 
 procedure TResponseNetHTTP.SetHTTPResponse(const AHTTPResponse: IHTTPResponse);
 begin
+  if Assigned(FJSONValue) then
+  begin
+    FJSONValue.Free;
+    FJSONValue := nil;
+  end;
   FHTTPResponse := AHTTPResponse;
 end;
 

@@ -162,18 +162,21 @@ end;
 
 function TRequestICS.Patch: IResponse;
 begin
+  FResponse := TResponseICS.Create(FSslHttpRest);
   Result := FResponse;
   ExecuteRequest(mrPATCH);
 end;
 
 function TRequestICS.Put: IResponse;
 begin
+  FResponse := TResponseICS.Create(FSslHttpRest);
   Result := FResponse;
   ExecuteRequest(mrPUT);
 end;
 
 function TRequestICS.Post: IResponse;
 begin
+  FResponse := TResponseICS.Create(FSslHttpRest);
   Result := FResponse;
   ExecuteRequest(mrPOST);
 end;
@@ -189,6 +192,7 @@ end;
 
 function TRequestICS.Get: IResponse;
 begin
+  FResponse := TResponseICS.Create(FSslHttpRest);
   Result := FResponse;
   ExecuteRequest(mrGET);
 end;
@@ -209,6 +213,7 @@ end;
 
 function TRequestICS.Delete: IResponse;
 begin
+  FResponse := TResponseICS.Create(FSslHttpRest);
   Result := FResponse;
   ExecuteRequest(mrDELETE);
 end;
@@ -427,7 +432,6 @@ begin
   FBodyRaw := TStringList.Create;
   FUrlSegments := TStringList.Create;
   FBodyRaw.LineBreak := '';
-  FResponse := TResponseICS.Create(FSslHttpRest);
 end;
 
 destructor TRequestICS.Destroy;

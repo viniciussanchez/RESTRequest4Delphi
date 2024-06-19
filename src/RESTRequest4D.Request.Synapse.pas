@@ -342,6 +342,7 @@ end;
 
 function TRequestSynapse.Get: IResponse;
 begin
+  FResponse := TResponseSynapse.Create(FHTTPSend);
   Result := FResponse;
   ExecuteRequest(mrGET);
 end;
@@ -354,24 +355,28 @@ end;
 
 function TRequestSynapse.Post: IResponse;
 begin
+  FResponse := TResponseSynapse.Create(FHTTPSend);
   Result := FResponse;
   ExecuteRequest(mrPOST);
 end;
 
 function TRequestSynapse.Put: IResponse;
 begin
+  FResponse := TResponseSynapse.Create(FHTTPSend);
   Result := FResponse;
   ExecuteRequest(mrPUT);
 end;
 
 function TRequestSynapse.Delete: IResponse;
 begin
+  FResponse := TResponseSynapse.Create(FHTTPSend);
   Result := FResponse;
   ExecuteRequest(mrDELETE);
 end;
 
 function TRequestSynapse.Patch: IResponse;
 begin
+  FResponse := TResponseSynapse.Create(FHTTPSend);
   Result := FResponse;
   ExecuteRequest(mrPATCH);
 end;
@@ -704,7 +709,6 @@ begin
   FHTTPSend.Headers.NameValueSeparator := ':';
 
   FHeaders := TstringList.Create;
-  FResponse := TResponseSynapse.Create(FHTTPSend);
   FParams := TstringList.Create;
   FFields := TDictionary<string, string>.Create;;
   FUrlSegments := TstringList.Create;

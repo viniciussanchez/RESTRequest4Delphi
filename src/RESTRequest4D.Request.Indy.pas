@@ -286,18 +286,21 @@ end;
 
 function TRequestIndy.Patch: IResponse;
 begin
+  FResponse := TResponseIndy.Create(FIdHTTP);
   Result := FResponse;
   ExecuteRequest(mrPATCH);
 end;
 
 function TRequestIndy.Put: IResponse;
 begin
+  FResponse := TResponseIndy.Create(FIdHTTP);
   Result := FResponse;
   ExecuteRequest(mrPUT);
 end;
 
 function TRequestIndy.Post: IResponse;
 begin
+  FResponse := TResponseIndy.Create(FIdHTTP);
   Result := FResponse;
   ExecuteRequest(mrPOST);
 end;
@@ -313,6 +316,7 @@ end;
 
 function TRequestIndy.Get: IResponse;
 begin
+  FResponse := TResponseIndy.Create(FIdHTTP);
   Result := FResponse;
   ExecuteRequest(mrGET);
 end;
@@ -346,6 +350,7 @@ end;
 
 function TRequestIndy.Delete: IResponse;
 begin
+  FResponse := TResponseIndy.Create(FIdHTTP);
   Result := FResponse;
   ExecuteRequest(mrDELETE);
 end;
@@ -629,7 +634,6 @@ begin
   FIdSSLIOHandlerSocketOpenSSL.OnStatusInfoEx := Self.OnStatusInfoEx;
 
   FHeaders := TStringList.Create;
-  FResponse := TResponseIndy.Create(FIdHTTP);
   FParams := TStringList.Create;
   FUrlSegments := TStringList.Create;
 
