@@ -74,6 +74,7 @@ type
     {$IF DEFINED(RR4D_NETHTTP)}
     function Asynchronous(const AValue: Boolean): IRequest;
     function SynchronizedEvents(const AValue: Boolean): IRequest;
+    function ConnectionTimeout(const AConnectiomTimeout: Integer): IRequest;
     {$ENDIF}
     {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_NETHTTP) or DEFINED(RR4D_ICS)}
     function AddParam(const AName, AValue: string): IRequest;

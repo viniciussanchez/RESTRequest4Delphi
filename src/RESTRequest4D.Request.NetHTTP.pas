@@ -33,6 +33,7 @@ type
     function Accept(const AAccept: string): IRequest; overload;
     function Timeout: Integer; overload;
     function Timeout(const ATimeout: Integer): IRequest; overload;
+    function ConnectionTimeout(const AConnectiomTimeout: Integer): IRequest;
     function Adapters(const AAdapter: IRequestAdapter): IRequest; overload;
     function Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest; overload;
     function Adapters: TArray<IRequestAdapter>; overload;
@@ -339,6 +340,12 @@ begin
   FParams.Clear;
 end;
 
+function TRequestNetHTTP.ConnectionTimeout(const AConnectiomTimeout: Integer): IRequest;
+begin
+  Result := Self;
+  FNetHTTPClient.ConnectionTimeout := AConnectiomTimeout;
+end;
+
 function TRequestNetHTTP.ContentType: string;
 begin
   Result := FNetHTTPClient.CustHeaders.Value['Content-Type'];
@@ -352,7 +359,7 @@ end;
 
 constructor TRequestNetHTTP.Create;
 begin
-  FNetHTTPClient := TNetHTTPClient.Create(nil);;
+  FNetHTTPClient := TNetHTTPClient.Create(nil);
   FNetHTTPClient.ResponseTimeout := 900000;
   FNetHTTPClient.ConnectionTimeout := 900000;
   FNetHTTPClient.UserAgent := 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36';
