@@ -81,6 +81,7 @@ type
     function MakeURL(const AIncludeParams: Boolean = True): string;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
+    procedure NetHTTPClientValidateServerCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);    
   protected
     procedure DoAfterExecute(const Sender: TObject; const AResponse: IHTTPResponse); virtual;
     procedure DoBeforeExecute(const Sender: TNetHTTPClient); virtual;
@@ -371,6 +372,7 @@ begin
   FNetHTTPClient.OnRequestCompleted := DoAfterExecute;
   FNetHTTPClient.Asynchronous := False;
   FNetHTTPClient.SynchronizeEvents := True;
+  FNetHTTPClient.OnValidateServerCertificate := NetHTTPClientValidateServerCertificate;  
 
   FParams := TStringList.Create;
   FUrlSegments := TStringList.Create;
@@ -556,6 +558,11 @@ begin
       Result := Result + FParams.Strings[I];
     end;
   end;
+end;
+
+procedure TRequestNetHTTP.NetHTTPClientValidateServerCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
+begin
+  Accepted := True;
 end;
 
 class function TRequestNetHTTP.New: IRequest;
