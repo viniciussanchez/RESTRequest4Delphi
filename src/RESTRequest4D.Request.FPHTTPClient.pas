@@ -1,7 +1,7 @@
 unit RESTRequest4D.Request.FPHTTPClient;
 
 {$IFDEF FPC}
-  {$mode delphi}
+  {$mode delphi}{$H+}
 {$ENDIF}
 
 interface
@@ -107,15 +107,23 @@ implementation
 
 uses RESTRequest4D.Response.FPHTTPClient;
 
+const
+  _CRLF = #13#10;
+
 constructor TFile.Create(const AFileStream: TStream; const AFileName: string; const AContentType: string);
 begin
   FFileStream := AFileStream;
   FFileName := AFileName;
   FContentType := AContentType;
+  if FContentType.Trim.IsEmpty then
+    FContentType := 'application/octet-string';
 end;
 
 destructor TFile.Destroy;
 begin
+  if (FFileStream <> nil) then
+    FFileStream.Free;
+
   inherited Destroy;
 end;
 
@@ -124,7 +132,7 @@ var
   LAttempts: Integer;
   LBound, LContent, LFieldName: string;
   LFile: TFile;
-  LStream: TStream;
+  LStream: TRawByteStringStream;
 begin
   LAttempts := FRetries + 1;
 
@@ -132,38 +140,34 @@ begin
   begin
     try
       DoBeforeExecute(FFPHTTPClient);
-      LStream := TstringStream.Create('', TEncoding.UTF8);
+      LStream := TRawByteStringStream.Create();
       try
         if AMethod <> mrGET then
         begin
           if (FFields.Count > 0) or (FFiles.Count > 0) then
           begin
-            LBound := IntToHex(Random(MaxInt), 8) + '_rr4d_boundary';
+            LBound := IntToHex(Random(MaxInt), 8) + '_multipart_boundary';
             ContentType('multipart/form-data; boundary=' + LBound);
 
             for LFieldName in FFields.Keys do
             begin
-              LContent := sLineBreak + '--' + LBound + sLineBreak +
-                          'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') + sLineBreak + sLineBreak +
-                          FFields.Items[LFieldName]+ sLineBreak + sLineBreak;
-              LStream.Write(PAnsiChar(LContent)^, Length(LContent));
+              LContent := '--' + LBound + _CRLF;
+              LContent := LContent + Format('Content-Disposition: form-data; name="%s"' + _CRLF + _CRLF + '%s' + _CRLF, [LFieldName, FFields.Items[LFieldName]]);
+              LStream.WriteBuffer(PAnsiChar(LContent)^, Length(LContent));
             end;
 
             for LFieldName in FFiles.Keys do
             begin
               LFile := FFiles.Items[LFieldName];
-
-              LContent := sLineBreak + '--' + LBound + sLineBreak +
-                          'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') +';' +
-                          sLineBreak + #9'filename=' + AnsiQuotedStr(LFile.FFileName, '"') +
-                          sLineBreak + 'Content-Type: '+AnsiQuotedStr(LFile.FContentType, '"') + sLineBreak + sLineBreak;
-              LStream.Write(PAnsiChar(LContent)^, Length(LContent));
-              LFile.FFileStream.Position := 0;
-              LStream.Write(LFile.FFileStream, LFile.FFileStream.Size);
+              LContent := '--' + LBound + _CRLF;
+              LContent := LContent + Format('Content-Disposition: form-data; name="%s"; filename="%s"' + _CRLF, [LFieldName, ExtractFileName(LFile.FFileName)]);
+              LContent := LContent + Format('Content-Type: %s', [LFile.FContentType]) + _CRLF + _CRLF;
+              LStream.WriteBuffer(LContent[1], Length(LContent));
+              LStream.CopyFrom(TMemoryStream(LFile.FFileStream), LFile.FFileStream.Size);
             end;
 
-            LBound := '--' +LBound+ '--' +sLineBreak;
-            LStream.Write(PAnsiChar(LBound)^, Length(LBound));
+            LBound := _CRLF + '--' +LBound+ '--' + _CRLF;
+            LStream.WriteBuffer(LBound[1], Length(LBound));
             LStream.Position := 0;
             FFPHTTPClient.RequestBody := LStream;
           end
@@ -514,18 +518,17 @@ end;
 
 function TRequestFPHTTPClient.AddFile(const AFieldName: string; const AFileName: string; const AContentType: string): IRequest;
 var
-  LStream: TMemoryStream;
+  LStream: TFileStream;
 begin
   Result := Self;
   if not FileExists(AFileName) then
     Exit;
-  LStream := TMemoryStream.Create;
-  try
-    LStream.LoadFromFile(AFileName);
+
+  if not FFiles.ContainsKey(AFieldName) then
+  begin
+    LStream := TFileStream.Create(AFileName,fmOpenRead or fmShareDenyWrite);
     LStream.Position := 0;
     AddFile(AFieldName, LStream, AFileName, AContentType);
-  finally
-    LStream.Free;
   end;
 end;
 
@@ -538,8 +541,11 @@ begin
     Exit;
   if (AValue <> Nil) and (AValue.Size > 0) then
   begin
-    LFile := TFile.Create(AValue, AFileName, AContentType);
-    FFiles.AddOrSetValue(AFieldName, LFile);
+    if not FFiles.ContainsKey(AFieldName) then
+    begin
+      LFile := TFile.Create(AValue, AFileName, AContentType);
+      FFiles.AddOrSetValue(AFieldName, LFile);
+    end;
   end;
 end;
 
@@ -655,6 +661,8 @@ begin
 end;
 
 destructor TRequestFPHTTPClient.Destroy;
+var
+  LKey: string;
 begin
   if Assigned(FStreamSend) then
     FreeAndNil(FStreamSend);
@@ -663,6 +671,9 @@ begin
   FreeAndNil(FFields);
   FreeAndNil(FFields);
   FreeAndNil(FUrlSegments);
+  if (FFiles.Count > 0) then
+    for LKey in FFiles.Keys do
+      FFiles.Items[LKey].Free;
   FreeAndNil(FFiles);
   FreeAndNil(FFPHTTPClient);
   inherited Destroy;
