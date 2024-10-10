@@ -637,7 +637,7 @@ begin
   FParams := TStringList.Create;
   FUrlSegments := TStringList.Create;
 
-  FStreamResult := TStringStream.Create;
+  FStreamResult := TStringStream.Create('', TEncoding.UTF8);
   Self.ContentType('application/json');
   FRetries := 0;
   FIdMultiPartFormDataStream := TIdMultiPartFormDataStream.Create;
