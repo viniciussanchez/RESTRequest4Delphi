@@ -535,6 +535,7 @@ end;
 function TRequestFPHTTPClient.AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string; const AContentType: string): IRequest;
 var
   LFile: TFile;
+  LFileName: string;
 begin
   Result := Self;
   if not Assigned(AValue) then
@@ -543,7 +544,11 @@ begin
   begin
     if not FFiles.ContainsKey(AFieldName) then
     begin
-      LFile := TFile.Create(AValue, AFileName, AContentType);
+      LFileName := AFileName;
+      if LFileName.Trim.IsEmpty then
+        LFileName := AFieldName;
+
+      LFile := TFile.Create(AValue, LFileName, AContentType);
       FFiles.AddOrSetValue(AFieldName, LFile);
     end;
   end;
