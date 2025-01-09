@@ -139,7 +139,6 @@ constructor TResponseSynapse.Create(const AHTTPSend: THTTPSend);
 begin
   FHTTPSend := AHTTPSend;
   FHTTPSend.KeepAlive := True;
-  FHTTPSend.Headers.Clear;
   FStreamResult := TStringStream.Create;
 end;
 
