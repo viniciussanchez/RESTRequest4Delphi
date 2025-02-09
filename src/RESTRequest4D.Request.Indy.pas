@@ -371,7 +371,11 @@ begin
   if AName.Trim.IsEmpty or AValue.Trim.IsEmpty then
     Exit;
   if FHeaders.IndexOf(AName) < 0 then
-    FHeaders.Add(AName);
+    FHeaders.Add(AName)
+  else if FIdHTTP.Request.CustomHeaders.IndexOfName(AName) >= 0 then       
+  begin // remove from Indy Headers to be re-added
+    FIdHTTP.Request.CustomHeaders.Delete(FIdHTTP.Request.CustomHeaders.IndexOfName(AName));
+  end;
   FIdHTTP.Request.CustomHeaders.Values[AName] := AValue;
 end;
 
