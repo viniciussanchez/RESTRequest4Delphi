@@ -163,7 +163,9 @@ begin
               LContent := LContent + Format('Content-Disposition: form-data; name="%s"; filename="%s"' + _CRLF, [LFieldName, ExtractFileName(LFile.FFileName)]);
               LContent := LContent + Format('Content-Type: %s', [LFile.FContentType]) + _CRLF + _CRLF;
               LStream.WriteBuffer(LContent[1], Length(LContent));
+              LFile.FFileStream.Position := 0;
               LStream.CopyFrom(TMemoryStream(LFile.FFileStream), LFile.FFileStream.Size);
+              LStream.WriteBuffer(_CRLF, Length(_CRLF));              
             end;
 
             LBound := _CRLF + '--' +LBound+ '--' + _CRLF;
