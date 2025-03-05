@@ -645,7 +645,10 @@ begin
   Self.ContentType('application/json');
   FRetries := 0;
   FIdMultiPartFormDataStream := TIdMultiPartFormDataStream.Create;
-  FIdHTTP.HTTPOptions:= [hoKeepOrigProtocol];
+  FIdHTTP.HTTPOptions:= [
+    hoKeepOrigProtocol,
+    hoWantProtocolErrorContent // This will force the Content when error 500 happens, not related with RaiseExceptionOn500
+    ];
 end;
 
 destructor TRequestIndy.Destroy;
