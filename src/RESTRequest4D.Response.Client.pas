@@ -47,7 +47,7 @@ function TResponseClient.GetCookie(const ACookieName: string): string;
 {$IF CompilerVersion >= 35.0}
 var
   I: Integer;
-{$IFEND}
+{$ENDIF}
 begin
   {$IF CompilerVersion >= 35.0}
   for I := 0 to Pred(FRESTResponse.Cookies.Count) do
@@ -57,7 +57,7 @@ begin
   end;
   {$ELSE}
   raise Exception.Create('GetCookie is not implemented for this version of Delphi.');
-  {$IFEND}
+  {$ENDIF}
 end;
 
 function TResponseClient.Content: string;
