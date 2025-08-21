@@ -252,13 +252,13 @@ end;
 
 function TRequestSynapse.Timeout: Integer;
 begin
-  Result := FHTTPSend.Timeout;
+  Result := FHTTPSend.Sock.ConnectionTimeout;
 end;
 
 function TRequestSynapse.Timeout(const ATimeout: Integer): IRequest;
 begin
   Result := Self;
-  FHTTPSend.Timeout := ATimeout;
+  FHTTPSend.Sock.ConnectionTimeout := ATimeout;
 end;
 
 function TRequestSynapse.BaseURL(const ABaseURL: string): IRequest;
