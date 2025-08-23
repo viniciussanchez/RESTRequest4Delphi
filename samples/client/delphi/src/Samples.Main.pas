@@ -50,6 +50,10 @@ type
     lblRESTRequest4DelphiComponent: TLabel;
     btnMultipartFormDataPut: TButton;
     FDMemTable1: TFDMemTable;
+    Label6: TLabel;
+    Label7: TLabel;
+    lblMultipartFormDataFileContentType: TLabel;
+    edtMultipartFormDataTextContentType: TEdit;
     procedure btnGETClick(Sender: TObject);
     procedure btnPOSTClick(Sender: TObject);
     procedure btnPUTClick(Sender: TObject);
