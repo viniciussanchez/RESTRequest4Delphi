@@ -66,6 +66,8 @@ type
     Label6: TLabel;
     Label7: TLabel;
     lblMultipartFormDataFileContentType: TLabel;
+    Label8: TLabel;
+    lblMultipartFormDataStreamContentType: TLabel;
 
     edtMultipartFormDataText: TEdit;
     edtMultipartFormDataTextContentType: TEdit;
@@ -164,9 +166,11 @@ begin
     {$ENDIF}
 
     LResponse := TRequest.New.BaseURL(edtMultipartFormDataBaseURL.Text)
-      .AddField('text', edtMultipartFormDataText.Text)
+      {$IF NOT DEFINED(RR4D_SYNAPSE) AND NOT DEFINED (RR4D_ICS)}
+      .AddText('text', edtMultipartFormDataText.Text, edtMultipartFormDataTextContentType.Text)
+      {$ENDIF}
       {$IF NOT DEFINED(RR4D_ICS)}
-      .AddFile('file', lblMultipartFormDataFile.Caption)
+      .AddFile('file', lblMultipartFormDataFile.Caption, lblMultipartFormDataFileContentType.Caption)
       .AddFile('stream', LStream)
       {$ENDIF}
       .Post;
@@ -192,9 +196,11 @@ begin
     {$ENDIF}
 
     LResponse := TRequest.New.BaseURL(edtMultipartFormDataBaseURL.Text)
-      .AddField('text', edtMultipartFormDataText.Text)
+      {$IF NOT DEFINED(RR4D_SYNAPSE) AND NOT DEFINED (RR4D_ICS)}
+      .AddText('text', edtMultipartFormDataText.Text, edtMultipartFormDataTextContentType.Text)
+      {$ENDIF}
       {$IF NOT DEFINED(RR4D_ICS)}
-      .AddFile('file', lblMultipartFormDataFile.Caption)
+      .AddFile('file', lblMultipartFormDataFile.Caption, lblMultipartFormDataFileContentType.Caption)
       .AddFile('stream', LStream)
       {$ENDIF}
       .Put;
