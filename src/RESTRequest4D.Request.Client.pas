@@ -73,6 +73,7 @@ type
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
+    function AddText(const AFieldName: string; const AContent: string; const AContentType: string): IRequest;
     function AddFile(const AFieldName: string; const AFileName: string; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
     function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -234,6 +235,13 @@ begin
     Exit;
   FParams.Add(AName);
   FRESTRequest.AddParameter(AName, AValue, AKind, AOptions);
+end;
+
+function TRequestClient.AddText(const AFieldName, AContent: string;
+  const AContentType: string): IRequest;
+begin
+  Result := Self;
+  FRESTRequest.Params.AddItem(AFieldName, AContent, pkREQUESTBODY, [poDoNotEncode], AContentType);
 end;
 
 function TRequestClient.AddUrlSegment(const AName, AValue: string): IRequest;
