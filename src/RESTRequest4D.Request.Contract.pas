@@ -100,7 +100,7 @@ type
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
-    {$IF NOT DEFINED(RR4D_SYNAPSE) AND NOT DEFINED (RR4D_ICS)}
+    {$IF (NOT DEFINED(RR4D_SYNAPSE) AND NOT DEFINED(RR4D_ICS) AND NOT DEFINED(FPC)) OR (DEFINED(FPC) AND DEFINED(RR4D_INDY))}
     function AddText(const AFieldName: string; const AContent: string; const AContentType: string = ''): IRequest;
     {$ENDIF}
     {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_NETHTTP)}
