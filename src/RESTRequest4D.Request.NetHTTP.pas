@@ -74,6 +74,7 @@ type
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
     function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
+    function AddText(const AFieldName: string; const AContent: string; const AContentType: string): IRequest;
     function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
     function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
     function Asynchronous(const AValue: Boolean): IRequest;
@@ -242,7 +243,7 @@ begin
     if (LFileName = EmptyStr) then
       LFileName := AFieldName;
     AValue.Position := 0;
-  {$IF COMPILERVERSION >= 34.0}
+  {$IF (COMPILERVERSION >= 34.0) and (COMPILERVERSION < 35.0)}
     FMultipartFormData.AddStream(AFieldName, AValue, True, LFileName, AContentType);
   {$ELSE}
     FMultipartFormData.AddStream(AFieldName, AValue, LFileName, AContentType);
@@ -268,6 +269,14 @@ begin
   Result := Self;
   if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
     FParams.Add(AName + '=' + AValue);
+end;
+
+function TRequestNetHTTP.AddText(const AFieldName, AContent,
+  AContentType: string): IRequest;
+begin
+  Result := Self;
+  FMultipartFormData.AddField(AFieldName, AContent, AContentType);
+  FUseMultipartFormData := True;
 end;
 
 function TRequestNetHTTP.AddUrlSegment(const AName, AValue: string): IRequest;
