@@ -241,7 +241,8 @@ function TRequestClient.AddText(const AFieldName, AContent: string;
   const AContentType: string): IRequest;
 begin
   Result := Self;
-  FRESTRequest.Params.AddItem(AFieldName, AContent, pkREQUESTBODY, [poDoNotEncode], AContentType);
+  FRESTRequest.Params.AddItem(AFieldName, AContent, pkREQUESTBODY, [poDoNotEncode]
+  {$IF COMPILERVERSION > 34} , AContentType {$ENDIF} );
 end;
 
 function TRequestClient.AddUrlSegment(const AName, AValue: string): IRequest;
@@ -697,3 +698,4 @@ begin
 end;
 
 end.
+
