@@ -103,7 +103,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Response.Indy, IdURI, IdCookieManager;
+uses RESTRequest4D.Response.Indy, IdURI, IdCookieManager, IdCompressorZLib;
 
 function TRequestIndy.AddField(const AFieldName: string; const AValue: string): IRequest;
 begin
@@ -633,6 +633,9 @@ begin
   FIdHTTP.Request.Connection := 'Keep-Alive';
   FIdHTTP.Request.UserAgent := 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36';
   FIdHTTP.HandleRedirects := True;
+
+  // Native accepted encoding: gzip, deflate
+  FIdHTTP.Compressor := TIdCompressorZLib.Create(FIdHTTP);
 
   FIdSSLIOHandlerSocketOpenSSL := TIdSSLIOHandlerSocketOpenSSL.Create;
   FIdHTTP.IOHandler := FIdSSLIOHandlerSocketOpenSSL;
