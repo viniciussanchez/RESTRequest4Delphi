@@ -41,10 +41,6 @@ type
     function AcceptCharset(const AAcceptCharset: string): IRequest; overload;
     function Accept: string; overload;
     function Accept(const AAccept: string): IRequest; overload;
-	{$IF DEFINED(RR4D_SYNAPSE)}
-    function MimeType: string; overload;
-    function MimeType(const AMimeType: string): IRequest; overload;
-	{$ENDIF}
     function Timeout: Integer; overload;
     function Timeout(const ATimeout: Integer): IRequest; overload;
     function Adapters(const AAdapter: IRequestAdapter): IRequest; overload;
@@ -71,22 +67,6 @@ type
     function Patch: IResponse;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
-    {$IF DEFINED(RR4D_NETHTTP)}
-    function Asynchronous(const AValue: Boolean): IRequest;
-    function SynchronizedEvents(const AValue: Boolean): IRequest;
-    function ConnectionTimeout(const AConnectiomTimeout: Integer): IRequest;
-    {$ENDIF}
-    {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_NETHTTP) or DEFINED(RR4D_ICS)}
-    function AddParam(const AName, AValue: string): IRequest;
-    function AddBody(const AContent: string): IRequest; overload;
-    function AddHeader(const AName, AValue: string): IRequest;
-    {$ELSE}
-    function SynchronizedEvents(const AValue: Boolean): IRequest;
-    function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
-    function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}; const AOptions: TRESTRequestParameterOptions = []): IRequest;
-    function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
-    function FallbackCharsetEncoding(const AFallbackCharsetEncoding: string): IRequest;
-    {$ENDIF}
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TJSONArray; const AOwns: Boolean = True): IRequest; overload;
     function AddBody(const AContent: TObject; const AOwns: Boolean = True): IRequest; overload;
@@ -100,30 +80,55 @@ type
     function AddCookies(const ACookies: TStrings): IRequest;
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
-    {$IF (NOT DEFINED(RR4D_SYNAPSE) AND NOT DEFINED(RR4D_ICS) AND NOT DEFINED(FPC)) OR (DEFINED(FPC) AND DEFINED(RR4D_INDY))}
-    function AddText(const AFieldName: string; const AContent: string; const AContentType: string = ''): IRequest;
-    {$ENDIF}
-    {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_NETHTTP)}
-    function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
-    function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
-    {$ELSEIF DEFINED(RR4D_ICS)}
-    function AddFile(const AFileName: string; UploadStrat:THttpUploadStrat): IRequest; overload;
-    {$ELSE}
-
-    function AddFile(const AFieldName: string; const AFileName: string; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
-    function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
-    {$ENDIF}
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
+    {$IF DEFINED(RR4D_NETHTTP)}
+      function Asynchronous(const AValue: Boolean): IRequest;
+      function SynchronizedEvents(const AValue: Boolean): IRequest;
+      function ConnectionTimeout(const AConnectiomTimeout: Integer): IRequest;
+    {$ENDIF}
+    {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_NETHTTP) or DEFINED(RR4D_ICS)}
+      function AddParam(const AName, AValue: string): IRequest;
+      function AddBody(const AContent: string): IRequest; overload;
+      function AddHeader(const AName, AValue: string): IRequest;
+    {$ELSE}
+      {$IF COMPILERVERSION > 33}
+        function ConnectTimeout: Integer; overload;
+        function ConnectTimeout(const AConnectTimeout: Integer): IRequest; overload;
+        function ReadTimeout: Integer; overload;
+        function ReadTimeout(const AReadTimeout: Integer): IRequest; overload;
+      {$ENDIF}
+      function SynchronizedEvents(const AValue: Boolean): IRequest;
+      function AddHeader(const AName, AValue: string; const AOptions: TRESTRequestParameterOptions = []): IRequest;
+      function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}; const AOptions: TRESTRequestParameterOptions = []): IRequest;
+      function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
+      function FallbackCharsetEncoding(const AFallbackCharsetEncoding: string): IRequest;
+    {$ENDIF}
+  	{$IF DEFINED(RR4D_SYNAPSE)}
+      function MimeType: string; overload;
+      function MimeType(const AMimeType: string): IRequest; overload;
+  	{$ENDIF}
+    {$IF (NOT DEFINED(RR4D_SYNAPSE) AND NOT DEFINED(RR4D_ICS) AND NOT DEFINED(FPC)) OR (DEFINED(FPC) AND DEFINED(RR4D_INDY))}
+      function AddText(const AFieldName: string; const AContent: string; const AContentType: string = ''): IRequest;
+    {$ENDIF}
+    {$IF DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_NETHTTP)}
+      function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
+      function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
+    {$ELSEIF DEFINED(RR4D_ICS)}
+      function AddFile(const AFileName: string; UploadStrat:THttpUploadStrat): IRequest; overload;
+    {$ELSE}
+      function AddFile(const AFieldName: string; const AFileName: string; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
+      function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: TRESTContentType = TRESTContentType.ctNone): IRequest; overload;
+    {$ENDIF}
     {$IF DEFINED(FPC) and (not DEFINED(RR4D_INDY)) and (not DEFINED(RR4D_SYNAPSE))}
-    function Certificate(const AFileName, APassword: String): IRequest;
+      function Certificate(const AFileName, APassword: String): IRequest;
     {$ENDIF}
     {$IF DEFINED(RR4D_INDY) or DEFINED(RR4D_ICS) or DEFINED(RR4D_SYNAPSE)}
-    function CertFile(const APath: string): IRequest;
-    function KeyFile(const APath: string): IRequest;
+      function CertFile(const APath: string): IRequest;
+      function KeyFile(const APath: string): IRequest;
     {$ENDIF}
     {$IF DEFINED(RR4D_INDY)}
-    function HTTPOptions(const AHTTPOptions: TIdHTTPOptions): IRequest;
+      function HTTPOptions(const AHTTPOptions: TIdHTTPOptions): IRequest;
     {$ENDIF}
   end;
 

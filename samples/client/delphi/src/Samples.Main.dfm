@@ -23,7 +23,6 @@ object FrmMain: TFrmMain
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
-    ExplicitWidth = 978
     object Image1: TImage
       AlignWithMargins = True
       Left = 10
@@ -5232,7 +5231,6 @@ object FrmMain: TFrmMain
       Caption = 'Panel8'
       ShowCaption = False
       TabOrder = 0
-      ExplicitLeft = 738
       object lblRESTRequest4DelphiComponent: TLabel
         Left = 1
         Top = 1
@@ -5251,8 +5249,6 @@ object FrmMain: TFrmMain
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 978
-    ExplicitHeight = 474
     object Splitter1: TSplitter
       Left = 0
       Top = 209
@@ -5272,8 +5268,6 @@ object FrmMain: TFrmMain
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitWidth = 978
-      ExplicitHeight = 257
       object Panel6: TPanel
         Left = 0
         Top = 0
@@ -5292,7 +5286,6 @@ object FrmMain: TFrmMain
         ParentBackground = False
         ParentFont = False
         TabOrder = 0
-        ExplicitWidth = 978
         object lblStatusCode: TLabel
           AlignWithMargins = True
           Left = 976
@@ -5337,8 +5330,6 @@ object FrmMain: TFrmMain
         Font.Style = []
         ParentFont = False
         TabOrder = 1
-        ExplicitWidth = 978
-        ExplicitHeight = 235
         object TabSheet6: TTabSheet
           Caption = 'Body'
           ImageIndex = 1
@@ -5349,8 +5340,6 @@ object FrmMain: TFrmMain
             Height = 214
             Align = alClient
             TabOrder = 0
-            ExplicitWidth = 970
-            ExplicitHeight = 205
           end
         end
       end
@@ -5363,7 +5352,6 @@ object FrmMain: TFrmMain
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 1
-      ExplicitWidth = 978
       object Panel5: TPanel
         Left = 0
         Top = 0
@@ -5382,7 +5370,6 @@ object FrmMain: TFrmMain
         ParentBackground = False
         ParentFont = False
         TabOrder = 0
-        ExplicitWidth = 978
       end
       object PageControl1: TPageControl
         Left = 0
@@ -5398,7 +5385,6 @@ object FrmMain: TFrmMain
         Font.Style = []
         ParentFont = False
         TabOrder = 1
-        ExplicitWidth = 978
         object TabSheet1: TTabSheet
           Caption = 'Request'
           DesignSize = (
@@ -5503,7 +5489,6 @@ object FrmMain: TFrmMain
             Caption = 'Panel7'
             ShowCaption = False
             TabOrder = 0
-            ExplicitWidth = 970
             DesignSize = (
               976
               25)
@@ -5555,7 +5540,6 @@ object FrmMain: TFrmMain
               Caption = 'PUT'
               TabOrder = 0
               OnClick = btnMultipartFormDataPutClick
-              ExplicitLeft = 889
             end
           end
           object Panel9: TPanel
@@ -5568,7 +5552,6 @@ object FrmMain: TFrmMain
             Caption = 'Panel9'
             ShowCaption = False
             TabOrder = 1
-            ExplicitWidth = 970
             DesignSize = (
               976
               54)
@@ -5581,7 +5564,6 @@ object FrmMain: TFrmMain
               Caption = 'POST'
               TabOrder = 0
               OnClick = btnMultipartFormDataPostClick
-              ExplicitLeft = 889
             end
             object edtMultipartFormDataBaseURL: TLabeledEdit
               Left = 10
@@ -5595,7 +5577,6 @@ object FrmMain: TFrmMain
               TabOrder = 1
               Text = 'http://localhost:9000/form-data'
               TextHint = 'http://localhost:9000/form-data'
-              ExplicitWidth = 864
             end
           end
           object Panel10: TPanel
@@ -5608,7 +5589,6 @@ object FrmMain: TFrmMain
             Caption = 'Panel10'
             ShowCaption = False
             TabOrder = 2
-            ExplicitWidth = 970
             object imgMultipartFormDataStream: TImage
               AlignWithMargins = True
               Left = 10
