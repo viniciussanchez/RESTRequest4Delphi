@@ -4,7 +4,7 @@ interface
 
 uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, OverbyteIcsLogger, OverbyteIcsSSLEAY, OverbyteIcsWndControl,
   OverbyteIcsHttpProt, OverbyteIcsUrl, OverbyteIcsWSocket, RESTRequest4D.Utils, OverbyteIcsSslHttpRest, NetEncoding,
-  RESTRequest4D.Request.Adapter.Contract, Data.DB, System.Classes, System.JSON;
+  RESTRequest4D.Request.Adapter.Contract, Data.DB, System.Classes, System.JSON, OverbyteIcsTypes;
 
 type
   TRequestICS = class(TInterfacedObject, IRequest)
