@@ -115,6 +115,9 @@ type
     {$ENDIF}
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
+    {$IF DEFINED(FPC) and (not DEFINED(RR4D_INDY)) and (not DEFINED(RR4D_SYNAPSE))}
+    function Certificate(const AFileName, APassword: String): IRequest;
+    {$ENDIF}
     {$IF DEFINED(RR4D_INDY) or DEFINED(RR4D_ICS) or DEFINED(RR4D_SYNAPSE)}
     function CertFile(const APath: string): IRequest;
     function KeyFile(const APath: string): IRequest;
