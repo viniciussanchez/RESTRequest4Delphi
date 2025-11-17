@@ -2,7 +2,7 @@ unit RESTRequest4D.Response.ICS;
 
 interface
 
-uses RESTRequest4D.Response.Contract, OverbyteIcsSslHttpRest, OverbyteIcsLogger, System.SysUtils, System.JSON, System.Classes;
+uses RESTRequest4D.Response.Contract, OverbyteIcsSslHttpRest, OverbyteIcsLogger, OverbyteIcsTypes, System.SysUtils, System.JSON, System.Classes;
 
 type
   TResponseICS = class(TInterfacedObject, IResponse)

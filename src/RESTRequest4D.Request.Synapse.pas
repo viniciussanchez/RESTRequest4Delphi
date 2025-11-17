@@ -7,7 +7,7 @@ unit RESTRequest4D.Request.Synapse;
 interface
 
 uses Classes, SysUtils, DB, RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, RESTRequest4D.Utils,
-  httpsend, ssl_openssl, blcksock, Generics.Collections, RESTRequest4D.Request.Adapter.Contract,
+  httpsend, ssl_openssl3, blcksock, Generics.Collections, RESTRequest4D.Request.Adapter.Contract, dialogs, synautil,
   {$IFDEF FPC}
     fpjson, fpjsonrtti, base64;
   {$ELSE}
@@ -123,15 +123,26 @@ implementation
 
 uses RESTRequest4D.Response.Synapse;
 
+const
+  _CRLF = #13#10;
+
 constructor TFile.Create(const AFileStream: TStream; const AFileName: string; const AContentType: string);
+var
+  MS: TMemoryStream;
 begin
-  FFileStream := AFileStream;
+  MS := TMemoryStream.Create;
+  AFileStream.Position := 0;
+  MS.CopyFrom(AFileStream, AFileStream.Size);
+  MS.Position := 0;
+
+  FFileStream := MS;
   FFileName := AFileName;
   FContentType := AContentType;
 end;
 
 destructor TFile.Destroy;
 begin
+  FFileStream.Free;
   inherited Destroy;
 end;
 
@@ -140,7 +151,6 @@ var
   LAttempts: Integer;
   LBound, LContent, LFieldName: string;
   LFile: TFile;
-  LStream: TStream;
 begin
   LAttempts := FRetries + 1;
 
@@ -148,75 +158,69 @@ begin
   begin
     try
       DoBeforeExecute(FHTTPSend);
-      LStream := TstringStream.Create('', TEncoding.UTF8);
-      try
-        if AMethod <> mrGET then
+      if AMethod <> mrGET then
+      begin
+        if (FFields.Count > 0) or (FFiles.Count > 0) then
         begin
-          if (FFields.Count > 0) or (FFiles.Count > 0) then
+          LBound := IntToHex(Random(MaxInt), 8) + '_multipart_boundary';
+          ContentType('multipart/form-data; boundary=' + LBound);
+          MimeType('multipart/form-data; boundary=' + LBound);
+
+          for LFieldName in FFields.Keys do
           begin
-            LBound := IntToHex(Random(MaxInt), 8) + '_rr4d_boundary';
-            ContentType('multipart/form-data; boundary=' + LBound);
-
-            for LFieldName in FFields.Keys do
-            begin
-              LContent := sLineBreak + '--' + LBound + sLineBreak +
-                          'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') + sLineBreak + sLineBreak +
-                          FFields.Items[LFieldName]+ sLineBreak + sLineBreak;
-              LStream.Write(PAnsiChar(AnsiString(LContent))^, Length(LContent));
-            end;
-
-            for LFieldName in FFiles.Keys do
-            begin
-              LFile := FFiles.Items[LFieldName];
-
-              LContent := sLineBreak + '--' + LBound + sLineBreak +
-                          'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') +';' +
-                          sLineBreak + #9'filename=' + AnsiQuotedStr(LFile.FFileName, '"') +
-                          sLineBreak + 'Content-Type: '+AnsiQuotedStr(LFile.FContentType, '"') + sLineBreak + sLineBreak;
-              LStream.Write(PAnsiChar(AnsiString(LContent))^, Length(LContent));
-              LFile.FFileStream.Position := 0;
-              LStream.Write(LFile.FFileStream, LFile.FFileStream.Size);
-            end;
-
-            LBound := '--' +LBound+ '--' +sLineBreak;
-            LStream.Write(PAnsiChar(AnsiString(LBound))^, Length(LBound));
-            LStream.Position := 0;
-            FHTTPSend.Document.LoadFromStream(LStream);
-          end
-          else
-          begin
-            FStreamSend.Position := 0;
-            FHTTPSend.Document.LoadFromStream(FStreamSend);
+            LContent := '--' + LBound + _CRLF;
+            LContent := LContent + Format('Content-Disposition: form-data; name="%s"' + _CRLF + _CRLF + '%s' + _CRLF, [LFieldName, FFields.Items[LFieldName]]);
+            WriteStrToStream(FHTTPSend.Document, LContent);
           end;
+
+          for LFieldName in FFiles.Keys do
+          begin
+            LFile := FFiles.Items[LFieldName];
+
+            LContent := '--' + LBound + _CRLF;
+            LContent := LContent + Format('Content-Disposition: form-data; name="%s"; filename="%s"' + _CRLF, [LFieldName, ExtractFileName(LFile.FFileName)]);
+            LContent := LContent + Format('Content-Type: %s', [LFile.FContentType]) + _CRLF + _CRLF;
+
+            WriteStrToStream(FHTTPSend.Document, LContent);
+            FHTTPSend.Document.CopyFrom(LFile.FFileStream, 0);
+          end;
+
+          LBound := _CRLF + '--' +LBound+ '--' + _CRLF;
+          WriteStrToStream(FHTTPSend.Document, LBound);
+        end
+        else
+        begin
+          FStreamSend.Position := 0;
+          FHTTPSend.Document.LoadFromStream(FStreamSend);
         end;
-
-        case AMethod of
-          mrGET:
-            FHTTPSend.HTTPMethod('GET', MakeURL);
-          mrPOST:
-            FHTTPSend.HTTPMethod('POST', MakeURL);
-          mrPUT:
-            FHTTPSend.HTTPMethod('PUT', MakeURL);
-          mrPATCH:
-            FHTTPSend.HTTPMethod('PATCH', MakeURL);
-          mrDELETE:
-            FHTTPSend.HTTPMethod('DELETE', MakeURL);
-        end;
-
-        FHTTPSend.Document.Position := 0;
-        FResponse.ContentStream.CopyFrom(FHTTPSend.Document, FHTTPSend.Document.Size);
-
-        LAttempts := 0;
-      finally
-        if Assigned(LStream) then
-          LStream.Free;
       end;
 
+      case AMethod of
+        mrGET:
+          FHTTPSend.HTTPMethod('GET', MakeURL);
+        mrPOST:
+          FHTTPSend.HTTPMethod('POST', MakeURL);
+        mrPUT:
+          FHTTPSend.HTTPMethod('PUT', MakeURL);
+        mrPATCH:
+          FHTTPSend.HTTPMethod('PATCH', MakeURL);
+        mrDELETE:
+          FHTTPSend.HTTPMethod('DELETE', MakeURL);
+      end;
+
+      FHTTPSend.Document.Position := 0;
+      FResponse.ContentStream.CopyFrom(FHTTPSend.Document, FHTTPSend.Document.Size);
+
+      LAttempts := 0;
       DoAfterExecute(Self, FResponse);
     except
-      LAttempts := LAttempts - 1;
-      if LAttempts = 0 then
+      on e: Exception do
+      begin
+        ShowMessage(e.Message);
+        LAttempts := LAttempts - 1;
+        if LAttempts = 0 then
         raise;
+      end;
     end;
   end;
 end;
@@ -256,13 +260,13 @@ end;
 
 function TRequestSynapse.Timeout: Integer;
 begin
-  Result := FHTTPSend.Timeout;
+  Result := FHTTPSend.Sock.ConnectionTimeout;
 end;
 
 function TRequestSynapse.Timeout(const ATimeout: Integer): IRequest;
 begin
   Result := Self;
-  FHTTPSend.Timeout := ATimeout;
+  FHTTPSend.Sock.ConnectionTimeout := ATimeout;
 end;
 
 function TRequestSynapse.BaseURL(const ABaseURL: string): IRequest;
