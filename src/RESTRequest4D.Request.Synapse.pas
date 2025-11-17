@@ -168,7 +168,7 @@ begin
 
           for LFieldName in FFields.Keys do
           begin
-            LContent := _CRLF + '--' + LBound + _CRLF;
+            LContent := '--' + LBound + _CRLF;
             LContent := LContent + Format('Content-Disposition: form-data; name="%s"' + _CRLF + _CRLF + '%s' + _CRLF, [LFieldName, FFields.Items[LFieldName]]);
             WriteStrToStream(FHTTPSend.Document, LContent);
           end;
@@ -177,7 +177,7 @@ begin
           begin
             LFile := FFiles.Items[LFieldName];
 
-            LContent := _CRLF + '--' + LBound + _CRLF;
+            LContent := '--' + LBound + _CRLF;
             LContent := LContent + Format('Content-Disposition: form-data; name="%s"; filename="%s"' + _CRLF, [LFieldName, ExtractFileName(LFile.FFileName)]);
             LContent := LContent + Format('Content-Type: %s', [LFile.FContentType]) + _CRLF + _CRLF;
 
