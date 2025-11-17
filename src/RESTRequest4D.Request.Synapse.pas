@@ -7,7 +7,7 @@ unit RESTRequest4D.Request.Synapse;
 interface
 
 uses Classes, SysUtils, DB, RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, RESTRequest4D.Utils,
-  httpsend, ssl_openssl3, Generics.Collections, RESTRequest4D.Request.Adapter.Contract, dialogs, synautil,
+  httpsend, ssl_openssl3, blcksock, Generics.Collections, RESTRequest4D.Request.Adapter.Contract, dialogs, synautil,
   {$IFDEF FPC}
     fpjson, fpjsonrtti, base64;
   {$ELSE}
@@ -42,8 +42,12 @@ type
     FResponse: IResponse;
     FStreamSend: TStream;
     FRetries: Integer;
+    FProgressContentLength: Int64;
+    FProgressCurrent: Int64;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
+    FOnReceiveProgress: TRR4DCallbackOnProgress;
+    FOnSendProgress: TRR4DCallbackOnProgress;
     procedure ExecuteRequest(const AMethod: TMethodRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -72,6 +76,8 @@ type
     function Retry(const ARetries: Integer): IRequest;
     function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
     function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+    function OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+    function OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -105,6 +111,8 @@ type
   protected
     procedure DoAfterExecute(const Sender: TObject; const AResponse: IResponse); virtual;
     procedure DoBeforeExecute(const Sender: THTTPSend); virtual;
+
+    procedure DoSocketStatus(Sender: TObject; Reason: THookSocketReason; const Value: string);
   public
     constructor Create;
     class function New: IRequest;
@@ -336,6 +344,20 @@ function TRequestSynapse.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOn
 begin
   Result := Self;
   FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestSynapse.OnReceiveProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnReceiveProgress := AOnProgress;
+end;
+
+function TRequestSynapse.OnSendProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnSendProgress := AOnProgress;
 end;
 
 function TRequestSynapse.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
@@ -707,10 +729,103 @@ begin
     FOnBeforeExecute(Self);
 end;
 
+procedure TRequestSynapse.DoSocketStatus(Sender: TObject;
+  Reason: THookSocketReason; const Value: string);
+
+  function GetSizeFromHeader(Header: String): integer;
+  var
+    LStrList : TStringList;
+  begin
+    //the download size is contained in the header (e.g.: Content-Length: 3737722)
+    Result:= -1;
+
+    if Pos('Content-Length:', Header) <> 0 then
+    begin
+      LStrList := TStringList.Create();
+      try
+        LStrList.Delimiter:= ':';
+        LStrList.StrictDelimiter:=true;
+        LStrList.DelimitedText := Header;
+        if LStrList.Count = 2 then
+        begin
+          Result:= StrToInt(Trim(LStrList[1]));
+        end;
+      finally
+        LStrList.Free;
+      end;
+    end;
+  end;
+
+var
+  Bytes: Int64;
+  LIsProgressAbort: Boolean;
+begin
+  if (not (Assigned(FOnReceiveProgress))) and (not (Assigned(FOnSendProgress))) then
+    Exit; // Runs only if one of them is assigned
+
+  case Reason of
+    HR_SocketClose, HR_ResolvingBegin:
+      begin
+        FProgressContentLength := -1;
+        FProgressCurrent := 0;
+      end;
+
+  else
+    if FProgressContentLength = -1 then
+    begin
+      if Pos('Content-Length:'.ToUpper, FHTTPSend.Headers.Text.ToUpper) <> 0 then
+      begin
+        for var i:= 0 to FHTTPSend.Headers.Count - 1 do
+        begin
+          FProgressContentLength:= GetSizeFromHeader(FHTTPSend.Headers[i]);
+          if FProgressContentLength <> -1 then
+            Break;
+        end;
+      end;
+    end
+    else
+    begin
+      LIsProgressAbort := False;
+      case Reason of
+        HR_ReadCount:
+          begin
+            if (Assigned(FOnReceiveProgress)) then
+            begin
+              // Value is string (ex: '1024')
+              Bytes := StrToIntDef(Value, 0);
+              Inc(FProgressCurrent, Bytes);
+              FOnReceiveProgress(FProgressContentLength, FProgressCurrent, LIsProgressAbort);
+            end;
+          end;
+        HR_WriteCount:
+          begin
+            if (Assigned(FOnSendProgress)) then
+            begin
+              // Value is string (ex: '1024')
+              Bytes := StrToIntDef(Value, 0);
+              Inc(FProgressCurrent, Bytes);
+              FOnSendProgress(FProgressContentLength, FProgressCurrent, LIsProgressAbort);
+            end;
+          end;
+
+        {HR_Error:
+          begin
+            // Erro no download
+            ResetProgress;
+            Memo1.Lines.Insert(0, 'ERROR ' + Value);
+          end;}
+      end;
+      if LIsProgressAbort then
+        FHTTPSend.Abort;
+    end;
+  end;
+end;
+
 constructor TRequestSynapse.Create;
 begin
   FHTTPSend := THTTPSend.Create;
   FHTTPSend.Headers.NameValueSeparator := ':';
+  FHTTPSend.Sock.OnStatus := DoSocketStatus;
 
   FHeaders := TstringList.Create;
   FParams := TstringList.Create;

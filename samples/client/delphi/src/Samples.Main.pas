@@ -2,54 +2,82 @@ unit Samples.Main;
 
 interface
 
-uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
-  Vcl.Dialogs, Vcl.StdCtrls, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS,
-  FireDAC.Phys.Intf, FireDAC.DApt.Intf, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.ExtCtrls, Vcl.ComCtrls,
-  Vcl.Imaging.pngimage, Vcl.Mask;
+uses
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.StdCtrls,
+  FireDAC.Stan.Intf,
+  FireDAC.Stan.Option,
+  FireDAC.Stan.Param,
+  FireDAC.Stan.Error,
+  FireDAC.DatS,
+  FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf,
+  Data.DB,
+  FireDAC.Comp.DataSet,
+  FireDAC.Comp.Client,
+  Vcl.ExtCtrls,
+  Vcl.ComCtrls,
+  Vcl.Imaging.pngimage,
+  Vcl.Mask;
 
 type
   TMyCompletionHandlerWithError = TProc<TObject>;
 
   TFrmMain = class(TForm)
+  published
     Panel1: TPanel;
-    Image1: TImage;
     Panel2: TPanel;
     Panel3: TPanel;
-    Splitter1: TSplitter;
     Panel4: TPanel;
     Panel5: TPanel;
     Panel6: TPanel;
+    Panel7: TPanel;
+    Panel9: TPanel;
+    Panel10: TPanel;
+    Panel8: TPanel;
     PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
     PageControl2: TPageControl;
+    TabSheet1: TTabSheet;
     TabSheet6: TTabSheet;
+    TabSheet2: TTabSheet;
     edtBaseURL: TLabeledEdit;
     edtAccept: TLabeledEdit;
+    edtMultipartFormDataBaseURL: TLabeledEdit;
     Label1: TLabel;
-    mmCustomBody: TMemo;
+    lblStatusCode: TLabel;
+    Label3: TLabel;
+    Label2: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    lblMultipartFormDataFile: TLabel;
+    lblRESTRequest4DelphiComponent: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    lblMultipartFormDataFileContentType: TLabel;
+    Label8: TLabel;
+    lblMultipartFormDataStreamContentType: TLabel;
+    edtMultipartFormDataText: TEdit;
+    edtMultipartFormDataTextContentType: TEdit;
     btnDELETE: TButton;
     btnPUT: TButton;
     btnPOST: TButton;
     btnGET: TButton;
-    mmBody: TMemo;
-    lblStatusCode: TLabel;
-    Label3: TLabel;
-    TabSheet2: TTabSheet;
-    Panel7: TPanel;
-    Label2: TLabel;
-    imgMultipartFormDataStream: TImage;
-    Label4: TLabel;
-    edtMultipartFormDataText: TEdit;
-    Label5: TLabel;
-    lblMultipartFormDataFile: TLabel;
-    Panel9: TPanel;
-    Panel10: TPanel;
     btnMultipartFormDataPost: TButton;
-    edtMultipartFormDataBaseURL: TLabeledEdit;
-    Panel8: TPanel;
-    lblRESTRequest4DelphiComponent: TLabel;
     btnMultipartFormDataPut: TButton;
+    mmCustomBody: TMemo;
+    mmBody: TMemo;
+    Splitter1: TSplitter;
     FDMemTable1: TFDMemTable;
+    Image1: TImage;
+    imgMultipartFormDataStream: TImage;
     procedure btnGETClick(Sender: TObject);
     procedure btnPOSTClick(Sender: TObject);
     procedure btnPUTClick(Sender: TObject);
@@ -121,16 +149,18 @@ begin
   LStream := TMemoryStream.Create;
   try
     {$IF COMPILERVERSION <= 31.0}
-    imgMultipartFormDataStream.Picture.Graphic.SaveToStream(LStream);
+      imgMultipartFormDataStream.Picture.Graphic.SaveToStream(LStream);
     {$ELSE}
-    imgMultipartFormDataStream.Picture.SaveToStream(LStream);
+      imgMultipartFormDataStream.Picture.SaveToStream(LStream);
     {$ENDIF}
 
     LResponse := TRequest.New.BaseURL(edtMultipartFormDataBaseURL.Text)
-      .AddField('text', edtMultipartFormDataText.Text)
+      {$IF NOT DEFINED(RR4D_SYNAPSE) AND NOT DEFINED (RR4D_ICS)}
+        .AddText('text', edtMultipartFormDataText.Text, edtMultipartFormDataTextContentType.Text)
+      {$ENDIF}
       {$IF NOT DEFINED(RR4D_ICS)}
-      .AddFile('file', lblMultipartFormDataFile.Caption)
-      .AddFile('stream', LStream)
+        .AddFile('file', lblMultipartFormDataFile.Caption, lblMultipartFormDataFileContentType.Caption)
+        .AddFile('stream', LStream)
       {$ENDIF}
       .Post;
   finally
@@ -149,16 +179,18 @@ begin
   LStream := TMemoryStream.Create;
   try
     {$IF COMPILERVERSION <= 31.0}
-    imgMultipartFormDataStream.Picture.Graphic.SaveToStream(LStream);
+      imgMultipartFormDataStream.Picture.Graphic.SaveToStream(LStream);
     {$ELSE}
-    imgMultipartFormDataStream.Picture.SaveToStream(LStream);
+      imgMultipartFormDataStream.Picture.SaveToStream(LStream);
     {$ENDIF}
 
     LResponse := TRequest.New.BaseURL(edtMultipartFormDataBaseURL.Text)
-      .AddField('text', edtMultipartFormDataText.Text)
+      {$IF NOT DEFINED(RR4D_SYNAPSE) AND NOT DEFINED (RR4D_ICS)}
+        .AddText('text', edtMultipartFormDataText.Text, edtMultipartFormDataTextContentType.Text)
+      {$ENDIF}
       {$IF NOT DEFINED(RR4D_ICS)}
-      .AddFile('file', lblMultipartFormDataFile.Caption)
-      .AddFile('stream', LStream)
+        .AddFile('file', lblMultipartFormDataFile.Caption, lblMultipartFormDataFileContentType.Caption)
+        .AddFile('stream', LStream)
       {$ENDIF}
       .Put;
   finally

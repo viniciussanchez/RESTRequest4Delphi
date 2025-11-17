@@ -24,6 +24,8 @@ type
     FRetries: Integer;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
+    FOnReceiveProgress: TRR4DCallbackOnProgress;
+    FOnSendProgress: TRR4DCallbackOnProgress;
     function ExecuteRequest(const AMethod: TMethodRequest): IHTTPResponse;
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -51,6 +53,8 @@ type
     function Retry(const ARetries: Integer): IRequest;
     function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
     function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+    function OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+    function OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -74,6 +78,7 @@ type
     function AddCookie(const ACookieName, ACookieValue: string): IRequest;
     function AddParam(const AName, AValue: string): IRequest;
     function AddField(const AFieldName: string; const AValue: string): IRequest; overload;
+    function AddText(const AFieldName: string; const AContent: string; const AContentType: string): IRequest;
     function AddFile(const AFieldName: string; const AFileName: string; const AContentType: string = ''): IRequest; overload;
     function AddFile(const AFieldName: string; const AValue: TStream; const AFileName: string = ''; const AContentType: string = ''): IRequest; overload;
     function Asynchronous(const AValue: Boolean): IRequest;
@@ -85,6 +90,10 @@ type
   protected
     procedure DoAfterExecute(const Sender: TObject; const AResponse: IHTTPResponse); virtual;
     procedure DoBeforeExecute(const Sender: TNetHTTPClient); virtual;
+
+    procedure DoReceiveProgress(const Sender: TObject; AContentLength, AWriteCount: Int64; var AAbort: Boolean); virtual;
+    procedure DoSendProgress(const Sender: TObject; AContentLength, AWriteCount: Int64; var AAbort: Boolean); virtual;
+
     procedure DoHTTPProtocolError(const Sender: TObject; const AError: string); virtual;
   public
     constructor Create;
@@ -242,7 +251,7 @@ begin
     if (LFileName = EmptyStr) then
       LFileName := AFieldName;
     AValue.Position := 0;
-  {$IF COMPILERVERSION >= 34.0}
+  {$IF (COMPILERVERSION >= 34.0) and (COMPILERVERSION < 35.0)}
     FMultipartFormData.AddStream(AFieldName, AValue, True, LFileName, AContentType);
   {$ELSE}
     FMultipartFormData.AddStream(AFieldName, AValue, LFileName, AContentType);
@@ -268,6 +277,14 @@ begin
   Result := Self;
   if (not AName.Trim.IsEmpty) and (not AValue.Trim.IsEmpty) then
     FParams.Add(AName + '=' + AValue);
+end;
+
+function TRequestNetHTTP.AddText(const AFieldName, AContent,
+  AContentType: string): IRequest;
+begin
+  Result := Self;
+  FMultipartFormData.AddField(AFieldName, AContent, AContentType);
+  FUseMultipartFormData := True;
 end;
 
 function TRequestNetHTTP.AddUrlSegment(const AName, AValue: string): IRequest;
@@ -370,6 +387,8 @@ begin
   FNetHTTPClient.ContentType := 'application/json';
   FNetHTTPClient.OnRequestError := DoHTTPProtocolError;
   FNetHTTPClient.OnRequestCompleted := DoAfterExecute;
+  FNetHTTPClient.OnReceiveData := DoReceiveProgress;
+  FNetHTTPClient.OnSendData := DoSendProgress;
   FNetHTTPClient.Asynchronous := False;
   FNetHTTPClient.SynchronizeEvents := True;
   FNetHTTPClient.OnValidateServerCertificate := NetHTTPClientValidateServerCertificate;  
@@ -453,6 +472,20 @@ end;
 procedure TRequestNetHTTP.DoHTTPProtocolError(const Sender: TObject; const AError: string);
 begin
   // virtual method
+end;
+
+procedure TRequestNetHTTP.DoReceiveProgress(const Sender: TObject;
+  AContentLength, AWriteCount: Int64; var AAbort: Boolean);
+begin
+  if Assigned(FOnReceiveProgress) then
+    FOnReceiveProgress(AContentLength, AWriteCount, AAbort);
+end;
+
+procedure TRequestNetHTTP.DoSendProgress(const Sender: TObject; AContentLength,
+  AWriteCount: Int64; var AAbort: Boolean);
+begin
+  if Assigned(FOnSendProgress) then
+    FOnSendProgress(AContentLength, AWriteCount, AAbort);
 end;
 
 function TRequestNetHTTP.ExecuteRequest(const AMethod: TMethodRequest): IHTTPResponse;
@@ -639,6 +672,20 @@ function TRequestNetHTTP.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOn
 begin
   Result := Self;
   FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestNetHTTP.OnReceiveProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnReceiveProgress := AOnProgress;
+end;
+
+function TRequestNetHTTP.OnSendProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnSendProgress := AOnProgress;
 end;
 
 function TRequestNetHTTP.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;

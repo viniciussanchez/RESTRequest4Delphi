@@ -5376,7 +5376,7 @@ object FrmMain: TFrmMain
         Top = 22
         Width = 984
         Height = 187
-        ActivePage = TabSheet1
+        ActivePage = TabSheet2
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -5400,7 +5400,7 @@ object FrmMain: TFrmMain
           object edtBaseURL: TLabeledEdit
             Left = 10
             Top = 24
-            Width = 648
+            Width = 636
             Height = 23
             Anchors = [akLeft, akTop, akRight]
             EditLabel.Width = 24
@@ -5411,7 +5411,7 @@ object FrmMain: TFrmMain
             TextHint = 'http://localhost:8888/users'
           end
           object edtAccept: TLabeledEdit
-            Left = 664
+            Left = 652
             Top = 24
             Width = 219
             Height = 23
@@ -5426,7 +5426,7 @@ object FrmMain: TFrmMain
           object mmCustomBody: TMemo
             Left = 10
             Top = 74
-            Width = 873
+            Width = 861
             Height = 71
             Anchors = [akLeft, akTop, akRight]
             Lines.Strings = (
@@ -5436,7 +5436,7 @@ object FrmMain: TFrmMain
             TabOrder = 2
           end
           object btnDELETE: TButton
-            Left = 895
+            Left = 883
             Top = 120
             Width = 72
             Height = 25
@@ -5446,7 +5446,7 @@ object FrmMain: TFrmMain
             OnClick = btnDELETEClick
           end
           object btnPUT: TButton
-            Left = 895
+            Left = 883
             Top = 87
             Width = 72
             Height = 25
@@ -5456,7 +5456,7 @@ object FrmMain: TFrmMain
             OnClick = btnPUTClick
           end
           object btnPOST: TButton
-            Left = 895
+            Left = 883
             Top = 56
             Width = 72
             Height = 25
@@ -5466,7 +5466,7 @@ object FrmMain: TFrmMain
             OnClick = btnPOSTClick
           end
           object btnGET: TButton
-            Left = 895
+            Left = 883
             Top = 24
             Width = 72
             Height = 25
@@ -5494,7 +5494,7 @@ object FrmMain: TFrmMain
               25)
             object Label2: TLabel
               Left = 10
-              Top = 2
+              Top = 0
               Width = 41
               Height = 15
               Caption = 'Stream'
@@ -5507,7 +5507,7 @@ object FrmMain: TFrmMain
             end
             object Label4: TLabel
               Left = 197
-              Top = 2
+              Top = 0
               Width = 25
               Height = 15
               Caption = 'Text'
@@ -5519,8 +5519,8 @@ object FrmMain: TFrmMain
               ParentFont = False
             end
             object Label5: TLabel
-              Left = 405
-              Top = 2
+              Left = 436
+              Top = 0
               Width = 19
               Height = 15
               Caption = 'File'
@@ -5592,14 +5592,13 @@ object FrmMain: TFrmMain
             object imgMultipartFormDataStream: TImage
               AlignWithMargins = True
               Left = 10
-              Top = 0
-              Width = 129
-              Height = 78
+              Top = -7
+              Width = 131
+              Height = 41
               Margins.Left = 10
               Margins.Top = 0
               Margins.Right = 0
               Margins.Bottom = 0
-              Align = alLeft
               Center = True
               Picture.Data = {
                 0954506E67496D61676589504E470D0A1A0A0000000D49484452000003640000
@@ -10785,24 +10784,82 @@ object FrmMain: TFrmMain
                 0810320000000080EC819001008400210300000000C81E081900400810320000
                 000080ECF97F59F0D7E55B3D38B20000000049454E44AE426082}
               Proportional = True
-              ExplicitLeft = 12
-              ExplicitTop = 1
-              ExplicitHeight = 95
             end
             object lblMultipartFormDataFile: TLabel
-              Left = 405
-              Top = 5
+              Left = 436
+              Top = 0
               Width = 9
               Height = 15
               Caption = '...'
             end
+            object Label6: TLabel
+              Left = 197
+              Top = 35
+              Width = 74
+              Height = 15
+              Caption = 'Content-type'
+              Font.Charset = ANSI_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object Label7: TLabel
+              Left = 436
+              Top = 35
+              Width = 74
+              Height = 15
+              Caption = 'Content-type'
+              Font.Charset = ANSI_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object lblMultipartFormDataFileContentType: TLabel
+              Left = 436
+              Top = 56
+              Width = 82
+              Height = 15
+              Caption = 'application/pdf'
+            end
+            object Label8: TLabel
+              Left = 10
+              Top = 35
+              Width = 74
+              Height = 15
+              Caption = 'Content-type'
+              Font.Charset = ANSI_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -12
+              Font.Name = 'Segoe UI'
+              Font.Style = [fsBold]
+              ParentFont = False
+            end
+            object lblMultipartFormDataStreamContentType: TLabel
+              Left = 9
+              Top = 55
+              Width = 180
+              Height = 15
+              Caption = 'application/octet-stream (default)'
+            end
             object edtMultipartFormDataText: TEdit
               Left = 197
-              Top = 2
-              Width = 150
+              Top = 0
+              Width = 196
               Height = 23
               TabOrder = 0
-              Text = 'RESTRequest4Delphi'
+              Text = '{"name": "RESTRequest4Delphi"}'
+            end
+            object edtMultipartFormDataTextContentType: TEdit
+              Left = 197
+              Top = 52
+              Width = 196
+              Height = 23
+              TabOrder = 1
+              Text = 'application/json'
             end
           end
         end

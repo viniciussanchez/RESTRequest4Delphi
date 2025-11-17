@@ -20,8 +20,12 @@ type
     FAdapters: TArray<IRequestAdapter>;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
+    FOnReceiveProgress: TRR4DCallbackOnProgress;
+    FOnSendProgress: TRR4DCallbackOnProgress;
     function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
     function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+    function OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+    function OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
     function Adapters(const AAdapter: IRequestAdapter): IRequest; overload;
     function Adapters(const AAdapters: TArray<IRequestAdapter>): IRequest; overload;
     function Adapters: TArray<IRequestAdapter>; overload;
@@ -92,6 +96,22 @@ function TRequestICS.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBefo
 begin
   Result := Self;
   FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestICS.OnReceiveProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnReceiveProgress := AOnProgress;
+  raise Exception.Create('TRequestICS.OnReceiveProgress Method not implemented YET');
+end;
+
+function TRequestICS.OnSendProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnSendProgress := AOnProgress;
+  raise Exception.Create('TRequestICS.OnSendProgress Method not implemented YET');
 end;
 
 function TRequestICS.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;

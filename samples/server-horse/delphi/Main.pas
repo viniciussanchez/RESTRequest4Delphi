@@ -2,26 +2,57 @@ unit Main;
 
 interface
 
-uses Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
-  Vcl.Dialogs, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.Imaging.pngimage, Horse;
+uses
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.StdCtrls,
+  Vcl.Buttons,
+  Vcl.ExtCtrls,
+  Vcl.Imaging.pngimage,
+  Horse;
 
 type
   TFrmMain = class(TForm)
+  published
     pnlLeft: TPanel;
-    lblPort: TLabel;
-    btnStop: TBitBtn;
-    btnStart: TBitBtn;
-    edtPort: TEdit;
-    bvlDivisao: TBevel;
     Panel1: TPanel;
     Panel7: TPanel;
+    Panel10: TPanel;
+
+    lblPort: TLabel;
     Label2: TLabel;
     Label4: TLabel;
     Label5: TLabel;
-    Panel10: TPanel;
-    imgMultipartFormDataStream: TImage;
     lblMultipartFormDataFile: TLabel;
+    Label1: TLabel;
+    Label3: TLabel;
+    Label6: TLabel;
+    lblContentTypeStream: TLabel;
+    lblContentTypeText: TLabel;
+    lblContentTypeFile: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    lblFilenameStream: TLabel;
+    lblFilenameText: TLabel;
+    lblFilenameFile: TLabel;
+
+    btnStop: TBitBtn;
+    btnStart: TBitBtn;
+
+    edtPort: TEdit;
     edtMultipartFormDataText: TEdit;
+
+    imgMultipartFormDataStream: TImage;
+
+    bvlDivisao: TBevel;
     procedure FormDestroy(Sender: TObject);
     procedure btnStartClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
@@ -119,28 +150,44 @@ var
   I: Integer;
   LFile: TMemoryStream;
 begin
-  if (Req.ContentFields.Field('stream').AsStream <> nil) then
-  begin
-    imgMultipartFormDataStream.Picture.Assign(nil);
-    {$IF COMPILERVERSION >=32.0}
-      imgMultipartFormDataStream.Picture.LoadFromStream(Req.ContentFields.Field('stream').AsStream);
-    {$ENDIF}
-  end;
-
-  if Req.ContentFields.ContainsKey('text') then
-    edtMultipartFormDataText.Text := Req.ContentFields.Field('text').AsString;
-
   for I := 0 to Pred(Req.RawWebRequest.Files.Count) do
   begin
-    if (Req.RawWebRequest.Files.Items[I].FieldName = 'file') then
+    var LContent := Req.RawWebRequest.Files.Items[I].Stream;
+    var LContentType := Req.RawWebRequest.Files.Items[I].ContentType;
+    var LFieldName := Req.RawWebRequest.Files.Items[I].FieldName;
+    var LFileName :=  Req.RawWebRequest.Files.Items[I].FileName;
+
+    if LFieldName.Equals('stream') then
+    begin
+      imgMultipartFormDataStream.Picture.Assign(nil);
+    {$IF COMPILERVERSION >=32.0}
+      imgMultipartFormDataStream.Picture.LoadFromStream(LContent);
+      lblContentTypeStream.Caption := LContentType;
+      lblFilenameStream.Caption := LFileName;
+    {$ENDIF}
+    end
+    else if LFieldName.Equals('text') then
+    begin
+      var LReader := TStreamReader.Create(LContent, TEncoding.UTF8);
+      try
+        edtMultipartFormDataText.Text := LReader.ReadToEnd;
+        lblContentTypeText.Caption := LContentType;
+        lblFilenameText.Caption := LFileName;
+      finally
+        LReader.Free;
+      end;
+    end
+    else if LFieldName.Equals('file') then
     begin
       LFile := TMemoryStream.Create;
       try
-        LFile.LoadFromStream(Req.RawWebRequest.Files.Items[I].Stream);
+        LFile.LoadFromStream(LContent);
         LFile.Position := 0;
-        LFile.SaveToFile(ExtractFilePath(ParamStr(0)) + Req.RawWebRequest.Files.Items[I].FileName);
+        LFile.SaveToFile(ExtractFilePath(ParamStr(0)) + LFilename);
         lblMultipartFormDataFile.Caption :=
-          Format('%s%s', [ExtractFilePath(ParamStr(0)), Req.RawWebRequest.Files.Items[I].FileName]);
+          Format('%s%s', [ExtractFilePath(ParamStr(0)), LFilename]);
+        lblContentTypeFile.Caption := LContentType;
+        lblFilenameFile.Caption := LFileName;
       finally
         LFile.Free;
       end;

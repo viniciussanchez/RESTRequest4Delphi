@@ -7,7 +7,7 @@ unit RESTRequest4D.Request.FPHTTPClient;
 interface
 
 uses Classes, SysUtils, DB, RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract,
-  RESTRequest4D.Utils, FPHTTPClient, openssl, opensslsockets, fpjson, fpjsonrtti,
+  RESTRequest4D.Utils, FPHTTPClient, openssl, opensslsockets, fpjson, fpjsonrtti, ssockets, sslbase,
   RESTRequest4D.Request.Adapter.Contract, Generics.Collections;
 
 type
@@ -38,6 +38,8 @@ type
     FResponse: IResponse;
     FStreamSend: TStream;
     FRetries: Integer;
+    FCertificateFileName: String;
+    FCertificatePassword: String;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
     procedure ExecuteRequest(const AMethod: TMethodRequest);
@@ -94,9 +96,11 @@ type
     function MakeURL(const AIncludeParams: Boolean = True): string;
     function Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
     function DeactivateProxy: IRequest;
+    function Certificate(const AFileName, APassword: String): IRequest;
   protected
     procedure DoAfterExecute(const Sender: TObject; const AResponse: IResponse); virtual;
     procedure DoBeforeExecute(const Sender: TFPHTTPClient); virtual;
+    procedure GetSocketHandler(Sender : TObject; Const UseSSL : Boolean; Out AHandler : TSocketHandler);
   public
     constructor Create;
     class function New: IRequest;
@@ -618,6 +622,14 @@ begin
   FFPHTTPClient.Proxy.Port := 0;
 end;
 
+function TRequestFPHTTPClient.Certificate(const AFileName, APassword: String): IRequest;
+begin
+  Result := Self;
+  FCertificateFileName := AFileName;
+  FCertificatePassword := APassword;
+  FFPHTTPClient.OnGetSocketHandler := GetSocketHandler;
+end;
+
 function TRequestFPHTTPClient.Adapters(const AAdapter: IRequestAdapter): IRequest;
 begin
   Result := Adapters([AAdapter]);
@@ -648,6 +660,25 @@ procedure TRequestFPHTTPClient.DoBeforeExecute(const Sender: TFPHTTPClient);
 begin
   if Assigned(FOnBeforeExecute) then
     FOnBeforeExecute(Self);
+end;
+
+procedure TRequestFPHTTPClient.GetSocketHandler(Sender: TObject; const UseSSL: Boolean; out AHandler: TSocketHandler);
+var
+  SSLHandler: TOpenSSLSocketHandler;
+begin
+  InitSSLInterface;
+  if IsSSLloaded then
+  begin
+    SSLHandler := TOpenSSLSocketHandler.create;
+    SSLHandler.SSLType := stTLSv1_2;
+    if ExtractFileExt(FCertificateFileName) = '.pfx' then
+      SSLHandler.CertificateData.PFX.FileName := FCertificateFileName
+    else
+      SSLHandler.CertificateData.Certificate.FileName := FCertificateFileName;
+    SSLHandler.CertificateData.KeyPassword := FCertificatePassword;
+    AHandler := SSLHandler;
+  end else
+    raise ESocketError.Create('openssl library is not loaded.');
 end;
 
 constructor TRequestFPHTTPClient.Create;
