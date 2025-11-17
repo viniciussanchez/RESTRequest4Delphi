@@ -20,6 +20,8 @@ type
     FRetries: Integer;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
+    FOnReceiveProgress: TRR4DCallbackOnProgress;
+    FOnSendProgress: TRR4DCallbackOnProgress;
     procedure ExecuteRequest;
     procedure DoJoinComponents;
     function PrepareUrlSegments(const AValue: string): string;
@@ -55,6 +57,8 @@ type
     function Retry(const ARetries: Integer): IRequest;
     function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
     function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+    function OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+    function OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -87,6 +91,10 @@ type
   protected
     procedure DoAfterExecute(Sender: TCustomRESTRequest); virtual;
     procedure DoBeforeExecute(Sender: TCustomRESTRequest); virtual;
+
+    procedure DoReceiveProgress(const Sender: TObject; AContentLength, AWriteCount: Int64; var AAbort: Boolean); virtual;
+    procedure DoSendProgress(const Sender: TObject; AContentLength, AWriteCount: Int64; var AAbort: Boolean); virtual;
+
     procedure DoHTTPProtocolError(Sender: TCustomRESTRequest); virtual;
   public
     constructor Create; virtual;
@@ -334,6 +342,8 @@ begin
   FHeaders := TStringList.Create;
   FRESTRequest.OnAfterExecute := DoAfterExecute;
   FRESTRequest.OnHTTPProtocolError := DoHTTPProtocolError;
+  FRESTClient.OnReceiveData := DoReceiveProgress;
+  FRESTClient.OnSendData := DoSendProgress;
   DoJoinComponents;
   FRESTClient.RaiseExceptionOn500 := False;
   FRetries := 0;
@@ -394,6 +404,20 @@ procedure TRequestClient.DoJoinComponents;
 begin
   FRESTRequest.Client := FRESTClient;
   FRESTRequest.Response := FRESTResponse;
+end;
+
+procedure TRequestClient.DoReceiveProgress(const Sender: TObject;
+  AContentLength, AWriteCount: Int64; var AAbort: Boolean);
+begin
+  if Assigned(FOnReceiveProgress) then
+    FOnReceiveProgress(AContentLength, AWriteCount, AAbort);
+end;
+
+procedure TRequestClient.DoSendProgress(const Sender: TObject; AContentLength,
+  AWriteCount: Int64; var AAbort: Boolean);
+begin
+  if Assigned(FOnSendProgress) then
+    FOnSendProgress(AContentLength, AWriteCount, AAbort);
 end;
 
 procedure TRequestClient.ExecuteRequest;
@@ -505,6 +529,20 @@ function TRequestClient.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnB
 begin
   Result := Self;
   FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestClient.OnReceiveProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnReceiveProgress := AOnProgress;
+end;
+
+function TRequestClient.OnSendProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnSendProgress := AOnProgress;
 end;
 
 function TRequestClient.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;

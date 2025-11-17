@@ -7,7 +7,7 @@ unit RESTRequest4D.Request.Indy;
 interface
 
 uses RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, IdHTTP, IdSSLOpenSSL, IdCTypes, IdSSLOpenSSLHeaders,
-  RESTRequest4D.Utils, RESTRequest4D.Request.Adapter.Contract, IdMultipartFormData,
+  RESTRequest4D.Utils, RESTRequest4D.Request.Adapter.Contract, IdMultipartFormData, IdComponent,
   {$IFDEF FPC}
     DB, Classes, fpjson, jsonparser, fpjsonrtti, SysUtils;
   {$ELSE}
@@ -31,8 +31,11 @@ type
     FStreamSend: TStream;
     FStreamResult: TStringStream;
     FRetries: Integer;
+    FProgressContentLength: Int64;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
+    FOnReceiveProgress: TRR4DCallbackOnProgress;
+    FOnSendProgress: TRR4DCallbackOnProgress;
     procedure ExecuteRequest(const AMethod: TMethodRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -59,6 +62,8 @@ type
     function Retry(const ARetries: Integer): IRequest;
     function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
     function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+    function OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+    function OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -95,6 +100,9 @@ type
   protected
     procedure DoBeforeExecute; virtual;
     procedure DoAfterExecute; virtual;
+
+    procedure DoWork(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
+    procedure DoWorkBegin(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64);
   public
     constructor Create;
     class function New: IRequest;
@@ -226,6 +234,37 @@ procedure TRequestIndy.DoBeforeExecute;
 begin
   if Assigned(FOnBeforeExecute) then
     FOnBeforeExecute(Self);
+end;
+
+procedure TRequestIndy.DoWork(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCount: Int64);
+var
+  LIsProgressAbort: Boolean;
+  LProgressMode: string;
+begin
+  LIsProgressAbort := False;
+  case AWorkMode of
+    wmRead:
+      begin
+        LProgressMode := 'Download';
+        if Assigned(FOnReceiveProgress) then
+          FOnReceiveProgress(FProgressContentLength, AWorkCount, LIsProgressAbort);
+      end;
+    wmWrite:
+      begin
+        LProgressMode := 'Upload';
+        if Assigned(FOnSendProgress) then
+          FOnSendProgress(FProgressContentLength, AWorkCount, LIsProgressAbort);
+      end;
+  end;
+  if LIsProgressAbort then
+    raise EAbort.Create(ClassName + ' ' + LProgressMode + ' Progress aborted');
+end;
+
+procedure TRequestIndy.DoWorkBegin(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCountMax: Int64);
+begin
+  FProgressContentLength := AWorkCountMax;
 end;
 
 procedure TRequestIndy.DoAfterExecute;
@@ -629,6 +668,8 @@ end;
 
 constructor TRequestIndy.Create;
 begin
+  FProgressContentLength := 0;
+
   FIdHTTP := TIdHTTP.Create(nil);
   FIdHTTP.Request.Connection := 'Keep-Alive';
   FIdHTTP.Request.UserAgent := 'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36';
@@ -662,6 +703,8 @@ begin
     hoKeepOrigProtocol,
     hoWantProtocolErrorContent // This will force the Content when error 500 happens, not related with RaiseExceptionOn500
     ];
+  FIdHTTP.OnWork := DoWork;
+  FIdHTTP.OnWorkBegin := DoWorkBegin;
 end;
 
 destructor TRequestIndy.Destroy;
@@ -711,6 +754,20 @@ function TRequestIndy.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBef
 begin
   Result := Self;
   FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestIndy.OnReceiveProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnReceiveProgress := AOnProgress;
+end;
+
+function TRequestIndy.OnSendProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnSendProgress := AOnProgress;
 end;
 
 function TRequestIndy.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;

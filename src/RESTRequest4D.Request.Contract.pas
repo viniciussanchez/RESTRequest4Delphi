@@ -28,9 +28,13 @@ type
 {$IF DEFINED(FPC)}
   TRR4DCallbackOnBeforeExecute = procedure(const Req: IRequest);
   TRR4DCallbackOnAfterExecute = procedure(const Req: IRequest; const Res: IResponse);
+
+  TRR4DCallbackOnProgress = procedure(ATotal, ACurrent: Int64; var AAbort: Boolean);
 {$ELSE}
   TRR4DCallbackOnBeforeExecute = reference to procedure(const Req: IRequest);
   TRR4DCallbackOnAfterExecute = reference to procedure(const Req: IRequest; const Res: IResponse);
+
+  TRR4DCallbackOnProgress = reference to procedure(ATotal, ACurrent: Int64; var AAbort: Boolean);
 {$ENDIF}
 
   IRequest = interface
@@ -60,6 +64,20 @@ type
     function Retry(const ARetries: Integer): IRequest;
     function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
     function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+    /// <summary>
+    /// NOT Thread-Safe
+    ///  IF this method accesses UI-related resources and
+    ///  When invoking it from background threads, use TThread.Synchronize,
+    ///  TThread.Queue, or TThread.ForceQueue.
+    /// </summary>
+    function OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+    /// <summary>
+    /// NOT Thread-Safe
+    ///  IF this method accesses UI-related resources and
+    ///  When invoking it from background threads, use TThread.Synchronize,
+    ///  TThread.Queue, or TThread.ForceQueue.
+    /// </summary>
+    function OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
