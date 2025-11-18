@@ -18,6 +18,7 @@ type
     FRetries: Integer;
     FUrlSegments: TStrings;
     FAdapters: TArray<IRequestAdapter>;
+    FProgressCurrent: Int64;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
     FOnReceiveProgress: TRR4DCallbackOnProgress;
@@ -82,6 +83,10 @@ type
   protected
     procedure DoBeforeExecute; virtual;
     procedure DoAfterExecute; virtual;
+
+    procedure DoStateChange(Sender: TObject); virtual;
+    procedure DoReceiveDataEvent(Sender: TObject; Buffer: Pointer; Len: Integer); virtual;
+    procedure DoSendDataEvent(Sender: TObject; Buffer: Pointer; Len: Integer); virtual;
   public
     constructor Create;
     class function New: IRequest;
@@ -103,7 +108,8 @@ function TRequestICS.OnReceiveProgress(
 begin
   Result := Self;
   FOnReceiveProgress := AOnProgress;
-  raise Exception.Create('TRequestICS.OnReceiveProgress Method not implemented YET');
+  FSslHttpRest.ShowProgress := Assigned(FOnReceiveProgress);
+  FSslHttpRest.ProgIntSecs := 1; // Force the method to run every second
 end;
 
 function TRequestICS.OnSendProgress(
@@ -111,7 +117,8 @@ function TRequestICS.OnSendProgress(
 begin
   Result := Self;
   FOnSendProgress := AOnProgress;
-  raise Exception.Create('TRequestICS.OnSendProgress Method not implemented YET');
+  FSslHttpRest.ShowProgress := Assigned(FOnSendProgress);
+  FSslHttpRest.ProgIntSecs := 1; // Force the method to run every second
 end;
 
 function TRequestICS.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
@@ -138,6 +145,7 @@ end;
 
 function TRequestICS.AddBody(const AContent: TStream; const AOwns: Boolean): IRequest;
 begin
+  Result := Self;
   try
     FBodyRaw.LoadFromStream(AContent);
   finally
@@ -449,6 +457,9 @@ begin
   FSslHttpRest := TSslHttpRest.Create(nil);
   OverbyteIcsWSocket.LoadSsl;
   FSslHttpRest.DebugLevel := DebugHdr;
+  FSslHttpRest.OnStateChange := DoStateChange;
+  FSslHttpRest.OnDocData := DoReceiveDataEvent;
+  FSslHttpRest.OnSendData := DoSendDataEvent;
   FBodyRaw := TStringList.Create;
   FUrlSegments := TStringList.Create;
   FBodyRaw.LineBreak := '';
@@ -477,6 +488,59 @@ procedure TRequestICS.DoBeforeExecute;
 begin
   if Assigned(FOnBeforeExecute) then
     FOnBeforeExecute(Self);
+end;
+
+procedure TRequestICS.DoReceiveDataEvent(Sender: TObject; Buffer: Pointer;
+  Len: Integer);
+var
+  LIsProgressAbort: Boolean;
+begin
+  LIsProgressAbort := False;
+  if Assigned(FOnReceiveProgress) then
+  begin
+    FProgressCurrent := FProgressCurrent + Len;
+    FOnReceiveProgress(FSslHttpRest.ContentLength, FProgressCurrent, LIsProgressAbort);
+  end;
+  if LIsProgressAbort then
+    TThread.Queue(nil,
+      procedure
+      begin
+        FSslHttpRest.Abort;
+      end);
+end;
+
+procedure TRequestICS.DoSendDataEvent(Sender: TObject; Buffer: Pointer;
+  Len: Integer);
+var
+  LIsProgressAbort: Boolean;
+begin
+  LIsProgressAbort := False;
+  if Assigned(FOnSendProgress) then
+  begin
+    FProgressCurrent := FProgressCurrent + Len;
+    FOnSendProgress(FSslHttpRest.SendStream.Size, FProgressCurrent, LIsProgressAbort);
+  end;
+  if LIsProgressAbort then
+  begin
+    TThread.Queue(nil,
+      procedure
+      begin
+        // Suppressing errors while aborting is necessary because SslHttpRest
+        // does not except abort while POSTING, and raise a sending exception
+        FSslHttpRest.CtrlSocket.ComponentOptions := FSslHttpRest.CtrlSocket.ComponentOptions + [TWSocketOption.wsoNoSendException];
+        FSslHttpRest.Abort;
+      end);
+   end;
+end;
+
+procedure TRequestICS.DoStateChange(Sender: TObject);
+begin
+  if (not (Sender is TSslHttpRest)) then
+    Exit;
+  case TSslHttpRest(Sender).State of
+    httpConnected:
+      FProgressCurrent := 0;
+  end;
 end;
 
 procedure TRequestICS.ExecuteRequest(const AMethod: TMethodRequest);
