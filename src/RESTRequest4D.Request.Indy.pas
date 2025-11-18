@@ -101,8 +101,8 @@ type
     procedure DoBeforeExecute; virtual;
     procedure DoAfterExecute; virtual;
 
-    procedure DoWork(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
-    procedure DoWorkBegin(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64);
+    procedure DoWork(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64); virtual;
+    procedure DoWorkBegin(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64); virtual;
   public
     constructor Create;
     class function New: IRequest;
