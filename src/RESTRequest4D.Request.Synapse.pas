@@ -7,7 +7,7 @@ unit RESTRequest4D.Request.Synapse;
 interface
 
 uses Classes, SysUtils, DB, RESTRequest4D.Request.Contract, RESTRequest4D.Response.Contract, RESTRequest4D.Utils,
-  httpsend, ssl_openssl, Generics.Collections, RESTRequest4D.Request.Adapter.Contract,
+  httpsend, ssl_openssl3, blcksock, Generics.Collections, RESTRequest4D.Request.Adapter.Contract, dialogs, synautil,
   {$IFDEF FPC}
     fpjson, fpjsonrtti, base64;
   {$ELSE}
@@ -42,8 +42,12 @@ type
     FResponse: IResponse;
     FStreamSend: TStream;
     FRetries: Integer;
+    FProgressContentLength: Int64;
+    FProgressCurrent: Int64;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
+    FOnReceiveProgress: TRR4DCallbackOnProgress;
+    FOnSendProgress: TRR4DCallbackOnProgress;
     procedure ExecuteRequest(const AMethod: TMethodRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -72,6 +76,8 @@ type
     function Retry(const ARetries: Integer): IRequest;
     function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
     function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+    function OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+    function OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -105,6 +111,8 @@ type
   protected
     procedure DoAfterExecute(const Sender: TObject; const AResponse: IResponse); virtual;
     procedure DoBeforeExecute(const Sender: THTTPSend); virtual;
+
+    procedure DoSocketStatus(Sender: TObject; Reason: THookSocketReason; const Value: string);
   public
     constructor Create;
     class function New: IRequest;
@@ -115,15 +123,26 @@ implementation
 
 uses RESTRequest4D.Response.Synapse;
 
+const
+  _CRLF = #13#10;
+
 constructor TFile.Create(const AFileStream: TStream; const AFileName: string; const AContentType: string);
+var
+  MS: TMemoryStream;
 begin
-  FFileStream := AFileStream;
+  MS := TMemoryStream.Create;
+  AFileStream.Position := 0;
+  MS.CopyFrom(AFileStream, AFileStream.Size);
+  MS.Position := 0;
+
+  FFileStream := MS;
   FFileName := AFileName;
   FContentType := AContentType;
 end;
 
 destructor TFile.Destroy;
 begin
+  FFileStream.Free;
   inherited Destroy;
 end;
 
@@ -132,7 +151,6 @@ var
   LAttempts: Integer;
   LBound, LContent, LFieldName: string;
   LFile: TFile;
-  LStream: TStream;
 begin
   LAttempts := FRetries + 1;
 
@@ -140,75 +158,69 @@ begin
   begin
     try
       DoBeforeExecute(FHTTPSend);
-      LStream := TstringStream.Create('', TEncoding.UTF8);
-      try
-        if AMethod <> mrGET then
+      if AMethod <> mrGET then
+      begin
+        if (FFields.Count > 0) or (FFiles.Count > 0) then
         begin
-          if (FFields.Count > 0) or (FFiles.Count > 0) then
+          LBound := IntToHex(Random(MaxInt), 8) + '_multipart_boundary';
+          ContentType('multipart/form-data; boundary=' + LBound);
+          MimeType('multipart/form-data; boundary=' + LBound);
+
+          for LFieldName in FFields.Keys do
           begin
-            LBound := IntToHex(Random(MaxInt), 8) + '_rr4d_boundary';
-            ContentType('multipart/form-data; boundary=' + LBound);
-
-            for LFieldName in FFields.Keys do
-            begin
-              LContent := sLineBreak + '--' + LBound + sLineBreak +
-                          'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') + sLineBreak + sLineBreak +
-                          FFields.Items[LFieldName]+ sLineBreak + sLineBreak;
-              LStream.Write(PAnsiChar(AnsiString(LContent))^, Length(LContent));
-            end;
-
-            for LFieldName in FFiles.Keys do
-            begin
-              LFile := FFiles.Items[LFieldName];
-
-              LContent := sLineBreak + '--' + LBound + sLineBreak +
-                          'Content-Disposition: form-data; name=' + AnsiQuotedStr(LFieldName, '"') +';' +
-                          sLineBreak + #9'filename=' + AnsiQuotedStr(LFile.FFileName, '"') +
-                          sLineBreak + 'Content-Type: '+AnsiQuotedStr(LFile.FContentType, '"') + sLineBreak + sLineBreak;
-              LStream.Write(PAnsiChar(AnsiString(LContent))^, Length(LContent));
-              LFile.FFileStream.Position := 0;
-              LStream.Write(LFile.FFileStream, LFile.FFileStream.Size);
-            end;
-
-            LBound := '--' +LBound+ '--' +sLineBreak;
-            LStream.Write(PAnsiChar(AnsiString(LBound))^, Length(LBound));
-            LStream.Position := 0;
-            FHTTPSend.Document.LoadFromStream(LStream);
-          end
-          else
-          begin
-            FStreamSend.Position := 0;
-            FHTTPSend.Document.LoadFromStream(FStreamSend);
+            LContent := '--' + LBound + _CRLF;
+            LContent := LContent + Format('Content-Disposition: form-data; name="%s"' + _CRLF + _CRLF + '%s' + _CRLF, [LFieldName, FFields.Items[LFieldName]]);
+            WriteStrToStream(FHTTPSend.Document, LContent);
           end;
+
+          for LFieldName in FFiles.Keys do
+          begin
+            LFile := FFiles.Items[LFieldName];
+
+            LContent := '--' + LBound + _CRLF;
+            LContent := LContent + Format('Content-Disposition: form-data; name="%s"; filename="%s"' + _CRLF, [LFieldName, ExtractFileName(LFile.FFileName)]);
+            LContent := LContent + Format('Content-Type: %s', [LFile.FContentType]) + _CRLF + _CRLF;
+
+            WriteStrToStream(FHTTPSend.Document, LContent);
+            FHTTPSend.Document.CopyFrom(LFile.FFileStream, 0);
+          end;
+
+          LBound := _CRLF + '--' +LBound+ '--' + _CRLF;
+          WriteStrToStream(FHTTPSend.Document, LBound);
+        end
+        else
+        begin
+          FStreamSend.Position := 0;
+          FHTTPSend.Document.LoadFromStream(FStreamSend);
         end;
-
-        case AMethod of
-          mrGET:
-            FHTTPSend.HTTPMethod('GET', MakeURL);
-          mrPOST:
-            FHTTPSend.HTTPMethod('POST', MakeURL);
-          mrPUT:
-            FHTTPSend.HTTPMethod('PUT', MakeURL);
-          mrPATCH:
-            FHTTPSend.HTTPMethod('PATCH', MakeURL);
-          mrDELETE:
-            FHTTPSend.HTTPMethod('DELETE', MakeURL);
-        end;
-
-        FHTTPSend.Document.Position := 0;
-        FResponse.ContentStream.CopyFrom(FHTTPSend.Document, FHTTPSend.Document.Size);
-
-        LAttempts := 0;
-      finally
-        if Assigned(LStream) then
-          LStream.Free;
       end;
 
+      case AMethod of
+        mrGET:
+          FHTTPSend.HTTPMethod('GET', MakeURL);
+        mrPOST:
+          FHTTPSend.HTTPMethod('POST', MakeURL);
+        mrPUT:
+          FHTTPSend.HTTPMethod('PUT', MakeURL);
+        mrPATCH:
+          FHTTPSend.HTTPMethod('PATCH', MakeURL);
+        mrDELETE:
+          FHTTPSend.HTTPMethod('DELETE', MakeURL);
+      end;
+
+      FHTTPSend.Document.Position := 0;
+      FResponse.ContentStream.CopyFrom(FHTTPSend.Document, FHTTPSend.Document.Size);
+
+      LAttempts := 0;
       DoAfterExecute(Self, FResponse);
     except
-      LAttempts := LAttempts - 1;
-      if LAttempts = 0 then
+      on e: Exception do
+      begin
+        ShowMessage(e.Message);
+        LAttempts := LAttempts - 1;
+        if LAttempts = 0 then
         raise;
+      end;
     end;
   end;
 end;
@@ -248,13 +260,13 @@ end;
 
 function TRequestSynapse.Timeout: Integer;
 begin
-  Result := FHTTPSend.Timeout;
+  Result := FHTTPSend.Sock.ConnectionTimeout;
 end;
 
 function TRequestSynapse.Timeout(const ATimeout: Integer): IRequest;
 begin
   Result := Self;
-  FHTTPSend.Timeout := ATimeout;
+  FHTTPSend.Sock.ConnectionTimeout := ATimeout;
 end;
 
 function TRequestSynapse.BaseURL(const ABaseURL: string): IRequest;
@@ -332,6 +344,20 @@ function TRequestSynapse.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOn
 begin
   Result := Self;
   FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestSynapse.OnReceiveProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnReceiveProgress := AOnProgress;
+end;
+
+function TRequestSynapse.OnSendProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnSendProgress := AOnProgress;
 end;
 
 function TRequestSynapse.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
@@ -703,10 +729,103 @@ begin
     FOnBeforeExecute(Self);
 end;
 
+procedure TRequestSynapse.DoSocketStatus(Sender: TObject;
+  Reason: THookSocketReason; const Value: string);
+
+  function GetSizeFromHeader(Header: String): integer;
+  var
+    LStrList : TStringList;
+  begin
+    //the download size is contained in the header (e.g.: Content-Length: 3737722)
+    Result:= -1;
+
+    if Pos('Content-Length:', Header) <> 0 then
+    begin
+      LStrList := TStringList.Create();
+      try
+        LStrList.Delimiter:= ':';
+        LStrList.StrictDelimiter:=true;
+        LStrList.DelimitedText := Header;
+        if LStrList.Count = 2 then
+        begin
+          Result:= StrToInt(Trim(LStrList[1]));
+        end;
+      finally
+        LStrList.Free;
+      end;
+    end;
+  end;
+
+var
+  Bytes: Int64;
+  LIsProgressAbort: Boolean;
+begin
+  if (not (Assigned(FOnReceiveProgress))) and (not (Assigned(FOnSendProgress))) then
+    Exit; // Runs only if one of them is assigned
+
+  case Reason of
+    HR_SocketClose, HR_ResolvingBegin:
+      begin
+        FProgressContentLength := -1;
+        FProgressCurrent := 0;
+      end;
+
+  else
+    if FProgressContentLength = -1 then
+    begin
+      if Pos('Content-Length:'.ToUpper, FHTTPSend.Headers.Text.ToUpper) <> 0 then
+      begin
+        for var i:= 0 to FHTTPSend.Headers.Count - 1 do
+        begin
+          FProgressContentLength:= GetSizeFromHeader(FHTTPSend.Headers[i]);
+          if FProgressContentLength <> -1 then
+            Break;
+        end;
+      end;
+    end
+    else
+    begin
+      LIsProgressAbort := False;
+      case Reason of
+        HR_ReadCount:
+          begin
+            if (Assigned(FOnReceiveProgress)) then
+            begin
+              // Value is string (ex: '1024')
+              Bytes := StrToIntDef(Value, 0);
+              Inc(FProgressCurrent, Bytes);
+              FOnReceiveProgress(FProgressContentLength, FProgressCurrent, LIsProgressAbort);
+            end;
+          end;
+        HR_WriteCount:
+          begin
+            if (Assigned(FOnSendProgress)) then
+            begin
+              // Value is string (ex: '1024')
+              Bytes := StrToIntDef(Value, 0);
+              Inc(FProgressCurrent, Bytes);
+              FOnSendProgress(FProgressContentLength, FProgressCurrent, LIsProgressAbort);
+            end;
+          end;
+
+        {HR_Error:
+          begin
+            // Erro no download
+            ResetProgress;
+            Memo1.Lines.Insert(0, 'ERROR ' + Value);
+          end;}
+      end;
+      if LIsProgressAbort then
+        FHTTPSend.Abort;
+    end;
+  end;
+end;
+
 constructor TRequestSynapse.Create;
 begin
   FHTTPSend := THTTPSend.Create;
   FHTTPSend.Headers.NameValueSeparator := ':';
+  FHTTPSend.Sock.OnStatus := DoSocketStatus;
 
   FHeaders := TstringList.Create;
   FParams := TstringList.Create;

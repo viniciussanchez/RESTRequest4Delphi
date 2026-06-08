@@ -24,6 +24,8 @@ type
     FRetries: Integer;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
+    FOnReceiveProgress: TRR4DCallbackOnProgress;
+    FOnSendProgress: TRR4DCallbackOnProgress;
     function ExecuteRequest(const AMethod: TMethodRequest): IHTTPResponse;
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -51,6 +53,8 @@ type
     function Retry(const ARetries: Integer): IRequest;
     function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
     function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+    function OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+    function OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -86,6 +90,10 @@ type
   protected
     procedure DoAfterExecute(const Sender: TObject; const AResponse: IHTTPResponse); virtual;
     procedure DoBeforeExecute(const Sender: TNetHTTPClient); virtual;
+
+    procedure DoReceiveProgress(const Sender: TObject; AContentLength, AWriteCount: Int64; var AAbort: Boolean); virtual;
+    procedure DoSendProgress(const Sender: TObject; AContentLength, AWriteCount: Int64; var AAbort: Boolean); virtual;
+
     procedure DoHTTPProtocolError(const Sender: TObject; const AError: string); virtual;
   public
     constructor Create;
@@ -204,8 +212,9 @@ begin
   try
     cookies.AddPair(ACookieName, ACookieValue);
     Result := AddCookies(cookies);
-  finally
+  except
     cookies.Free;
+    raise;
   end;
 end;
 
@@ -379,6 +388,8 @@ begin
   FNetHTTPClient.ContentType := 'application/json';
   FNetHTTPClient.OnRequestError := DoHTTPProtocolError;
   FNetHTTPClient.OnRequestCompleted := DoAfterExecute;
+  FNetHTTPClient.OnReceiveData := DoReceiveProgress;
+  FNetHTTPClient.OnSendData := DoSendProgress;
   FNetHTTPClient.Asynchronous := False;
   FNetHTTPClient.SynchronizeEvents := True;
   FNetHTTPClient.OnValidateServerCertificate := NetHTTPClientValidateServerCertificate;  
@@ -462,6 +473,20 @@ end;
 procedure TRequestNetHTTP.DoHTTPProtocolError(const Sender: TObject; const AError: string);
 begin
   // virtual method
+end;
+
+procedure TRequestNetHTTP.DoReceiveProgress(const Sender: TObject;
+  AContentLength, AWriteCount: Int64; var AAbort: Boolean);
+begin
+  if Assigned(FOnReceiveProgress) then
+    FOnReceiveProgress(AContentLength, AWriteCount, AAbort);
+end;
+
+procedure TRequestNetHTTP.DoSendProgress(const Sender: TObject; AContentLength,
+  AWriteCount: Int64; var AAbort: Boolean);
+begin
+  if Assigned(FOnSendProgress) then
+    FOnSendProgress(AContentLength, AWriteCount, AAbort);
 end;
 
 function TRequestNetHTTP.ExecuteRequest(const AMethod: TMethodRequest): IHTTPResponse;
@@ -648,6 +673,20 @@ function TRequestNetHTTP.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOn
 begin
   Result := Self;
   FOnBeforeExecute := AOnBeforeExecute;
+end;
+
+function TRequestNetHTTP.OnReceiveProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnReceiveProgress := AOnProgress;
+end;
+
+function TRequestNetHTTP.OnSendProgress(
+  const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnSendProgress := AOnProgress;
 end;
 
 function TRequestNetHTTP.OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
