@@ -5268,8 +5268,6 @@ object FrmMain: TFrmMain
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
-      ExplicitTop = 317
-      ExplicitHeight = 166
       object Panel6: TPanel
         Left = 0
         Top = 0
@@ -5332,7 +5330,6 @@ object FrmMain: TFrmMain
         Font.Style = []
         ParentFont = False
         TabOrder = 1
-        ExplicitHeight = 144
         object TabSheet6: TTabSheet
           Caption = 'Body'
           ImageIndex = 1
@@ -5343,7 +5340,6 @@ object FrmMain: TFrmMain
             Height = 190
             Align = alClient
             TabOrder = 0
-            ExplicitHeight = 114
           end
         end
       end
@@ -5389,7 +5385,6 @@ object FrmMain: TFrmMain
         Font.Style = []
         ParentFont = False
         TabOrder = 1
-        ExplicitHeight = 287
         object TabSheet1: TTabSheet
           Caption = 'Request'
           DesignSize = (
@@ -5487,6 +5482,7 @@ object FrmMain: TFrmMain
             Height = 25
             Anchors = [akTop, akRight]
             Caption = 'HEAD'
+            Enabled = False
             TabOrder = 7
             OnClick = btnHEADClick
           end
@@ -5604,7 +5600,6 @@ object FrmMain: TFrmMain
             Caption = 'Panel10'
             ShowCaption = False
             TabOrder = 2
-            ExplicitHeight = 178
             object imgMultipartFormDataStream: TImage
               AlignWithMargins = True
               Left = 10
