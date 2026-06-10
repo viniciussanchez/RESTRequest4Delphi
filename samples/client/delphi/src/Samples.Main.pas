@@ -32,6 +32,8 @@ type
   TMyCompletionHandlerWithError = TProc<TObject>;
 
   TFrmMain = class(TForm)
+    btnHEAD: TButton;
+    procedure btnHEADClick(Sender: TObject);
   published
     Panel1: TPanel;
     Panel2: TPanel;
@@ -136,6 +138,18 @@ begin
   LResponse := TRequest.New.BaseURL(edtBaseURL.Text)
     .Accept(edtAccept.Text)
     .Get;
+
+  mmBody.Lines.Text := LResponse.Content;
+  lblStatusCode.Caption := LResponse.StatusCode.ToString;
+end;
+
+procedure TFrmMain.btnHEADClick(Sender: TObject);
+var
+  LResponse: IResponse;
+begin
+  LResponse := TRequest.New.BaseURL(edtBaseURL.Text)
+    .Accept(edtAccept.Text)
+    .Head;
 
   mmBody.Lines.Text := LResponse.Content;
   lblStatusCode.Caption := LResponse.StatusCode.ToString;
