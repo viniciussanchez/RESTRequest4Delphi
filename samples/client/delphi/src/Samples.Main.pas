@@ -70,6 +70,7 @@ type
     btnPUT: TButton;
     btnPOST: TButton;
     btnGET: TButton;
+    btnHEAD: TButton;
     btnMultipartFormDataPost: TButton;
     btnMultipartFormDataPut: TButton;
     mmCustomBody: TMemo;
@@ -82,6 +83,7 @@ type
     procedure btnPOSTClick(Sender: TObject);
     procedure btnPUTClick(Sender: TObject);
     procedure btnDELETEClick(Sender: TObject);
+    procedure btnHEADClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnMultipartFormDataPostClick(Sender: TObject);
     procedure btnMultipartFormDataPutClick(Sender: TObject);
@@ -106,6 +108,7 @@ begin
   lblRESTRequest4DelphiComponent.Caption := 'RESTRequest4Delphi:  RR4D_FPHTTPCLIENT';
 {$ELSEIF DEFINED(RR4D_INDY)}
   lblRESTRequest4DelphiComponent.Caption := 'RESTRequest4Delphi:  RR4D_INDY';
+  btnHEAD.Enable := True;
 {$ELSEIF DEFINED(RR4D_NETHTTP)}
   lblRESTRequest4DelphiComponent.Caption := 'RESTRequest4Delphi:  RR4D_NETHTTP';
 {$ELSEIF DEFINED(RR4D_SYNAPSE)}
@@ -139,6 +142,18 @@ begin
 
   mmBody.Lines.Text := LResponse.Content;
   lblStatusCode.Caption := LResponse.StatusCode.ToString;
+end;
+
+procedure TFrmMain.btnHEADClick(Sender: TObject);
+begin
+  {$IFDEF RR4_INDY}
+  var LResponse := TRequest.New.BaseURL(edtBaseURL.Text)
+    .Accept(edtAccept.Text)
+    .Head;
+
+  mmBody.Lines.Text := LResponse.Content;
+  lblStatusCode.Caption := LResponse.StatusCode.ToString;
+  {$ENDIF}
 end;
 
 procedure TFrmMain.btnMultipartFormDataPostClick(Sender: TObject);

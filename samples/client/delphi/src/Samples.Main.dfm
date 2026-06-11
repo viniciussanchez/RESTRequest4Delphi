@@ -5251,7 +5251,7 @@ object FrmMain: TFrmMain
     TabOrder = 1
     object Splitter1: TSplitter
       Left = 0
-      Top = 209
+      Top = 233
       Width = 984
       Height = 8
       Cursor = crVSplit
@@ -5262,9 +5262,9 @@ object FrmMain: TFrmMain
     end
     object Panel3: TPanel
       Left = 0
-      Top = 217
+      Top = 241
       Width = 984
-      Height = 266
+      Height = 242
       Align = alClient
       BevelOuter = bvNone
       TabOrder = 0
@@ -5320,7 +5320,7 @@ object FrmMain: TFrmMain
         Left = 0
         Top = 22
         Width = 984
-        Height = 244
+        Height = 220
         ActivePage = TabSheet6
         Align = alClient
         Font.Charset = ANSI_CHARSET
@@ -5337,7 +5337,7 @@ object FrmMain: TFrmMain
             Left = 0
             Top = 0
             Width = 976
-            Height = 214
+            Height = 190
             Align = alClient
             TabOrder = 0
           end
@@ -5348,7 +5348,7 @@ object FrmMain: TFrmMain
       Left = 0
       Top = 0
       Width = 984
-      Height = 209
+      Height = 233
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 1
@@ -5375,8 +5375,8 @@ object FrmMain: TFrmMain
         Left = 0
         Top = 22
         Width = 984
-        Height = 187
-        ActivePage = TabSheet2
+        Height = 211
+        ActivePage = TabSheet1
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -5389,7 +5389,7 @@ object FrmMain: TFrmMain
           Caption = 'Request'
           DesignSize = (
             976
-            157)
+            181)
           object Label1: TLabel
             Left = 10
             Top = 53
@@ -5427,7 +5427,7 @@ object FrmMain: TFrmMain
             Left = 10
             Top = 74
             Width = 861
-            Height = 71
+            Height = 103
             Anchors = [akLeft, akTop, akRight]
             Lines.Strings = (
               
@@ -5474,6 +5474,17 @@ object FrmMain: TFrmMain
             Caption = 'GET'
             TabOrder = 6
             OnClick = btnGETClick
+          end
+          object btnHEAD: TButton
+            Left = 883
+            Top = 151
+            Width = 72
+            Height = 25
+            Anchors = [akTop, akRight]
+            Caption = 'HEAD'
+            Enabled = False
+            TabOrder = 7
+            OnClick = btnHEADClick
           end
         end
         object TabSheet2: TTabSheet
@@ -5583,7 +5594,7 @@ object FrmMain: TFrmMain
             Left = 0
             Top = 79
             Width = 976
-            Height = 78
+            Height = 102
             Align = alClient
             BevelOuter = bvNone
             Caption = 'Panel10'

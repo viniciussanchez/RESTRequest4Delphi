@@ -69,6 +69,9 @@ type
     function Put: IResponse;
     function Delete: IResponse;
     function Patch: IResponse;
+    function Options: IResponse;
+    function Head: IResponse;
+    function Trace: IResponse;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddBody(const AContent: string): IRequest; overload;
@@ -316,6 +319,12 @@ begin
           FIdHTTP.Patch(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
         mrDELETE:
           FIdHTTP.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
+        mrOPTIONS:
+          FIdHTTP.Options(TIdURI.URLEncode(MakeURL), FStreamResult);
+        mrHEAD:
+          FIdHTTP.Head(TIdURI.URLEncode(MakeURL));
+        mrTRACE:
+          FIdHTTP.Trace(TIdURI.URLEncode(MakeURL), FStreamResult);
       end;
       LAttempts := 0;
       Self.DoAfterExecute;
@@ -364,6 +373,13 @@ begin
   FResponse := TResponseIndy.Create(FIdHTTP);
   Result := FResponse;
   ExecuteRequest(mrGET);
+end;
+
+function TRequestIndy.Head: IResponse;
+begin
+  FResponse := TResponseIndy.Create(FIdHTTP);
+  Result := FResponse;
+  ExecuteRequest(mrHEAD);
 end;
 
 function TRequestIndy.HTTPOptions(const AHTTPOptions: TIdHTTPOptions): IRequest;
@@ -436,6 +452,13 @@ begin
   Self.AddHeader('Authorization', 'Bearer ' + AToken);
 end;
 
+function TRequestIndy.Trace: IResponse;
+begin
+  FResponse := TResponseIndy.Create(FIdHTTP);
+  Result := FResponse;
+  ExecuteRequest(mrTRACE);
+end;
+
 function TRequestIndy.FullRequestURL(const AIncludeParams: Boolean): string;
 begin
   Result := Self.MakeURL(AIncludeParams);
@@ -488,6 +511,13 @@ end;
 procedure TRequestIndy.OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
 begin
   SSL_set_tlsext_host_name(AsslSocket, FIdHTTP.URL.Host);
+end;
+
+function TRequestIndy.Options: IResponse;
+begin
+  FResponse := TResponseIndy.Create(FIdHTTP);
+  Result := FResponse;
+  ExecuteRequest(mrOPTIONS);
 end;
 
 function TRequestIndy.AddParam(const AName, AValue: string): IRequest;

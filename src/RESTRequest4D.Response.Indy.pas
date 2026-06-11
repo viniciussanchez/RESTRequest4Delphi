@@ -94,12 +94,16 @@ end;
 
 function TResponseIndy.RawBytes: TBytes;
 begin
-  Result := TStringStream(FIdHTTP.Response.ContentStream).Bytes;
+  Result:= nil;
+  if Assigned(FIdHTTP.Response.ContentStream) then
+    Result := TStringStream(FIdHTTP.Response.ContentStream).Bytes;
 end;
 
 function TResponseIndy.Content: string;
 begin
-  Result := TStringStream(FIdHTTP.Response.ContentStream).DataString;
+  Result := EmptyStr;
+  if Assigned(FIdHTTP.Response.ContentStream) then
+    Result := TStringStream(FIdHTTP.Response.ContentStream).DataString;
 end;
 
 function TResponseIndy.Headers: TStrings;
@@ -123,8 +127,12 @@ end;
 
 function TResponseIndy.ContentStream: TStream;
 begin
-  Result := FIdHTTP.Response.ContentStream;
-  Result.Position := 0;
+  Result:= nil;
+  if Assigned(FIdHTTP.Response.ContentStream) then
+  begin
+    Result := FIdHTTP.Response.ContentStream;
+    Result.Position := 0;
+  end;
 end;
 
 function TResponseIndy.ContentType: string;

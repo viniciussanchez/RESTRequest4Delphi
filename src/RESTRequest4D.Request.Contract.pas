@@ -83,6 +83,11 @@ type
     function Put: IResponse;
     function Delete: IResponse;
     function Patch: IResponse;
+    {$IF DEFINED(RR4D_INDY)}
+    function Options: IResponse;
+    function Head: IResponse;
+    function Trace: IResponse;
+    {$ENDIF}
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddBody(const AContent: TJSONObject; const AOwns: Boolean = True): IRequest; overload;
