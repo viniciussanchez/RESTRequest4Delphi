@@ -342,8 +342,10 @@ begin
   FHeaders := TStringList.Create;
   FRESTRequest.OnAfterExecute := DoAfterExecute;
   FRESTRequest.OnHTTPProtocolError := DoHTTPProtocolError;
+  {$IF COMPILERVERSION >= 36}
   FRESTClient.OnReceiveData := DoReceiveProgress;
   FRESTClient.OnSendData := DoSendProgress;
+  {$ENDIF}
   DoJoinComponents;
   FRESTClient.RaiseExceptionOn500 := False;
   FRetries := 0;
