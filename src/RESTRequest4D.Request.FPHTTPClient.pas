@@ -38,10 +38,13 @@ type
     FResponse: IResponse;
     FStreamSend: TStream;
     FRetries: Integer;
+    FRaiseExceptionOn500: Boolean;
     FCertificateFileName: String;
     FCertificatePassword: String;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
+    FOnReceiveProgress: TRR4DCallbackOnProgress;
+    FOnSendProgress: TRR4DCallbackOnProgress;
     procedure ExecuteRequest(const AMethod: TMethodRequest);
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -68,6 +71,8 @@ type
     function Retry(const ARetries: Integer): IRequest;
     function OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
     function OnAfterExecute(const AOnAfterExecute: TRR4DCallbackOnAfterExecute): IRequest;
+    function OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+    function OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
     function Get: IResponse;
     function Post: IResponse;
     function Put: IResponse;
@@ -105,6 +110,8 @@ type
   protected
     procedure DoAfterExecute(const Sender: TObject; const AResponse: IResponse); virtual;
     procedure DoBeforeExecute(const Sender: TFPHTTPClient); virtual;
+    procedure DoDataReceived(Sender: TObject; const ContentLength, CurrentPos: Int64); virtual;
+    procedure DoDataSent(Sender: TObject; const ContentLength, CurrentPos: Int64); virtual;
     procedure GetSocketHandler(Sender : TObject; Const UseSSL : Boolean; Out AHandler : TSocketHandler);
   public
     constructor Create;
@@ -114,7 +121,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Response.FPHTTPClient, RESTRequest4D.Utils;
+uses RESTRequest4D.Response.FPHTTPClient;
 
 const
   _CRLF = #13#10;
@@ -142,6 +149,7 @@ var
   LBound, LContent, LFieldName: string;
   LFile: TFile;
   LStream: TRawByteStringStream;
+  LFirst: Boolean;
 begin
   LAttempts := FRetries + 1;
 
@@ -158,27 +166,42 @@ begin
             LBound := IntToHex(Random(MaxInt), 8) + '_multipart_boundary';
             ContentType('multipart/form-data; boundary=' + LBound);
 
+            LFirst := True;
+
             for LFieldName in FFields.Keys do
             begin
-              LContent := '--' + LBound + _CRLF;
-              LContent := LContent + Format('Content-Disposition: form-data; name="%s"' + _CRLF + _CRLF + '%s' + _CRLF, [LFieldName, FFields.Items[LFieldName]]);
+              if LFirst then
+              begin
+                LContent := '--' + LBound + _CRLF;
+                LFirst := False;
+              end
+              else
+                LContent := _CRLF + '--' + LBound + _CRLF;
+
+              LContent := LContent + Format('Content-Disposition: form-data; name="%s"' + _CRLF + _CRLF + '%s', [LFieldName, FFields.Items[LFieldName]]);
               LStream.WriteBuffer(PAnsiChar(LContent)^, Length(LContent));
             end;
 
             for LFieldName in FFiles.Keys do
             begin
               LFile := FFiles.Items[LFieldName];
-              LContent := '--' + LBound + _CRLF;
+              if LFirst then
+              begin
+                LContent := '--' + LBound + _CRLF;
+                LFirst := False;
+              end
+              else
+                LContent := _CRLF + '--' + LBound + _CRLF;
+
               LContent := LContent + Format('Content-Disposition: form-data; name="%s"; filename="%s"' + _CRLF, [LFieldName, ExtractFileName(LFile.FFileName)]);
               LContent := LContent + Format('Content-Type: %s', [LFile.FContentType]) + _CRLF + _CRLF;
-              LStream.WriteBuffer(LContent[1], Length(LContent));
+              LStream.WriteBuffer(PAnsiChar(LContent)^, Length(LContent));
               LFile.FFileStream.Position := 0;
-              LStream.CopyFrom(TMemoryStream(LFile.FFileStream), LFile.FFileStream.Size);
-              LStream.WriteBuffer(_CRLF, Length(_CRLF));              
+              LStream.CopyFrom(LFile.FFileStream, LFile.FFileStream.Size);
             end;
 
-            LBound := _CRLF + '--' +LBound+ '--' + _CRLF;
-            LStream.WriteBuffer(LBound[1], Length(LBound));
+            LBound := _CRLF + '--' + LBound + '--' + _CRLF;
+            LStream.WriteBuffer(PAnsiChar(LBound)^, Length(LBound));
             LStream.Position := 0;
             FFPHTTPClient.RequestBody := LStream;
           end
@@ -200,6 +223,8 @@ begin
         end;
 
         LAttempts := 0;
+        if FRaiseExceptionOn500 and (FResponse.StatusCode >= 500) then
+          raise Exception.Create(Format('HTTP/1.1 %d %s', [FResponse.StatusCode, FResponse.StatusText]));
       finally
         if Assigned(LStream) then
           LStream.Free;
@@ -279,12 +304,13 @@ end;
 
 function TRequestFPHTTPClient.RaiseExceptionOn500: Boolean;
 begin
-  Result := False;
+  Result := FRaiseExceptionOn500;
 end;
 
 function TRequestFPHTTPClient.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  FRaiseExceptionOn500 := ARaiseException;
 end;
 
 function TRequestFPHTTPClient.Resource: string;
@@ -340,6 +366,18 @@ function TRequestFPHTTPClient.OnAfterExecute(const AOnAfterExecute: TRR4DCallbac
 begin
   Result := Self;
   FOnAfterExecute := AOnAfterExecute;
+end;
+
+function TRequestFPHTTPClient.OnReceiveProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnReceiveProgress := AOnProgress;
+end;
+
+function TRequestFPHTTPClient.OnSendProgress(const AOnProgress: TRR4DCallbackOnProgress): IRequest;
+begin
+  Result := Self;
+  FOnSendProgress := AOnProgress;
 end;
 
 function TRequestFPHTTPClient.Get: IResponse;
@@ -517,7 +555,7 @@ var
 begin
   Result := Self;
   for I := 0 to ACookies.Count - 1 do
-    FFPHTTPClient.Cookies.Add(ACookies.Text[I]);
+    FFPHTTPClient.Cookies.Add(ACookies.Strings[I]);
 end;
 
 function TRequestFPHTTPClient.AddCookie(const ACookieName, ACookieValue: string): IRequest;
@@ -653,6 +691,32 @@ begin
     FOnBeforeExecute(Self);
 end;
 
+procedure TRequestFPHTTPClient.DoDataReceived(Sender: TObject; const ContentLength, CurrentPos: Int64);
+var
+  LAbort: Boolean;
+begin
+  if Assigned(FOnReceiveProgress) then
+  begin
+    LAbort := False;
+    FOnReceiveProgress(ContentLength, CurrentPos, LAbort);
+    if LAbort then
+      raise EAbort.Create('Operation aborted by user');
+  end;
+end;
+
+procedure TRequestFPHTTPClient.DoDataSent(Sender: TObject; const ContentLength, CurrentPos: Int64);
+var
+  LAbort: Boolean;
+begin
+  if Assigned(FOnSendProgress) then
+  begin
+    LAbort := False;
+    FOnSendProgress(ContentLength, CurrentPos, LAbort);
+    if LAbort then
+      raise EAbort.Create('Operation aborted by user');
+  end;
+end;
+
 procedure TRequestFPHTTPClient.GetSocketHandler(Sender: TObject; const UseSSL: Boolean; out AHandler: TSocketHandler);
 var
   SSLHandler: TOpenSSLSocketHandler;
@@ -679,6 +743,8 @@ begin
   FFPHTTPClient.AllowRedirect := True;
   FFPHTTPClient.RequestHeaders.Clear;
   FFPHTTPClient.ResponseHeaders.Clear;
+  FFPHTTPClient.OnDataReceived := DoDataReceived;
+  FRaiseExceptionOn500 := False;
 
   FHeaders := TstringList.Create;
   FParams := TstringList.Create;
