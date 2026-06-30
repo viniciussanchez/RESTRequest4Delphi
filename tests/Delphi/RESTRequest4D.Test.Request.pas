@@ -19,6 +19,15 @@ type
     procedure TestPostRequestWithJson;
     
     [Test]
+    procedure TestPutRequest;
+    
+    [Test]
+    procedure TestDeleteRequest;
+    
+    [Test]
+    procedure TestPatchRequest;
+    
+    [Test]
     procedure TestAddHeaders;
     
     [Test]
@@ -32,6 +41,18 @@ type
     
     [Test]
     procedure TestGetRequestAsync;
+    
+    [Test]
+    procedure TestTokenBearerAuthentication;
+    
+    [Test]
+    procedure TestCookies;
+    
+    [Test]
+    procedure TestMultipartFormData;
+    
+    [Test]
+    procedure TestAddBodyString;
   end;
 
 implementation
@@ -42,8 +63,6 @@ procedure TRESTRequest4DTest.TestFluidLifecycle;
 var
   LResponse: IResponse;
 begin
-  // Simula a fluidez onde a interface IRequest temporária é destruída
-  // logo após o Get. O IResponse deve continuar acessível e sem Access Violation.
   LResponse := TRequest.New
     .BaseURL('https://httpbin.org')
     .Resource('get')
@@ -100,6 +119,64 @@ begin
   Assert.AreEqual('RESTRequest4Delphi', LData.GetValue('nome').Value);
 end;
 
+procedure TRESTRequest4DTest.TestPutRequest;
+var
+  LResponse: IResponse;
+  LBody: TJSONObject;
+  LJson: TJSONObject;
+  LData: TJSONObject;
+begin
+  LBody := TJSONObject.Create;
+  LBody.AddPair('param_put', 'valor_put');
+
+  LResponse := TRequest.New
+    .BaseURL('https://httpbin.org')
+    .Resource('put')
+    .AddBody(LBody)
+    .Put;
+
+  Assert.AreEqual(200, LResponse.StatusCode);
+  LJson := LResponse.JSONValue as TJSONObject;
+  LData := LJson.GetValue('json') as TJSONObject;
+  Assert.IsNotNull(LData);
+  Assert.AreEqual('valor_put', LData.GetValue('param_put').Value);
+end;
+
+procedure TRESTRequest4DTest.TestDeleteRequest;
+var
+  LResponse: IResponse;
+begin
+  LResponse := TRequest.New
+    .BaseURL('https://httpbin.org')
+    .Resource('delete')
+    .Delete;
+
+  Assert.AreEqual(200, LResponse.StatusCode);
+end;
+
+procedure TRESTRequest4DTest.TestPatchRequest;
+var
+  LResponse: IResponse;
+  LBody: TJSONObject;
+  LJson: TJSONObject;
+  LData: TJSONObject;
+begin
+  LBody := TJSONObject.Create;
+  LBody.AddPair('param_patch', 'valor_patch');
+
+  LResponse := TRequest.New
+    .BaseURL('https://httpbin.org')
+    .Resource('patch')
+    .AddBody(LBody)
+    .Patch;
+
+  Assert.AreEqual(200, LResponse.StatusCode);
+  LJson := LResponse.JSONValue as TJSONObject;
+  LData := LJson.GetValue('json') as TJSONObject;
+  Assert.IsNotNull(LData);
+  Assert.AreEqual('valor_patch', LData.GetValue('param_patch').Value);
+end;
+
 procedure TRESTRequest4DTest.TestAddHeaders;
 var
   LResponse: IResponse;
@@ -147,7 +224,6 @@ var
   LResponse: IResponse;
   LJson: TJSONObject;
 begin
-  // Substitui :id na URL final por 123
   LResponse := TRequest.New
     .BaseURL('https://httpbin.org')
     .Resource('anything/:id')
@@ -208,6 +284,77 @@ begin
   finally
     LEvent.Free;
   end;
+end;
+
+procedure TRESTRequest4DTest.TestTokenBearerAuthentication;
+var
+  LResponse: IResponse;
+begin
+  LResponse := TRequest.New
+    .BaseURL('https://httpbin.org')
+    .Resource('bearer')
+    .TokenBearer('token123')
+    .Get;
+
+  Assert.AreEqual(200, LResponse.StatusCode);
+end;
+
+procedure TRESTRequest4DTest.TestCookies;
+var
+  LResponse: IResponse;
+  LJson: TJSONObject;
+  LCookies: TJSONObject;
+begin
+  LResponse := TRequest.New
+    .BaseURL('https://httpbin.org')
+    .Resource('cookies')
+    .AddCookie('c1', 'v1')
+    .Get;
+
+  Assert.AreEqual(200, LResponse.StatusCode);
+  LJson := LResponse.JSONValue as TJSONObject;
+  LCookies := LJson.GetValue('cookies') as TJSONObject;
+  Assert.IsNotNull(LCookies);
+  Assert.AreEqual('v1', LCookies.GetValue('c1').Value);
+end;
+
+procedure TRESTRequest4DTest.TestMultipartFormData;
+var
+  LResponse: IResponse;
+  LJson: TJSONObject;
+  LForm: TJSONObject;
+begin
+  LResponse := TRequest.New
+    .BaseURL('https://httpbin.org')
+    .Resource('post')
+    .AddField('campo1', 'valor1')
+    .AddField('campo2', 'valor2')
+    .Post;
+
+  Assert.AreEqual(200, LResponse.StatusCode);
+  LJson := LResponse.JSONValue as TJSONObject;
+  LForm := LJson.GetValue('form') as TJSONObject;
+  Assert.IsNotNull(LForm);
+  Assert.AreEqual('valor1', LForm.GetValue('campo1').Value);
+  Assert.AreEqual('valor2', LForm.GetValue('campo2').Value);
+end;
+
+procedure TRESTRequest4DTest.TestAddBodyString;
+var
+  LResponse: IResponse;
+  LJson: TJSONObject;
+  LData: string;
+begin
+  LResponse := TRequest.New
+    .BaseURL('https://httpbin.org')
+    .Resource('post')
+    .AddBody('Texto Bruto de Teste')
+    .Post;
+
+  Assert.AreEqual(200, LResponse.StatusCode);
+  LJson := LResponse.JSONValue as TJSONObject;
+  LData := LJson.GetValue('data').Value;
+  Assert.AreEqual('Texto Bruto de Teste', LData);
 end;
 
 initialization
