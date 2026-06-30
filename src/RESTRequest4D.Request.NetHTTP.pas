@@ -561,42 +561,8 @@ begin
 end;
 
 function TRequestNetHTTP.MakeURL(const AIncludeParams: Boolean): string;
-var
-  I: Integer;
 begin
-  Result := FBaseURL;
-  if not FResource.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResource;
-  end;
-  if not FResourceSuffix.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResourceSuffix;
-  end;
-  if FUrlSegments.Count > 0 then
-  begin
-    for I := 0 to Pred(FUrlSegments.Count) do
-    begin
-      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-    end;
-  end;
-  if not AIncludeParams then
-    Exit;
-  if FParams.Count > 0 then
-  begin
-    Result := Result + '?';
-    for I := 0 to Pred(FParams.Count) do
-    begin
-      if I > 0 then
-        Result := Result + '&';
-      Result := Result + FParams.Strings[I];
-    end;
-  end;
+  Result := TR4DUtils.BuildURL(FBaseURL, FResource, FResourceSuffix, FUrlSegments, FParams, AIncludeParams);
 end;
 
 procedure TRequestNetHTTP.NetHTTPClientValidateServerCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
