@@ -334,7 +334,8 @@ begin
   FRESTClient := TRESTClient.Create(nil);
   FRESTClient.SynchronizedEvents := False;
   {$IF COMPILERVERSION >= 33}
-    FRESTClient.SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
+  FRESTClient.SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11,
+    THTTPSecureProtocol.TLS12{$IF COMPILERVERSION >= 35.0}, THTTPSecureProtocol.TLS13{$ENDIF}];
   {$ENDIF}
   FRESTRequest := TRESTRequest.Create(nil);
   FRESTRequest.SynchronizedEvents := False;
