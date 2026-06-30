@@ -73,3 +73,6 @@ backup/
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
 *.bak
+
+# Test results
+dunitx-results.xml
