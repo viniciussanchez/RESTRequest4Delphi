@@ -73,6 +73,11 @@ type
     function Put: IResponse;
     function Delete: IResponse;
     function Patch: IResponse;
+    function GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddBody(const AContent: string): IRequest; overload;
@@ -109,7 +114,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Response.FPHTTPClient;
+uses RESTRequest4D.Response.FPHTTPClient, RESTRequest4D.Utils;
 
 const
   _CRLF = #13#10;
@@ -700,6 +705,36 @@ begin
   FreeAndNil(FFiles);
   FreeAndNil(FFPHTTPClient);
   inherited Destroy;
+end;
+
+function TRequestFPHTTPClient.GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'GET', ACallback).Start;
+end;
+
+function TRequestFPHTTPClient.PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'POST', ACallback).Start;
+end;
+
+function TRequestFPHTTPClient.PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PUT', ACallback).Start;
+end;
+
+function TRequestFPHTTPClient.DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'DELETE', ACallback).Start;
+end;
+
+function TRequestFPHTTPClient.PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PATCH', ACallback).Start;
 end;
 
 end.

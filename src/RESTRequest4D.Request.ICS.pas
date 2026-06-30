@@ -57,6 +57,11 @@ type
     function Put: IResponse;
     function Delete: IResponse;
     function Patch: IResponse;
+    function GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddParam(const AName, AValue: string): IRequest;
@@ -96,7 +101,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Response.ICS, System.SysUtils, REST.JSON;
+uses RESTRequest4D.Response.ICS, System.SysUtils, REST.JSON, RESTRequest4D.Utils;
 
 function TRequestICS.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
 begin
@@ -635,6 +640,36 @@ function TRequestICS.UserAgent(const AName: string): IRequest;
 begin
   Result := Self;
   FSslHttpRest.Agent := AName;
+end;
+
+function TRequestICS.GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'GET', ACallback).Start;
+end;
+
+function TRequestICS.PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'POST', ACallback).Start;
+end;
+
+function TRequestICS.PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PUT', ACallback).Start;
+end;
+
+function TRequestICS.DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'DELETE', ACallback).Start;
+end;
+
+function TRequestICS.PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PATCH', ACallback).Start;
 end;
 
 end.

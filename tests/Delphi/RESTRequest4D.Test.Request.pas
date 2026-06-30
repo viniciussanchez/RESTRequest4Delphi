@@ -3,7 +3,7 @@ unit RESTRequest4D.Test.Request;
 interface
 
 uses
-  DUnitX.TestFramework, System.SysUtils, System.Classes, System.JSON, RESTRequest4D;
+  DUnitX.TestFramework, System.SysUtils, System.Classes, System.JSON, System.SyncObjs, RESTRequest4D;
 
 type
   [TestFixture]
@@ -29,6 +29,9 @@ type
     
     [Test]
     procedure TestRaiseExceptionOn500;
+    
+    [Test]
+    procedure TestGetRequestAsync;
   end;
 
 implementation
@@ -173,6 +176,38 @@ begin
     end,
     Exception
   );
+end;
+
+procedure TRESTRequest4DTest.TestGetRequestAsync;
+var
+  LEvent: TSimpleEvent;
+  LResponse: IResponse;
+begin
+  LEvent := TSimpleEvent.Create;
+  try
+    LResponse := nil;
+    TRequest.New
+      .BaseURL('https://httpbin.org')
+      .Resource('get')
+      .GetAsync(
+        procedure(const Req: IRequest; const Res: IResponse)
+        begin
+          LResponse := Res;
+          LEvent.SetEvent;
+        end
+      );
+
+    if LEvent.WaitFor(10000) = wrSignaled then
+    begin
+      Assert.IsNotNull(LResponse, 'A resposta do callback assíncrono não deve ser nula');
+      Assert.AreEqual(200, LResponse.StatusCode, 'StatusCode deve ser 200');
+      Assert.IsNotEmpty(LResponse.Content, 'Content não deve ser vazio');
+    end
+    else
+      Assert.Fail('Timeout aguardando a execução da requisição assíncrona');
+  finally
+    LEvent.Free;
+  end;
 end;
 
 initialization

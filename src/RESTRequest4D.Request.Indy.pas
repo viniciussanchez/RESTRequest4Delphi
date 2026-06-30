@@ -72,6 +72,11 @@ type
     function Options: IResponse;
     function Head: IResponse;
     function Trace: IResponse;
+    function GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddBody(const AContent: string): IRequest; overload;
@@ -825,6 +830,36 @@ function TRequestIndy.UserAgent(const AName: string): IRequest;
 begin
   Result := Self;
   FIdHTTP.Request.UserAgent := AName;
+end;
+
+function TRequestIndy.GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'GET', ACallback).Start;
+end;
+
+function TRequestIndy.PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'POST', ACallback).Start;
+end;
+
+function TRequestIndy.PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PUT', ACallback).Start;
+end;
+
+function TRequestIndy.DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'DELETE', ACallback).Start;
+end;
+
+function TRequestIndy.PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PATCH', ACallback).Start;
 end;
 
 end.
