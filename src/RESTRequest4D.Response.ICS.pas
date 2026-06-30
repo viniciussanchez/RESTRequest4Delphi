@@ -70,8 +70,15 @@ begin
 end;
 
 function TResponseICS.GetCookie(const ACookieName: string): string;
+var
+  I: Integer;
 begin
-  raise Exception.Create('Not implemented');
+  Result := '';
+  for I := 0 to Pred(FSslHttpRest.RcvdCookie.Count) do
+  begin
+    if Trim(LowerCase(FSslHttpRest.RcvdCookie.Names[I])) = Trim(LowerCase(ACookieName)) then
+      Exit(FSslHttpRest.RcvdCookie.Values[FSslHttpRest.RcvdCookie.Names[I]]);
+  end;
 end;
 
 function TResponseICS.Headers: TStrings;

@@ -19,6 +19,7 @@ type
     FUrlSegments: TStrings;
     FAdapters: TArray<IRequestAdapter>;
     FProgressCurrent: Int64;
+    FRaiseExceptionOn500: Boolean;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
     FOnReceiveProgress: TRR4DCallbackOnProgress;
@@ -156,12 +157,29 @@ end;
 
 function TRequestICS.AddCookie(const ACookieName, ACookieValue: string): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  if FSslHttpRest.Cookie.Trim.IsEmpty then
+    FSslHttpRest.Cookie := ACookieName + '=' + ACookieValue
+  else
+    FSslHttpRest.Cookie := FSslHttpRest.Cookie + '; ' + ACookieName + '=' + ACookieValue;
 end;
 
 function TRequestICS.AddCookies(const ACookies: TStrings): IRequest;
+var
+  I: Integer;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  try
+    for I := 0 to Pred(ACookies.Count) do
+    begin
+      if FSslHttpRest.Cookie.Trim.IsEmpty then
+        FSslHttpRest.Cookie := ACookies.Names[I] + '=' + ACookies.Values[ACookies.Names[I]]
+      else
+        FSslHttpRest.Cookie := FSslHttpRest.Cookie + '; ' + ACookies.Names[I] + '=' + ACookies.Values[ACookies.Names[I]];
+    end;
+  finally
+    ACookies.Free;
+  end;
 end;
 
 function TRequestICS.AddField(const AFieldName, AValue: string): IRequest;
@@ -180,12 +198,13 @@ end;
 
 function TRequestICS.RaiseExceptionOn500: Boolean;
 begin
-  raise Exception.Create('Not implemented');
+  Result := FRaiseExceptionOn500;
 end;
 
 function TRequestICS.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  FRaiseExceptionOn500 := ARaiseException;
 end;
 
 function TRequestICS.Patch: IResponse;
@@ -457,6 +476,7 @@ begin
   FBodyRaw := TStringList.Create;
   FUrlSegments := TStringList.Create;
   FBodyRaw.LineBreak := '';
+  FRaiseExceptionOn500 := False;
 end;
 
 destructor TRequestICS.Destroy;
@@ -558,6 +578,8 @@ begin
         mrDELETE:
           FSslHttpRest.RestRequest(httpDELETE, (MakeURL), False, FBodyRaw.Text);
       end;
+      if FRaiseExceptionOn500 and (FSslHttpRest.StatusCode >= 500) then
+        raise Exception.CreateFmt('HTTP protocol error. Status Code: %d. %s', [FSslHttpRest.StatusCode, FSslHttpRest.ReasonPhrase]);
       LAttempts := 0;
       Self.DoAfterExecute;
     except
