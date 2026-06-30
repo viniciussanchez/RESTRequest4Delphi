@@ -2,7 +2,7 @@ program RESTRequest4DTests;
 
 {$APPTYPE CONSOLE}
 
-{$R *.res}
+//{$R *.res}
 
 uses
   System.SysUtils,
@@ -31,8 +31,6 @@ begin
     //Generate an NUnit compatible XML File
     nunitLogger := TDUnitXXMLNUnitFileLogger.Create(TDUnitX.Options.XMLOutputFile);
     runner.AddLogger(nunitLogger);
-    runner.FailsOnNoTests := False; //Play safe
-
     //Run tests
     results := runner.Execute;
     if not results.AllPassed then

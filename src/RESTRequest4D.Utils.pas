@@ -10,7 +10,7 @@ uses
   {$IFDEF FPC}
     Classes, SysUtils,
   {$ELSE}
-    System.Classes, System.SysUtils,
+    System.Classes, System.SysUtils, Winapi.ActiveX,
   {$ENDIF}
   RESTRequest4D.Request.Contract,
   RESTRequest4D.Response.Contract;
@@ -34,6 +34,7 @@ type
   protected
     procedure Execute; override;
   public
+    class var LastError: string;
     constructor Create(const ARequest: IRequest; const AMethod: string; const ACallback: TRR4DCallbackOnAfterExecute);
   end;
 
@@ -106,22 +107,37 @@ end;
 
 procedure TAsyncRequestThread.Execute;
 begin
+  LastError := '';
+  {$IFNDEF FPC}
+  CoInitialize(nil);
+  {$ENDIF}
   try
-    if FMethod = 'GET' then
-      FResponse := FRequest.Get
-    else if FMethod = 'POST' then
-      FResponse := FRequest.Post
-    else if FMethod = 'PUT' then
-      FResponse := FRequest.Put
-    else if FMethod = 'DELETE' then
-      FResponse := FRequest.Delete
-    else if FMethod = 'PATCH' then
-      FResponse := FRequest.Patch;
-  except
+    try
+      if FMethod = 'GET' then
+        FResponse := FRequest.Get
+      else if FMethod = 'POST' then
+        FResponse := FRequest.Post
+      else if FMethod = 'PUT' then
+        FResponse := FRequest.Put
+      else if FMethod = 'DELETE' then
+        FResponse := FRequest.Delete
+      else if FMethod = 'PATCH' then
+        FResponse := FRequest.Patch;
+    except
+      on E: Exception do
+      begin
+        LastError := E.ClassName + ': ' + E.Message;
+        WriteLn('[Thread Exception] ' + LastError);
+      end;
+    end;
+  finally
+    {$IFNDEF FPC}
+    CoUninitialize;
+    {$ENDIF}
   end;
   
   if Assigned(FCallback) then
-    Queue(CallCallback);
+    Synchronize(CallCallback);
 end;
 
 procedure TAsyncRequestThread.CallCallback;

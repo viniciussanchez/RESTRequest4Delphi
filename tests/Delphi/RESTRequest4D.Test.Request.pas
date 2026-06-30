@@ -3,7 +3,7 @@ unit RESTRequest4D.Test.Request;
 interface
 
 uses
-  DUnitX.TestFramework, System.SysUtils, System.Classes, System.JSON, System.SyncObjs, RESTRequest4D;
+  DUnitX.TestFramework, System.SysUtils, System.Classes, System.JSON, System.SyncObjs, RESTRequest4D, RESTRequest4D.Utils;
 
 type
   [TestFixture]
@@ -239,48 +239,63 @@ end;
 procedure TRESTRequest4DTest.TestRaiseExceptionOn500;
 var
   LRequest: IRequest;
+  LSuccess: Boolean;
 begin
   LRequest := TRequest.New
     .BaseURL('https://httpbin.org')
     .Resource('status/500')
     .RaiseExceptionOn500(True);
 
-  Assert.WillRaise(
-    procedure
-    begin
-      LRequest.Get;
-    end,
-    Exception
-  );
+  LSuccess := False;
+  try
+    LRequest.Get;
+  except
+    on E: Exception do
+      LSuccess := True;
+  end;
+  Assert.IsTrue(LSuccess, 'Deveria ter disparado uma exceção para o erro 500');
 end;
 
 procedure TRESTRequest4DTest.TestGetRequestAsync;
 var
   LEvent: TSimpleEvent;
+  LRequest: IRequest;
   LResponse: IResponse;
+  LTimeout: Cardinal;
 begin
   LEvent := TSimpleEvent.Create;
   try
     LResponse := nil;
-    TRequest.New
+    LRequest := TRequest.New
       .BaseURL('https://httpbin.org')
-      .Resource('get')
-      .GetAsync(
-        procedure(const Req: IRequest; const Res: IResponse)
-        begin
-          LResponse := Res;
-          LEvent.SetEvent;
-        end
-      );
+      .Resource('get');
 
-    if LEvent.WaitFor(10000) = wrSignaled then
+    {$IF NOT (DEFINED(RR4D_INDY) or DEFINED(FPC) or DEFINED(RR4D_SYNAPSE) or DEFINED(RR4D_ICS))}
+    LRequest.SynchronizedEvents(False);
+    {$ENDIF}
+
+    LRequest.GetAsync(
+      procedure(const Req: IRequest; const Res: IResponse)
+      begin
+        LResponse := Res;
+        LEvent.SetEvent;
+      end
+    );
+
+    LTimeout := 0;
+    while (LEvent.WaitFor(50) = wrTimeout) and (LTimeout < 10000) do
     begin
-      Assert.IsNotNull(LResponse, 'A resposta do callback assíncrono não deve ser nula');
+      CheckSynchronize(10);
+      Inc(LTimeout, 60);
+    end;
+
+    if not Assigned(LResponse) then
+      Assert.Fail('A resposta do callback assíncrono não deve ser nula. Erro interno: ' + TAsyncRequestThread.LastError);
+    if Assigned(LResponse) then
+    begin
       Assert.AreEqual(200, LResponse.StatusCode, 'StatusCode deve ser 200');
       Assert.IsNotEmpty(LResponse.Content, 'Content não deve ser vazio');
-    end
-    else
-      Assert.Fail('Timeout aguardando a execução da requisição assíncrona');
+    end;
   finally
     LEvent.Free;
   end;
