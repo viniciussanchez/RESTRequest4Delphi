@@ -6,7 +6,7 @@ unit RESTRequest4D.Response.Indy;
 
 interface
 
-uses RESTRequest4D.Response.Contract, IdHTTP,
+uses RESTRequest4D.Response.Contract, RESTRequest4D.Request.Contract, IdHTTP,
   {$IFDEF FPC}
     SysUtils, fpjson, Classes, jsonparser;
   {$ELSE}
@@ -16,12 +16,21 @@ uses RESTRequest4D.Response.Contract, IdHTTP,
 type
   TResponseIndy = class(TInterfacedObject, IResponse)
   private
+    FRequest: IRequest;
+    FHeaders: TStrings;
   {$IFDEF FPC}
     FJSONValue: TJSONData;
   {$ELSE}
     FJSONValue: TJSONValue;
   {$ENDIF}
     FIdHTTP: TIdHTTP;
+    FStreamResult: TStringStream;
+    FContent: string;
+    FStatusCode: Integer;
+    FStatusText: string;
+    FContentType: string;
+    FContentEncoding: string;
+    FContentLength: Cardinal;
     function Content: string;
     function ContentLength: Cardinal;
     function ContentType: string;
@@ -39,8 +48,9 @@ type
     function JSONValue(const AEncoding: TEncoding): TJSONValue; overload;
   {$ENDIF}
   public
-    constructor Create(const AIdHTTP: TIdHTTP);
+    constructor Create(const ARequest: IRequest; const AIdHTTP: TIdHTTP; const AStreamResult: TStringStream);
     destructor Destroy; override;
+    procedure UpdateResponseData;
   end;
 
 implementation
@@ -95,60 +105,81 @@ end;
 function TResponseIndy.RawBytes: TBytes;
 begin
   Result:= nil;
-  if Assigned(FIdHTTP.Response.ContentStream) then
-    Result := TStringStream(FIdHTTP.Response.ContentStream).Bytes;
+  if Assigned(FStreamResult) then
+    Result := FStreamResult.Bytes;
 end;
 
 function TResponseIndy.Content: string;
 begin
-  Result := EmptyStr;
-  if Assigned(FIdHTTP.Response.ContentStream) then
-    Result := TStringStream(FIdHTTP.Response.ContentStream).DataString;
+  if FContent.IsEmpty and Assigned(FStreamResult) and (FStreamResult.Size > 0) then
+  begin
+    try
+      FContent := FStreamResult.DataString;
+    except
+      on E: EEncodingError do
+      begin
+        try
+          FContent := TEncoding.ANSI.GetString(FStreamResult.Bytes, 0, FStreamResult.Size);
+        except
+          FContent := '';
+        end;
+      end;
+    end;
+  end;
+  Result := FContent;
 end;
 
 function TResponseIndy.Headers: TStrings;
-var
-  I: Integer;
 begin
-  Result := TStringList.Create;
-  for I := 0 to Pred(FIdHTTP.Response.RawHeaders.Count) do
-    Result.Values[FIdHTTP.Response.RawHeaders.Names[I]] := FIdHTTP.Response.RawHeaders.Values[FIdHTTP.Response.RawHeaders.Names[I]];
+  if not Assigned(FHeaders) then
+    FHeaders := TStringList.Create;
+  Result := FHeaders;
 end;
 
 function TResponseIndy.ContentEncoding: string;
 begin
-  Result := FIdHTTP.Response.ContentEncoding;
+  Result := FContentEncoding;
 end;
 
 function TResponseIndy.ContentLength: Cardinal;
 begin
-  Result := FIdHTTP.Response.ContentLength;
+  Result := FContentLength;
 end;
 
 function TResponseIndy.ContentStream: TStream;
 begin
   Result:= nil;
-  if Assigned(FIdHTTP.Response.ContentStream) then
+  if Assigned(FStreamResult) then
   begin
-    Result := FIdHTTP.Response.ContentStream;
+    Result := FStreamResult;
     Result.Position := 0;
   end;
 end;
 
 function TResponseIndy.ContentType: string;
 begin
-  Result := FIdHTTP.Response.ContentType;
+  Result := FContentType;
 end;
 
-constructor TResponseIndy.Create(const AIdHTTP: TIdHTTP);
+constructor TResponseIndy.Create(const ARequest: IRequest; const AIdHTTP: TIdHTTP; const AStreamResult: TStringStream);
 begin
+  FRequest := ARequest;
   FIdHTTP := AIdHTTP;
+  FStreamResult := AStreamResult;
+  FStatusCode := 0;
+  FStatusText := '';
+  FContentType := '';
+  FContentEncoding := '';
+  FContentLength := 0;
+  FContent := '';
 end;
 
 destructor TResponseIndy.Destroy;
 begin
   if Assigned(FJSONValue) then
     FJSONValue.Free;
+  if Assigned(FHeaders) then
+    FHeaders.Free;
   inherited;
 end;
 
@@ -165,12 +196,36 @@ end;
 
 function TResponseIndy.StatusCode: Integer;
 begin
-  Result := FIdHTTP.Response.ResponseCode;
+  Result := FStatusCode;
 end;
 
 function TResponseIndy.StatusText: string;
 begin
-  Result := FIdHTTP.Response.ResponseText;
+  Result := FStatusText;
+end;
+
+procedure TResponseIndy.UpdateResponseData;
+var
+  I: Integer;
+begin
+  if Assigned(FIdHTTP) then
+  begin
+    FStatusCode := FIdHTTP.Response.ResponseCode;
+    FStatusText := FIdHTTP.Response.ResponseText;
+    FContentType := FIdHTTP.Response.ContentType;
+    FContentEncoding := FIdHTTP.Response.ContentEncoding;
+    FContentLength := FIdHTTP.Response.ContentLength;
+
+    if not Assigned(FHeaders) then
+      FHeaders := TStringList.Create
+    else
+      FHeaders.Clear;
+
+    for I := 0 to Pred(FIdHTTP.Response.RawHeaders.Count) do
+      FHeaders.Values[FIdHTTP.Response.RawHeaders.Names[I]] := FIdHTTP.Response.RawHeaders.Values[FIdHTTP.Response.RawHeaders.Names[I]];
+  end;
+
+  FContent := '';
 end;
 
 end.

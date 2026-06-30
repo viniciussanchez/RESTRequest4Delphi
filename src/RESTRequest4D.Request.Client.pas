@@ -64,6 +64,11 @@ type
     function Put: IResponse;
     function Delete: IResponse;
     function Patch: IResponse;
+    function GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
     function ClearBody: IRequest;
     function AddParam(const AName, AValue: string; const AKind: TRESTRequestParameterKind = {$IF COMPILERVERSION < 33}TRESTRequestParameterKind.pkGETorPOST{$ELSE}TRESTRequestParameterKind.pkQUERY{$ENDIF}; const AOptions: TRESTRequestParameterOptions = []): IRequest;
     function AddBody(const AContent: string; const AContentType: TRESTContentType = ctAPPLICATION_JSON): IRequest; overload;
@@ -104,7 +109,7 @@ type
 
 implementation
 
-uses System.Generics.Collections, RESTRequest4D.Response.Client;
+uses System.Generics.Collections, RESTRequest4D.Response.Client, RESTRequest4D.Utils;
 
 function TRequestClient.AddBody(const AContent: string; const AContentType: TRESTContentType): IRequest;
 begin
@@ -363,11 +368,15 @@ end;
 
 function TRequestClient.Delete: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmDELETE;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmDELETE;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 destructor TRequestClient.Destroy;
@@ -445,11 +454,15 @@ end;
 
 function TRequestClient.Get: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmGET;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmGET;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 class function TRequestClient.New: IRequest;
@@ -572,20 +585,28 @@ end;
 
 function TRequestClient.Patch: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmPATCH;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmPATCH;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestClient.Post: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmPOST;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmPOST;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestClient.PrepareUrlSegments(const AValue: string): string;
@@ -619,11 +640,15 @@ end;
 
 function TRequestClient.Put: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmPUT;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmPUT;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestClient.Accept(const AAccept: string): IRequest;
@@ -766,6 +791,36 @@ function TRequestClient.AddCookie(const ACookieName, ACookieValue: string): IReq
 begin
   Result := Self;
   FRESTRequest.AddParameter(ACookieName, ACookieValue, TRESTRequestParameterKind.pkCOOKIE);
+end;
+
+function TRequestClient.GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'GET', ACallback).Start;
+end;
+
+function TRequestClient.PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'POST', ACallback).Start;
+end;
+
+function TRequestClient.PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PUT', ACallback).Start;
+end;
+
+function TRequestClient.DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'DELETE', ACallback).Start;
+end;
+
+function TRequestClient.PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PATCH', ACallback).Start;
 end;
 
 end.

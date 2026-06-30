@@ -72,6 +72,11 @@ type
     function Options: IResponse;
     function Head: IResponse;
     function Trace: IResponse;
+    function GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddBody(const AContent: string): IRequest; overload;
@@ -117,10 +122,16 @@ implementation
 uses RESTRequest4D.Response.Indy, IdURI, IdCookieManager, IdCompressorZLib;
 
 function TRequestIndy.AddField(const AFieldName: string; const AValue: string): IRequest;
+{$IF DEFINED(RR4D_INDY)}
+var
+  LField: TIdFormDataField;
+{$ENDIF}
 begin
   Result := Self;
   {$IF DEFINED(RR4D_INDY)}
-    FIdMultiPartFormDataStream.AddFormField(AFieldName, AValue, EmptyStr, ' ').ContentTransfer:= '8bit';
+    LField := FIdMultiPartFormDataStream.AddFormField(AFieldName, AValue, '', '');
+    if Assigned(LField) then
+      LField.ContentTransfer := '8bit';
   {$ENDIF}
 end;
 
@@ -289,6 +300,7 @@ procedure TRequestIndy.ExecuteRequest(const AMethod: TMethodRequest);
 var
   LAttempts: Integer;
 begin
+  FStreamResult.Size := 0;
   if not FBaseURL.ToUpper.Trim.StartsWith('HTTPS') then
     FIdHTTP.IOHandler := nil
   else
@@ -304,7 +316,11 @@ begin
         mrPOST:
         begin
           if (Assigned(FIdMultiPartFormDataStream) and (FIdMultiPartFormDataStream.Size > 0)) then
-            FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FIdMultiPartFormDataStream, FStreamResult)
+          begin
+            if FIdHTTP.Request.CustomHeaders.IndexOfName('Content-Type') >= 0 then
+              FIdHTTP.Request.CustomHeaders.Delete(FIdHTTP.Request.CustomHeaders.IndexOfName('Content-Type'));
+            FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FIdMultiPartFormDataStream, FStreamResult);
+          end
           else
             FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
         end;
@@ -339,24 +355,48 @@ begin
 end;
 
 function TRequestIndy.Patch: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
-  ExecuteRequest(mrPATCH);
+  try
+    ExecuteRequest(mrPATCH);
+    LResponseObj.UpdateResponseData;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.Put: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
-  ExecuteRequest(mrPUT);
+  try
+    ExecuteRequest(mrPUT);
+    LResponseObj.UpdateResponseData;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.Post: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
-  ExecuteRequest(mrPOST);
+  try
+    ExecuteRequest(mrPOST);
+    LResponseObj.UpdateResponseData;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -369,17 +409,33 @@ begin
 end;
 
 function TRequestIndy.Get: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
-  ExecuteRequest(mrGET);
+  try
+    ExecuteRequest(mrGET);
+    LResponseObj.UpdateResponseData;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.Head: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
-  ExecuteRequest(mrHEAD);
+  try
+    ExecuteRequest(mrHEAD);
+    LResponseObj.UpdateResponseData;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.HTTPOptions(const AHTTPOptions: TIdHTTPOptions): IRequest;
@@ -410,10 +466,18 @@ begin
 end;
 
 function TRequestIndy.Delete: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
-  ExecuteRequest(mrDELETE);
+  try
+    ExecuteRequest(mrDELETE);
+    LResponseObj.UpdateResponseData;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.AddBody(const AContent: string): IRequest;
@@ -453,10 +517,18 @@ begin
 end;
 
 function TRequestIndy.Trace: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
-  ExecuteRequest(mrTRACE);
+  try
+    ExecuteRequest(mrTRACE);
+    LResponseObj.UpdateResponseData;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.FullRequestURL(const AIncludeParams: Boolean): string;
@@ -465,42 +537,8 @@ begin
 end;
 
 function TRequestIndy.MakeURL(const AIncludeParams: Boolean): string;
-var
-  I: Integer;
 begin
-  Result := FBaseURL;
-  if not FResource.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResource;
-  end;
-  if not FResourceSuffix.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResourceSuffix;
-  end;
-  if FUrlSegments.Count > 0 then
-  begin
-    for I := 0 to Pred(FUrlSegments.Count) do
-    begin
-      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-    end;
-  end;
-  if not AIncludeParams then
-    Exit;
-  if FParams.Count > 0 then
-  begin
-    Result := Result + '?';
-    for I := 0 to Pred(FParams.Count) do
-    begin
-      if I > 0 then
-        Result := Result + '&';
-      Result := Result + FParams.Strings[I];
-    end;
-  end;
+  Result := TR4DUtils.BuildURL(FBaseURL, FResource, FResourceSuffix, FUrlSegments, FParams, AIncludeParams);
 end;
 
 class function TRequestIndy.New: IRequest;
@@ -510,14 +548,23 @@ end;
 
 procedure TRequestIndy.OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
 begin
-  SSL_set_tlsext_host_name(AsslSocket, FIdHTTP.URL.Host);
+  if Assigned(AsslSocket) and Assigned(FIdHTTP) and (not FIdHTTP.URL.Host.IsEmpty) then
+    SSL_set_tlsext_host_name(AsslSocket, FIdHTTP.URL.Host);
 end;
 
 function TRequestIndy.Options: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
-  ExecuteRequest(mrOPTIONS);
+  try
+    ExecuteRequest(mrOPTIONS);
+    LResponseObj.UpdateResponseData;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.AddParam(const AName, AValue: string): IRequest;
@@ -827,6 +874,36 @@ function TRequestIndy.UserAgent(const AName: string): IRequest;
 begin
   Result := Self;
   FIdHTTP.Request.UserAgent := AName;
+end;
+
+function TRequestIndy.GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'GET', ACallback).Start;
+end;
+
+function TRequestIndy.PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'POST', ACallback).Start;
+end;
+
+function TRequestIndy.PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PUT', ACallback).Start;
+end;
+
+function TRequestIndy.DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'DELETE', ACallback).Start;
+end;
+
+function TRequestIndy.PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PATCH', ACallback).Start;
 end;
 
 end.

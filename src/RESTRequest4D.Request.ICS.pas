@@ -19,6 +19,7 @@ type
     FUrlSegments: TStrings;
     FAdapters: TArray<IRequestAdapter>;
     FProgressCurrent: Int64;
+    FRaiseExceptionOn500: Boolean;
     FOnBeforeExecute: TRR4DCallbackOnBeforeExecute;
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
     FOnReceiveProgress: TRR4DCallbackOnProgress;
@@ -56,6 +57,11 @@ type
     function Put: IResponse;
     function Delete: IResponse;
     function Patch: IResponse;
+    function GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddParam(const AName, AValue: string): IRequest;
@@ -95,7 +101,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Response.ICS, System.SysUtils, REST.JSON;
+uses RESTRequest4D.Response.ICS, System.SysUtils, REST.JSON, RESTRequest4D.Utils;
 
 function TRequestICS.OnBeforeExecute(const AOnBeforeExecute: TRR4DCallbackOnBeforeExecute): IRequest;
 begin
@@ -156,12 +162,29 @@ end;
 
 function TRequestICS.AddCookie(const ACookieName, ACookieValue: string): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  if FSslHttpRest.Cookie.Trim.IsEmpty then
+    FSslHttpRest.Cookie := ACookieName + '=' + ACookieValue
+  else
+    FSslHttpRest.Cookie := FSslHttpRest.Cookie + '; ' + ACookieName + '=' + ACookieValue;
 end;
 
 function TRequestICS.AddCookies(const ACookies: TStrings): IRequest;
+var
+  I: Integer;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  try
+    for I := 0 to Pred(ACookies.Count) do
+    begin
+      if FSslHttpRest.Cookie.Trim.IsEmpty then
+        FSslHttpRest.Cookie := ACookies.Names[I] + '=' + ACookies.Values[ACookies.Names[I]]
+      else
+        FSslHttpRest.Cookie := FSslHttpRest.Cookie + '; ' + ACookies.Names[I] + '=' + ACookies.Values[ACookies.Names[I]];
+    end;
+  finally
+    ACookies.Free;
+  end;
 end;
 
 function TRequestICS.AddField(const AFieldName, AValue: string): IRequest;
@@ -180,33 +203,46 @@ end;
 
 function TRequestICS.RaiseExceptionOn500: Boolean;
 begin
-  raise Exception.Create('Not implemented');
+  Result := FRaiseExceptionOn500;
 end;
 
 function TRequestICS.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  FRaiseExceptionOn500 := ARaiseException;
 end;
 
 function TRequestICS.Patch: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrPATCH);
+  try
+    ExecuteRequest(mrPATCH);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.Put: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrPUT);
+  try
+    ExecuteRequest(mrPUT);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.Post: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrPOST);
+  try
+    ExecuteRequest(mrPOST);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -220,9 +256,13 @@ end;
 
 function TRequestICS.Get: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrGET);
+  try
+    ExecuteRequest(mrGET);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.KeyFile(const APath: string): IRequest;
@@ -241,9 +281,13 @@ end;
 
 function TRequestICS.Delete: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrDELETE);
+  try
+    ExecuteRequest(mrDELETE);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.AddBody(const AContent: string): IRequest;
@@ -281,34 +325,8 @@ begin
 end;
 
 function TRequestICS.MakeURL(const AIncludeParams: Boolean): string;
-var
-  I: Integer;
 begin
-  Result := FBaseURL;
-  if not FResource.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResource;
-  end;
-  if not FResourceSuffix.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResourceSuffix;
-  end;
-  if FUrlSegments.Count > 0 then
-  begin
-    for I := 0 to Pred(FUrlSegments.Count) do
-    begin
-      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I],
-        [rfReplaceAll, rfIgnoreCase]);
-      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I],
-        [rfReplaceAll, rfIgnoreCase]);
-    end;
-  end;
-  if not AIncludeParams then
-    Exit;
+  Result := TR4DUtils.BuildURL(FBaseURL, FResource, FResourceSuffix, FUrlSegments, nil, AIncludeParams);
 end;
 
 class function TRequestICS.New: IRequest;
@@ -463,6 +481,7 @@ begin
   FBodyRaw := TStringList.Create;
   FUrlSegments := TStringList.Create;
   FBodyRaw.LineBreak := '';
+  FRaiseExceptionOn500 := False;
 end;
 
 destructor TRequestICS.Destroy;
@@ -564,6 +583,8 @@ begin
         mrDELETE:
           FSslHttpRest.RestRequest(httpDELETE, (MakeURL), False, FBodyRaw.Text);
       end;
+      if FRaiseExceptionOn500 and (FSslHttpRest.StatusCode >= 500) then
+        raise Exception.CreateFmt('HTTP protocol error. Status Code: %d. %s', [FSslHttpRest.StatusCode, FSslHttpRest.ReasonPhrase]);
       LAttempts := 0;
       Self.DoAfterExecute;
     except
@@ -619,6 +640,36 @@ function TRequestICS.UserAgent(const AName: string): IRequest;
 begin
   Result := Self;
   FSslHttpRest.Agent := AName;
+end;
+
+function TRequestICS.GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'GET', ACallback).Start;
+end;
+
+function TRequestICS.PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'POST', ACallback).Start;
+end;
+
+function TRequestICS.PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PUT', ACallback).Start;
+end;
+
+function TRequestICS.DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'DELETE', ACallback).Start;
+end;
+
+function TRequestICS.PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PATCH', ACallback).Start;
 end;
 
 end.

@@ -2,11 +2,12 @@ unit RESTRequest4D.Response.Client;
 
 interface
 
-uses RESTRequest4D.Response.Contract, REST.Client, System.SysUtils, System.JSON, System.Classes;
+uses RESTRequest4D.Response.Contract, RESTRequest4D.Request.Contract, REST.Client, System.SysUtils, System.JSON, System.Classes;
 
 type
   TResponseClient = class(TInterfacedObject, IResponse)
   private
+    FRequest: IRequest;
     FJSONValue: TJSONValue;
     FRESTResponse: TRESTResponse;
     FStreamValue: TMemoryStream;
@@ -23,14 +24,15 @@ type
     function Headers: TStrings;
     function GetCookie(const ACookieName: string): string;
   public
-    constructor Create(const ARESTResponse: TRESTResponse);
+    constructor Create(const ARequest: IRequest; const ARESTResponse: TRESTResponse);
     destructor Destroy; override;
   end;
 
 implementation
 
-constructor TResponseClient.Create(const ARESTResponse: TRESTResponse);
+constructor TResponseClient.Create(const ARequest: IRequest; const ARESTResponse: TRESTResponse);
 begin
+  FRequest := ARequest;
   FRESTResponse := ARESTResponse;
 end;
 
@@ -82,11 +84,12 @@ end;
 
 function TResponseClient.ContentStream: TStream;
 begin
-  if Assigned(FStreamValue) then
-    FreeAndNil(FStreamValue);
-  FStreamValue := TMemoryStream.Create;
-  if (Length(FRESTResponse.RawBytes) > 0) then
-    FStreamValue.WriteBuffer(FRESTResponse.RawBytes[0], Length(FRESTResponse.RawBytes));
+  if not Assigned(FStreamValue) then
+  begin
+    FStreamValue := TMemoryStream.Create;
+    if (Length(FRESTResponse.RawBytes) > 0) then
+      FStreamValue.WriteBuffer(FRESTResponse.RawBytes[0], Length(FRESTResponse.RawBytes));
+  end;
   Result := FStreamValue;
   Result.Position := 0;
 end;

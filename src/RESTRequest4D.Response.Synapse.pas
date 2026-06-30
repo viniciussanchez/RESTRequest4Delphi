@@ -6,7 +6,7 @@ unit RESTRequest4D.Response.Synapse;
 
 interface
 
-uses Classes, SysUtils, RESTRequest4D.Response.Contract, httpsend, ssl_openssl,
+uses Classes, SysUtils, RESTRequest4D.Response.Contract, RESTRequest4D.Request.Contract, httpsend, ssl_openssl,
   {$IFDEF FPC}
     fpjson, jsonparser;
   {$ELSE}
@@ -16,6 +16,7 @@ uses Classes, SysUtils, RESTRequest4D.Response.Contract, httpsend, ssl_openssl,
 type
   TResponseSynapse = class(TInterfacedObject, IResponse)
   private
+    FRequest: IRequest;
     FJSONValue: {$IFDEF FPC}TJSONData;{$ELSE}TJSONValue;{$ENDIF}
     FHTTPSend: THTTPSend;
     FStreamResult: TStringStream;
@@ -36,7 +37,7 @@ type
     {$ENDIF}
     function GetCookie(const ACookieName: string): string;
   public
-    constructor Create(const AHTTPSend: THTTPSend);
+    constructor Create(const ARequest: IRequest; const AHTTPSend: THTTPSend);
     destructor Destroy; override;
   end;
 
@@ -135,8 +136,9 @@ begin
   Result := FHTTPSend.Headers;
 end;
 
-constructor TResponseSynapse.Create(const AHTTPSend: THTTPSend);
+constructor TResponseSynapse.Create(const ARequest: IRequest; const AHTTPSend: THTTPSend);
 begin
+  FRequest := ARequest;
   FHTTPSend := AHTTPSend;
   FHTTPSend.KeepAlive := True;
   FStreamResult := TStringStream.Create;

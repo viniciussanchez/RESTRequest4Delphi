@@ -83,6 +83,11 @@ type
     function Put: IResponse;
     function Delete: IResponse;
     function Patch: IResponse;
+    function GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddBody(const AContent: string): IRequest; overload;
@@ -121,7 +126,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Response.Synapse;
+uses RESTRequest4D.Response.Synapse, RESTRequest4D.Utils;
 
 const
   _CRLF = #13#10;
@@ -368,9 +373,13 @@ end;
 
 function TRequestSynapse.Get: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrGET);
+  try
+    ExecuteRequest(mrGET);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.KeyFile(const APath: string): IRequest;
@@ -381,30 +390,46 @@ end;
 
 function TRequestSynapse.Post: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrPOST);
+  try
+    ExecuteRequest(mrPOST);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.Put: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrPUT);
+  try
+    ExecuteRequest(mrPUT);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.Delete: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrDELETE);
+  try
+    ExecuteRequest(mrDELETE);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.Patch: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrPATCH);
+  try
+    ExecuteRequest(mrPATCH);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.FullRequestURL(const AIncludeParams: Boolean): string;
@@ -641,42 +666,8 @@ begin
 end;
 
 function TRequestSynapse.MakeURL(const AIncludeParams: Boolean): string;
-var
-  I: Integer;
 begin
-  Result := FBaseURL;
-  if not FResource.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResource;
-  end;
-  if not FResourceSuffix.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResourceSuffix;
-  end;
-  if FUrlSegments.Count > 0 then
-  begin
-    for I := 0 to Pred(FUrlSegments.Count) do
-    begin
-      Result := stringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-      Result := stringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-    end;
-  end;
-  if not AIncludeParams then
-    Exit;
-  if FParams.Count > 0 then
-  begin
-    Result := Result + '?';
-    for I := 0 to Pred(FParams.Count) do
-    begin
-      if I > 0 then
-        Result := Result + '&';
-      Result := Result + FParams.strings[I];
-    end;
-  end;
+  Result := TR4DUtils.BuildURL(FBaseURL, FResource, FResourceSuffix, FUrlSegments, FParams, AIncludeParams);
 end;
 
 function TRequestSynapse.MimeType(const AMimeType: string): IRequest;
@@ -838,16 +829,51 @@ begin
 end;
 
 destructor TRequestSynapse.Destroy;
+var
+  LKey: string;
 begin
-  FreeAndNil(FStreamSend);
+  if Assigned(FStreamSend) then
+    FreeAndNil(FStreamSend);
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
   FreeAndNil(FFields);
-  FreeAndNil(FFields);
   FreeAndNil(FUrlSegments);
+  if (FFiles.Count > 0) then
+    for LKey in FFiles.Keys do
+      FFiles.Items[LKey].Free;
   FreeAndNil(FFiles);
   FreeAndNil(FHTTPSend);
   inherited Destroy;
+end;
+
+function TRequestSynapse.GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'GET', ACallback).Start;
+end;
+
+function TRequestSynapse.PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'POST', ACallback).Start;
+end;
+
+function TRequestSynapse.PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PUT', ACallback).Start;
+end;
+
+function TRequestSynapse.DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'DELETE', ACallback).Start;
+end;
+
+function TRequestSynapse.PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PATCH', ACallback).Start;
 end;
 
 end.

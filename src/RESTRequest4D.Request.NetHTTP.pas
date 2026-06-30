@@ -26,6 +26,7 @@ type
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
     FOnReceiveProgress: TRR4DCallbackOnProgress;
     FOnSendProgress: TRR4DCallbackOnProgress;
+    FRaiseExceptionOn500: Boolean;
     function ExecuteRequest(const AMethod: TMethodRequest): IHTTPResponse;
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -60,6 +61,11 @@ type
     function Put: IResponse;
     function Delete: IResponse;
     function Patch: IResponse;
+    function GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddBody(const AContent: string): IRequest; overload;
@@ -397,15 +403,13 @@ begin
   FParams := TStringList.Create;
   FUrlSegments := TStringList.Create;
 
-  FResponse := TResponseNetHTTP.Create;
-  TResponseNetHTTP(FResponse).SetContent(FStreamResult);
-
   FStreamResult := TStringStream.Create;
   Self.ContentType('application/json');
   FRetries := 0;
 
   FMultipartFormData := TMultipartFormData.Create;
   FUseMultipartFormData := False;
+  FRaiseExceptionOn500 := False;
 end;
 
 function TRequestNetHTTP.DeactivateProxy: IRequest;
@@ -416,9 +420,13 @@ end;
 
 function TRequestNetHTTP.Delete: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrDELETE));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrDELETE), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 destructor TRequestNetHTTP.Destroy;
@@ -530,7 +538,11 @@ begin
           Result := FNetHTTPClient.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
       end;
       if Assigned(Result) then
-        LAttempts := 0
+      begin
+        LAttempts := 0;
+        if FRaiseExceptionOn500 and (Result.StatusCode >= 500) then
+          raise Exception.Create(Format('HTTP/1.1 %d %s', [Result.StatusCode, Result.StatusText]));
+      end
       else
         LAttempts := LAttempts - 1;
     except
@@ -550,48 +562,18 @@ end;
 
 function TRequestNetHTTP.Get: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrGET));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrGET), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestNetHTTP.MakeURL(const AIncludeParams: Boolean): string;
-var
-  I: Integer;
 begin
-  Result := FBaseURL;
-  if not FResource.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResource;
-  end;
-  if not FResourceSuffix.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResourceSuffix;
-  end;
-  if FUrlSegments.Count > 0 then
-  begin
-    for I := 0 to Pred(FUrlSegments.Count) do
-    begin
-      Result := StringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-      Result := StringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-    end;
-  end;
-  if not AIncludeParams then
-    Exit;
-  if FParams.Count > 0 then
-  begin
-    Result := Result + '?';
-    for I := 0 to Pred(FParams.Count) do
-    begin
-      if I > 0 then
-        Result := Result + '&';
-      Result := Result + FParams.Strings[I];
-    end;
-  end;
+  Result := TR4DUtils.BuildURL(FBaseURL, FResource, FResourceSuffix, FUrlSegments, FParams, AIncludeParams);
 end;
 
 procedure TRequestNetHTTP.NetHTTPClientValidateServerCertificate(const Sender: TObject; const ARequest: TURLRequest; const Certificate: TCertificate; var Accepted: Boolean);
@@ -606,16 +588,24 @@ end;
 
 function TRequestNetHTTP.Patch: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrPATCH));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrPATCH), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestNetHTTP.Post: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrPOST));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrPOST), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestNetHTTP.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -626,19 +616,24 @@ end;
 
 function TRequestNetHTTP.Put: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrPUT));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrPUT), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestNetHTTP.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  FRaiseExceptionOn500 := ARaiseException;
 end;
 
 function TRequestNetHTTP.RaiseExceptionOn500: Boolean;
 begin
-  raise Exception.Create('Not implemented');
+  Result := FRaiseExceptionOn500;
 end;
 
 function TRequestNetHTTP.Resource: string;
@@ -723,6 +718,36 @@ function TRequestNetHTTP.UserAgent(const AName: string): IRequest;
 begin
   Result := Self;
   FNetHTTPClient.UserAgent := AName;
+end;
+
+function TRequestNetHTTP.GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'GET', ACallback).Start;
+end;
+
+function TRequestNetHTTP.PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'POST', ACallback).Start;
+end;
+
+function TRequestNetHTTP.PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PUT', ACallback).Start;
+end;
+
+function TRequestNetHTTP.DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'DELETE', ACallback).Start;
+end;
+
+function TRequestNetHTTP.PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PATCH', ACallback).Start;
 end;
 
 end.

@@ -73,6 +73,11 @@ type
     function Put: IResponse;
     function Delete: IResponse;
     function Patch: IResponse;
+    function GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+    function PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
     function FullRequestURL(const AIncludeParams: Boolean = True): string;
     function ClearBody: IRequest;
     function AddBody(const AContent: string): IRequest; overload;
@@ -109,7 +114,7 @@ type
 
 implementation
 
-uses RESTRequest4D.Response.FPHTTPClient;
+uses RESTRequest4D.Response.FPHTTPClient, RESTRequest4D.Utils;
 
 const
   _CRLF = #13#10;
@@ -339,37 +344,57 @@ end;
 
 function TRequestFPHTTPClient.Get: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrGET);
+  try
+    ExecuteRequest(mrGET);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.Post: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrPOST);
+  try
+    ExecuteRequest(mrPOST);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.Put: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrPUT);
+  try
+    ExecuteRequest(mrPUT);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.Delete: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrDELETE);
+  try
+    ExecuteRequest(mrDELETE);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.Patch: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrPATCH);
+  try
+    ExecuteRequest(mrPATCH);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.FullRequestURL(const AIncludeParams: Boolean): string;
@@ -561,42 +586,8 @@ begin
 end;
 
 function TRequestFPHTTPClient.MakeURL(const AIncludeParams: Boolean): string;
-var
-  I: Integer;
 begin
-  Result := FBaseURL.Trim;
-  if not FResource.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResource;
-  end;
-  if not FResourceSuffix.Trim.IsEmpty then
-  begin
-    if not Result.EndsWith('/') then
-      Result := Result + '/';
-    Result := Result + FResourceSuffix;
-  end;
-  if FUrlSegments.Count > 0 then
-  begin
-    for I := 0 to Pred(FUrlSegments.Count) do
-    begin
-      Result := stringReplace(Result, Format('{%s}', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-      Result := stringReplace(Result, Format(':%s', [FUrlSegments.Names[I]]), FUrlSegments.ValueFromIndex[I], [rfReplaceAll, rfIgnoreCase]);
-    end;
-  end;
-  if not AIncludeParams then
-    Exit;
-  if FParams.Count > 0 then
-  begin
-    Result := Result + '?';
-    for I := 0 to Pred(FParams.Count) do
-    begin
-      if I > 0 then
-        Result := Result + '&';
-      Result := Result + FParams.strings[I];
-    end;
-  end;
+  Result := TR4DUtils.BuildURL(FBaseURL, FResource, FResourceSuffix, FUrlSegments, FParams, AIncludeParams);
 end;
 
 class function TRequestFPHTTPClient.New: IRequest;
@@ -707,7 +698,6 @@ begin
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
   FreeAndNil(FFields);
-  FreeAndNil(FFields);
   FreeAndNil(FUrlSegments);
   if (FFiles.Count > 0) then
     for LKey in FFiles.Keys do
@@ -715,6 +705,36 @@ begin
   FreeAndNil(FFiles);
   FreeAndNil(FFPHTTPClient);
   inherited Destroy;
+end;
+
+function TRequestFPHTTPClient.GetAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'GET', ACallback).Start;
+end;
+
+function TRequestFPHTTPClient.PostAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'POST', ACallback).Start;
+end;
+
+function TRequestFPHTTPClient.PutAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PUT', ACallback).Start;
+end;
+
+function TRequestFPHTTPClient.DeleteAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'DELETE', ACallback).Start;
+end;
+
+function TRequestFPHTTPClient.PatchAsync(const ACallback: TRR4DCallbackOnAfterExecute): IRequest;
+begin
+  Result := Self;
+  TAsyncRequestThread.Create(Self, 'PATCH', ACallback).Start;
 end;
 
 end.

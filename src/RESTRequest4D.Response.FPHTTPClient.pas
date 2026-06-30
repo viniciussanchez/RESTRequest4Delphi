@@ -6,15 +6,17 @@ unit RESTRequest4D.Response.FPHTTPClient;
 
 interface
 
-uses Classes, SysUtils, RESTRequest4D.Response.Contract, FPHTTPClient, openssl, fpjson, jsonparser, ZStream;
+uses Classes, SysUtils, RESTRequest4D.Response.Contract, RESTRequest4D.Request.Contract, FPHTTPClient, openssl, fpjson, jsonparser, ZStream;
 
 type
   TResponseFPHTTPClient = class(TInterfacedObject, IResponse)
   private
+    FRequest: IRequest;
     FJSONValue: TJSONData;
     FFPHTTPClient: TFPHTTPClient;
     FStreamResult: TStringStream;
     FContent: TStringStream;
+    FIsDeflated: Boolean;
     function Content: string;
     function ContentLength: Cardinal;
     function ContentType: string;
@@ -28,7 +30,7 @@ type
     function GetCookie(const ACookieName: string): string;
     function OnDeflate(const AStream: TStream): string;
   public
-    constructor Create(const AFPHTTPClient: TFPHTTPClient);
+    constructor Create(const ARequest: IRequest; const AFPHTTPClient: TFPHTTPClient);
     destructor Destroy; override;
   end;
 
@@ -63,13 +65,17 @@ begin
   FStreamResult.Position := 0;
   if FFPHTTPClient.ResponseHeaders.Values['Content-Encoding'].ToLower.Contains('deflate') then
   begin
-    LStream := TStringStream.Create(OnDeflate(FStreamResult));
-    try
-      FStreamResult.Clear;
-      FStreamResult.CopyFrom(LStream, LStream.Size);
-      FStreamResult.Position := 0;
-    finally
-      LStream.Free;
+    if not FIsDeflated then
+    begin
+      LStream := TStringStream.Create(OnDeflate(FStreamResult));
+      try
+        FStreamResult.Clear;
+        FStreamResult.CopyFrom(LStream, LStream.Size);
+        FStreamResult.Position := 0;
+      finally
+        LStream.Free;
+      end;
+      FIsDeflated := True;
     end;
   end;
   Result := FStreamResult;
@@ -138,10 +144,12 @@ begin
   Result := FFPHTTPClient.ResponseHeaders;
 end;
 
-constructor TResponseFPHTTPClient.Create(const AFPHTTPClient: TFPHTTPClient);
+constructor TResponseFPHTTPClient.Create(const ARequest: IRequest; const AFPHTTPClient: TFPHTTPClient);
 begin
+  FRequest := ARequest;
   FFPHTTPClient := AFPHTTPClient;
   FStreamResult := TStringStream.Create;
+  FIsDeflated := False;
 end;
 
 destructor TResponseFPHTTPClient.Destroy;

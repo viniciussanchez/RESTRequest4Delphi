@@ -2,12 +2,13 @@ unit RESTRequest4D.Response.NetHTTP;
 
 interface
 
-uses RESTRequest4D.Response.Contract, System.Net.HttpClientComponent, System.Net.HttpClient, System.Net.URLClient,
+uses RESTRequest4D.Response.Contract, RESTRequest4D.Request.Contract, System.Net.HttpClientComponent, System.Net.HttpClient, System.Net.URLClient,
   System.SysUtils, System.JSON, System.Classes;
 
 type
   TResponseNetHTTP = class(TInterfacedObject, IResponse)
   private
+    FRequest: IRequest;
     FJSONValue: TJSONValue;
     FHTTPResponse: IHTTPResponse;
     FContent: TStringStream;
@@ -25,10 +26,7 @@ type
     function Headers: TStrings;
     function GetCookie(const ACookieName: string): string;
   public
-    constructor Create;
-    class function New: IResponse;
-    procedure SetContent(const AContent: TStringStream);
-    procedure SetHTTPResponse(const AHTTPResponse: IHTTPResponse);
+    constructor Create(const ARequest: IRequest; const AHTTPResponse: IHTTPResponse; const AContent: TStringStream);
     destructor Destroy; override;
   end;
 
@@ -37,11 +35,6 @@ implementation
 function TResponseNetHTTP.JSONValue: TJSONValue;
 begin
   Result := Self.JSONValue(TEncoding.UTF8);
-end;
-
-class function TResponseNetHTTP.New: IResponse;
-begin
-  Result := TResponseNetHTTP.Create;
 end;
 
 function TResponseNetHTTP.Content: string;
@@ -79,8 +72,11 @@ begin
     Result := FHTTPResponse.HeaderValue['Content-Type'];
 end;
 
-constructor TResponseNetHTTP.Create;
+constructor TResponseNetHTTP.Create(const ARequest: IRequest; const AHTTPResponse: IHTTPResponse; const AContent: TStringStream);
 begin
+  FRequest := ARequest;
+  FHTTPResponse := AHTTPResponse;
+  FContent := AContent;
   FHeaders := TStringList.Create;
 end;
 
@@ -138,21 +134,6 @@ function TResponseNetHTTP.RawBytes: TBytes;
 begin
   if Assigned(FContent) then
     Result := FContent.Bytes;
-end;
-
-procedure TResponseNetHTTP.SetContent(const AContent: TStringStream);
-begin
-  FContent := AContent;
-end;
-
-procedure TResponseNetHTTP.SetHTTPResponse(const AHTTPResponse: IHTTPResponse);
-begin
-  if Assigned(FJSONValue) then
-  begin
-    FJSONValue.Free;
-    FJSONValue := nil;
-  end;
-  FHTTPResponse := AHTTPResponse;
 end;
 
 function TResponseNetHTTP.StatusCode: Integer;
