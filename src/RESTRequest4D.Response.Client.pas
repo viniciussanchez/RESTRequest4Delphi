@@ -84,11 +84,12 @@ end;
 
 function TResponseClient.ContentStream: TStream;
 begin
-  if Assigned(FStreamValue) then
-    FreeAndNil(FStreamValue);
-  FStreamValue := TMemoryStream.Create;
-  if (Length(FRESTResponse.RawBytes) > 0) then
-    FStreamValue.WriteBuffer(FRESTResponse.RawBytes[0], Length(FRESTResponse.RawBytes));
+  if not Assigned(FStreamValue) then
+  begin
+    FStreamValue := TMemoryStream.Create;
+    if (Length(FRESTResponse.RawBytes) > 0) then
+      FStreamValue.WriteBuffer(FRESTResponse.RawBytes[0], Length(FRESTResponse.RawBytes));
+  end;
   Result := FStreamValue;
   Result.Position := 0;
 end;

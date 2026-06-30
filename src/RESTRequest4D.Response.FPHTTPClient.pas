@@ -16,6 +16,7 @@ type
     FFPHTTPClient: TFPHTTPClient;
     FStreamResult: TStringStream;
     FContent: TStringStream;
+    FIsDeflated: Boolean;
     function Content: string;
     function ContentLength: Cardinal;
     function ContentType: string;
@@ -64,13 +65,17 @@ begin
   FStreamResult.Position := 0;
   if FFPHTTPClient.ResponseHeaders.Values['Content-Encoding'].ToLower.Contains('deflate') then
   begin
-    LStream := TStringStream.Create(OnDeflate(FStreamResult));
-    try
-      FStreamResult.Clear;
-      FStreamResult.CopyFrom(LStream, LStream.Size);
-      FStreamResult.Position := 0;
-    finally
-      LStream.Free;
+    if not FIsDeflated then
+    begin
+      LStream := TStringStream.Create(OnDeflate(FStreamResult));
+      try
+        FStreamResult.Clear;
+        FStreamResult.CopyFrom(LStream, LStream.Size);
+        FStreamResult.Position := 0;
+      finally
+        LStream.Free;
+      end;
+      FIsDeflated := True;
     end;
   end;
   Result := FStreamResult;
@@ -144,6 +149,7 @@ begin
   FRequest := ARequest;
   FFPHTTPClient := AFPHTTPClient;
   FStreamResult := TStringStream.Create;
+  FIsDeflated := False;
 end;
 
 destructor TResponseFPHTTPClient.Destroy;
