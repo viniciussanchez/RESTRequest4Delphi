@@ -53,6 +53,9 @@ type
     
     [Test]
     procedure TestAddBodyString;
+    
+    [Test]
+    procedure TestBenchmarkContentStream;
   end;
 
 implementation
@@ -370,6 +373,40 @@ begin
   LJson := LResponse.JSONValue as TJSONObject;
   LData := LJson.GetValue('data').Value;
   Assert.AreEqual('Texto Bruto de Teste', LData);
+end;
+
+procedure TRESTRequest4DTest.TestBenchmarkContentStream;
+var
+  LResponse: IResponse;
+  I: Integer;
+  LStart: Cardinal;
+  LStream: TStream;
+  LTime: Cardinal;
+  LFile: TStringList;
+begin
+  LResponse := TRequest.New
+    .BaseURL('https://httpbin.org')
+    .Resource('bytes/50000')
+    .Get;
+
+  Assert.AreEqual(200, LResponse.StatusCode);
+
+  LStart := TThread.GetTickCount;
+  for I := 1 to 20000 do
+  begin
+    LStream := LResponse.ContentStream;
+    if LStream.Size <> 50000 then
+      Assert.Fail('Tamanho incorreto do stream');
+  end;
+  LTime := TThread.GetTickCount - LStart;
+
+  LFile := TStringList.Create;
+  try
+    LFile.Add('Tempo gasto para 20.000 acessos ao ContentStream: ' + IntToStr(LTime) + ' ms');
+    LFile.SaveToFile('benchmark.txt');
+  finally
+    LFile.Free;
+  end;
 end;
 
 initialization
