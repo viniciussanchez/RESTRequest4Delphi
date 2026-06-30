@@ -2,11 +2,12 @@ unit RESTRequest4D.Response.ICS;
 
 interface
 
-uses RESTRequest4D.Response.Contract, OverbyteIcsSslHttpRest, OverbyteIcsLogger, OverbyteIcsTypes, System.SysUtils, System.JSON, System.Classes;
+uses RESTRequest4D.Response.Contract, RESTRequest4D.Request.Contract, OverbyteIcsSslHttpRest, OverbyteIcsLogger, OverbyteIcsTypes, System.SysUtils, System.JSON, System.Classes;
 
 type
   TResponseICS = class(TInterfacedObject, IResponse)
   private
+    FRequest: IRequest;
     FJSONValue: TJSONValue;
     FSslHttpRest: TSslHttpRest;
     FLogICS: TStringList;
@@ -25,7 +26,7 @@ type
     procedure HttpRest1HttpRestProg(Sender: TObject; LogOption: TLogOption; const Msg: string);
     function ICSLog: string;
   public
-    constructor Create(const AFSslHttpRest: TSslHttpRest);
+    constructor Create(const ARequest: IRequest; const AFSslHttpRest: TSslHttpRest);
     destructor Destroy; override;
   end;
 
@@ -114,8 +115,9 @@ begin
   Result := FSslHttpRest.ContentType;
 end;
 
-constructor TResponseICS.Create(const AFSslHttpRest: TSslHttpRest);
+constructor TResponseICS.Create(const ARequest: IRequest; const AFSslHttpRest: TSslHttpRest);
 begin
+  FRequest := ARequest;
   FSslHttpRest := AFSslHttpRest;
   FLogICS := TStringList.Create;
   FSslHttpRest.OnHttpRestProg := HttpRest1HttpRestProg;

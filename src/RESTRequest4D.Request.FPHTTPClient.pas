@@ -339,37 +339,57 @@ end;
 
 function TRequestFPHTTPClient.Get: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrGET);
+  try
+    ExecuteRequest(mrGET);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.Post: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrPOST);
+  try
+    ExecuteRequest(mrPOST);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.Put: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrPUT);
+  try
+    ExecuteRequest(mrPUT);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.Delete: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrDELETE);
+  try
+    ExecuteRequest(mrDELETE);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.Patch: IResponse;
 begin
-  FResponse := TResponseFpHTTPClient.Create(FFPHTTPClient);
+  FResponse := TResponseFpHTTPClient.Create(Self, FFPHTTPClient);
   Result := FResponse;
-  ExecuteRequest(mrPATCH);
+  try
+    ExecuteRequest(mrPATCH);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestFPHTTPClient.FullRequestURL(const AIncludeParams: Boolean): string;
@@ -706,7 +726,6 @@ begin
     FreeAndNil(FStreamSend);
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
-  FreeAndNil(FFields);
   FreeAndNil(FFields);
   FreeAndNil(FUrlSegments);
   if (FFiles.Count > 0) then

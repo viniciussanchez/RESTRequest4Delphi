@@ -2,11 +2,12 @@ unit RESTRequest4D.Response.Client;
 
 interface
 
-uses RESTRequest4D.Response.Contract, REST.Client, System.SysUtils, System.JSON, System.Classes;
+uses RESTRequest4D.Response.Contract, RESTRequest4D.Request.Contract, REST.Client, System.SysUtils, System.JSON, System.Classes;
 
 type
   TResponseClient = class(TInterfacedObject, IResponse)
   private
+    FRequest: IRequest;
     FJSONValue: TJSONValue;
     FRESTResponse: TRESTResponse;
     FStreamValue: TMemoryStream;
@@ -23,14 +24,15 @@ type
     function Headers: TStrings;
     function GetCookie(const ACookieName: string): string;
   public
-    constructor Create(const ARESTResponse: TRESTResponse);
+    constructor Create(const ARequest: IRequest; const ARESTResponse: TRESTResponse);
     destructor Destroy; override;
   end;
 
 implementation
 
-constructor TResponseClient.Create(const ARESTResponse: TRESTResponse);
+constructor TResponseClient.Create(const ARequest: IRequest; const ARESTResponse: TRESTResponse);
 begin
+  FRequest := ARequest;
   FRESTResponse := ARESTResponse;
 end;
 

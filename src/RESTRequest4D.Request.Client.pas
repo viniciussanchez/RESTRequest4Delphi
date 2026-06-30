@@ -363,11 +363,15 @@ end;
 
 function TRequestClient.Delete: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmDELETE;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmDELETE;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 destructor TRequestClient.Destroy;
@@ -445,11 +449,15 @@ end;
 
 function TRequestClient.Get: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmGET;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmGET;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 class function TRequestClient.New: IRequest;
@@ -572,20 +580,28 @@ end;
 
 function TRequestClient.Patch: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmPATCH;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmPATCH;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestClient.Post: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmPOST;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmPOST;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestClient.PrepareUrlSegments(const AValue: string): string;
@@ -619,11 +635,15 @@ end;
 
 function TRequestClient.Put: IResponse;
 begin
-  FResponse := TResponseClient.Create(FRESTResponse);
+  FResponse := TResponseClient.Create(Self, FRESTResponse);
   Result := FResponse;
-  DoBeforeExecute(FRESTRequest);
-  FRESTRequest.Method := TRESTRequestMethod.rmPUT;
-  ExecuteRequest;
+  try
+    DoBeforeExecute(FRESTRequest);
+    FRESTRequest.Method := TRESTRequestMethod.rmPUT;
+    ExecuteRequest;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestClient.Accept(const AAccept: string): IRequest;

@@ -397,9 +397,6 @@ begin
   FParams := TStringList.Create;
   FUrlSegments := TStringList.Create;
 
-  FResponse := TResponseNetHTTP.Create;
-  TResponseNetHTTP(FResponse).SetContent(FStreamResult);
-
   FStreamResult := TStringStream.Create;
   Self.ContentType('application/json');
   FRetries := 0;
@@ -416,9 +413,13 @@ end;
 
 function TRequestNetHTTP.Delete: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrDELETE));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrDELETE), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 destructor TRequestNetHTTP.Destroy;
@@ -550,9 +551,13 @@ end;
 
 function TRequestNetHTTP.Get: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrGET));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrGET), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestNetHTTP.MakeURL(const AIncludeParams: Boolean): string;
@@ -606,16 +611,24 @@ end;
 
 function TRequestNetHTTP.Patch: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrPATCH));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrPATCH), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestNetHTTP.Post: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrPOST));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrPOST), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestNetHTTP.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -626,9 +639,13 @@ end;
 
 function TRequestNetHTTP.Put: IResponse;
 begin
-  Result := FResponse;
-  DoBeforeExecute(FNetHTTPClient);
-  TResponseNetHTTP(FResponse).SetHTTPResponse(ExecuteRequest(mrPUT));
+  try
+    DoBeforeExecute(FNetHTTPClient);
+    FResponse := TResponseNetHTTP.Create(Self, ExecuteRequest(mrPUT), FStreamResult);
+    Result := FResponse;
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestNetHTTP.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;

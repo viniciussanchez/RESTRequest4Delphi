@@ -340,23 +340,35 @@ end;
 
 function TRequestIndy.Patch: IResponse;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  FResponse := TResponseIndy.Create(Self, FIdHTTP);
   Result := FResponse;
-  ExecuteRequest(mrPATCH);
+  try
+    ExecuteRequest(mrPATCH);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.Put: IResponse;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  FResponse := TResponseIndy.Create(Self, FIdHTTP);
   Result := FResponse;
-  ExecuteRequest(mrPUT);
+  try
+    ExecuteRequest(mrPUT);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.Post: IResponse;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  FResponse := TResponseIndy.Create(Self, FIdHTTP);
   Result := FResponse;
-  ExecuteRequest(mrPOST);
+  try
+    ExecuteRequest(mrPOST);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -370,16 +382,24 @@ end;
 
 function TRequestIndy.Get: IResponse;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  FResponse := TResponseIndy.Create(Self, FIdHTTP);
   Result := FResponse;
-  ExecuteRequest(mrGET);
+  try
+    ExecuteRequest(mrGET);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.Head: IResponse;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  FResponse := TResponseIndy.Create(Self, FIdHTTP);
   Result := FResponse;
-  ExecuteRequest(mrHEAD);
+  try
+    ExecuteRequest(mrHEAD);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.HTTPOptions(const AHTTPOptions: TIdHTTPOptions): IRequest;
@@ -411,9 +431,13 @@ end;
 
 function TRequestIndy.Delete: IResponse;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  FResponse := TResponseIndy.Create(Self, FIdHTTP);
   Result := FResponse;
-  ExecuteRequest(mrDELETE);
+  try
+    ExecuteRequest(mrDELETE);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.AddBody(const AContent: string): IRequest;
@@ -454,9 +478,13 @@ end;
 
 function TRequestIndy.Trace: IResponse;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  FResponse := TResponseIndy.Create(Self, FIdHTTP);
   Result := FResponse;
-  ExecuteRequest(mrTRACE);
+  try
+    ExecuteRequest(mrTRACE);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.FullRequestURL(const AIncludeParams: Boolean): string;
@@ -515,9 +543,13 @@ end;
 
 function TRequestIndy.Options: IResponse;
 begin
-  FResponse := TResponseIndy.Create(FIdHTTP);
+  FResponse := TResponseIndy.Create(Self, FIdHTTP);
   Result := FResponse;
-  ExecuteRequest(mrOPTIONS);
+  try
+    ExecuteRequest(mrOPTIONS);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestIndy.AddParam(const AName, AValue: string): IRequest;

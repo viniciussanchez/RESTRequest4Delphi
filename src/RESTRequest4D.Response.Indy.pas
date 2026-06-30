@@ -6,7 +6,7 @@ unit RESTRequest4D.Response.Indy;
 
 interface
 
-uses RESTRequest4D.Response.Contract, IdHTTP,
+uses RESTRequest4D.Response.Contract, RESTRequest4D.Request.Contract, IdHTTP,
   {$IFDEF FPC}
     SysUtils, fpjson, Classes, jsonparser;
   {$ELSE}
@@ -16,6 +16,8 @@ uses RESTRequest4D.Response.Contract, IdHTTP,
 type
   TResponseIndy = class(TInterfacedObject, IResponse)
   private
+    FRequest: IRequest;
+    FHeaders: TStrings;
   {$IFDEF FPC}
     FJSONValue: TJSONData;
   {$ELSE}
@@ -39,7 +41,7 @@ type
     function JSONValue(const AEncoding: TEncoding): TJSONValue; overload;
   {$ENDIF}
   public
-    constructor Create(const AIdHTTP: TIdHTTP);
+    constructor Create(const ARequest: IRequest; const AIdHTTP: TIdHTTP);
     destructor Destroy; override;
   end;
 
@@ -110,9 +112,13 @@ function TResponseIndy.Headers: TStrings;
 var
   I: Integer;
 begin
-  Result := TStringList.Create;
-  for I := 0 to Pred(FIdHTTP.Response.RawHeaders.Count) do
-    Result.Values[FIdHTTP.Response.RawHeaders.Names[I]] := FIdHTTP.Response.RawHeaders.Values[FIdHTTP.Response.RawHeaders.Names[I]];
+  if not Assigned(FHeaders) then
+  begin
+    FHeaders := TStringList.Create;
+    for I := 0 to Pred(FIdHTTP.Response.RawHeaders.Count) do
+      FHeaders.Values[FIdHTTP.Response.RawHeaders.Names[I]] := FIdHTTP.Response.RawHeaders.Values[FIdHTTP.Response.RawHeaders.Names[I]];
+  end;
+  Result := FHeaders;
 end;
 
 function TResponseIndy.ContentEncoding: string;
@@ -140,8 +146,9 @@ begin
   Result := FIdHTTP.Response.ContentType;
 end;
 
-constructor TResponseIndy.Create(const AIdHTTP: TIdHTTP);
+constructor TResponseIndy.Create(const ARequest: IRequest; const AIdHTTP: TIdHTTP);
 begin
+  FRequest := ARequest;
   FIdHTTP := AIdHTTP;
 end;
 
@@ -149,6 +156,8 @@ destructor TResponseIndy.Destroy;
 begin
   if Assigned(FJSONValue) then
     FJSONValue.Free;
+  if Assigned(FHeaders) then
+    FHeaders.Free;
   inherited;
 end;
 

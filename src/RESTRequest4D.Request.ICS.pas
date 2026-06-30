@@ -190,23 +190,35 @@ end;
 
 function TRequestICS.Patch: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrPATCH);
+  try
+    ExecuteRequest(mrPATCH);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.Put: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrPUT);
+  try
+    ExecuteRequest(mrPUT);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.Post: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrPOST);
+  try
+    ExecuteRequest(mrPOST);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.Proxy(const AServer, APassword, AUsername: string; const APort: Integer): IRequest;
@@ -220,9 +232,13 @@ end;
 
 function TRequestICS.Get: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrGET);
+  try
+    ExecuteRequest(mrGET);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.KeyFile(const APath: string): IRequest;
@@ -241,9 +257,13 @@ end;
 
 function TRequestICS.Delete: IResponse;
 begin
-  FResponse := TResponseICS.Create(FSslHttpRest);
+  FResponse := TResponseICS.Create(Self, FSslHttpRest);
   Result := FResponse;
-  ExecuteRequest(mrDELETE);
+  try
+    ExecuteRequest(mrDELETE);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestICS.AddBody(const AContent: string): IRequest;

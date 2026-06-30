@@ -6,11 +6,12 @@ unit RESTRequest4D.Response.FPHTTPClient;
 
 interface
 
-uses Classes, SysUtils, RESTRequest4D.Response.Contract, FPHTTPClient, openssl, fpjson, jsonparser, ZStream;
+uses Classes, SysUtils, RESTRequest4D.Response.Contract, RESTRequest4D.Request.Contract, FPHTTPClient, openssl, fpjson, jsonparser, ZStream;
 
 type
   TResponseFPHTTPClient = class(TInterfacedObject, IResponse)
   private
+    FRequest: IRequest;
     FJSONValue: TJSONData;
     FFPHTTPClient: TFPHTTPClient;
     FStreamResult: TStringStream;
@@ -28,7 +29,7 @@ type
     function GetCookie(const ACookieName: string): string;
     function OnDeflate(const AStream: TStream): string;
   public
-    constructor Create(const AFPHTTPClient: TFPHTTPClient);
+    constructor Create(const ARequest: IRequest; const AFPHTTPClient: TFPHTTPClient);
     destructor Destroy; override;
   end;
 
@@ -138,8 +139,9 @@ begin
   Result := FFPHTTPClient.ResponseHeaders;
 end;
 
-constructor TResponseFPHTTPClient.Create(const AFPHTTPClient: TFPHTTPClient);
+constructor TResponseFPHTTPClient.Create(const ARequest: IRequest; const AFPHTTPClient: TFPHTTPClient);
 begin
+  FRequest := ARequest;
   FFPHTTPClient := AFPHTTPClient;
   FStreamResult := TStringStream.Create;
 end;

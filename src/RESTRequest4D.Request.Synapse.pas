@@ -368,9 +368,13 @@ end;
 
 function TRequestSynapse.Get: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrGET);
+  try
+    ExecuteRequest(mrGET);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.KeyFile(const APath: string): IRequest;
@@ -381,30 +385,46 @@ end;
 
 function TRequestSynapse.Post: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrPOST);
+  try
+    ExecuteRequest(mrPOST);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.Put: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrPUT);
+  try
+    ExecuteRequest(mrPUT);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.Delete: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrDELETE);
+  try
+    ExecuteRequest(mrDELETE);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.Patch: IResponse;
 begin
-  FResponse := TResponseSynapse.Create(FHTTPSend);
+  FResponse := TResponseSynapse.Create(Self, FHTTPSend);
   Result := FResponse;
-  ExecuteRequest(mrPATCH);
+  try
+    ExecuteRequest(mrPATCH);
+  finally
+    FResponse := nil;
+  end;
 end;
 
 function TRequestSynapse.FullRequestURL(const AIncludeParams: Boolean): string;
@@ -838,13 +858,18 @@ begin
 end;
 
 destructor TRequestSynapse.Destroy;
+var
+  LKey: string;
 begin
-  FreeAndNil(FStreamSend);
+  if Assigned(FStreamSend) then
+    FreeAndNil(FStreamSend);
   FreeAndNil(FHeaders);
   FreeAndNil(FParams);
   FreeAndNil(FFields);
-  FreeAndNil(FFields);
   FreeAndNil(FUrlSegments);
+  if (FFiles.Count > 0) then
+    for LKey in FFiles.Keys do
+      FFiles.Items[LKey].Free;
   FreeAndNil(FFiles);
   FreeAndNil(FHTTPSend);
   inherited Destroy;
