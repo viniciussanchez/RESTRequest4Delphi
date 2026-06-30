@@ -76,3 +76,6 @@ modules/
 
 # Test results
 dunitx-results.xml
+
+# Benchmark temporary JSON results
+samples/benchmark/benchmark_*.json
