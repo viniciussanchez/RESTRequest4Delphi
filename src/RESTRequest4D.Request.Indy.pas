@@ -122,10 +122,16 @@ implementation
 uses RESTRequest4D.Response.Indy, IdURI, IdCookieManager, IdCompressorZLib;
 
 function TRequestIndy.AddField(const AFieldName: string; const AValue: string): IRequest;
+{$IF DEFINED(RR4D_INDY)}
+var
+  LField: TIdFormDataField;
+{$ENDIF}
 begin
   Result := Self;
   {$IF DEFINED(RR4D_INDY)}
-    FIdMultiPartFormDataStream.AddFormField(AFieldName, AValue, EmptyStr, ' ').ContentTransfer:= '8bit';
+    LField := FIdMultiPartFormDataStream.AddFormField(AFieldName, AValue, '', '');
+    if Assigned(LField) then
+      LField.ContentTransfer := '8bit';
   {$ENDIF}
 end;
 
@@ -294,6 +300,7 @@ procedure TRequestIndy.ExecuteRequest(const AMethod: TMethodRequest);
 var
   LAttempts: Integer;
 begin
+  FStreamResult.Size := 0;
   if not FBaseURL.ToUpper.Trim.StartsWith('HTTPS') then
     FIdHTTP.IOHandler := nil
   else
@@ -309,7 +316,11 @@ begin
         mrPOST:
         begin
           if (Assigned(FIdMultiPartFormDataStream) and (FIdMultiPartFormDataStream.Size > 0)) then
-            FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FIdMultiPartFormDataStream, FStreamResult)
+          begin
+            if FIdHTTP.Request.CustomHeaders.IndexOfName('Content-Type') >= 0 then
+              FIdHTTP.Request.CustomHeaders.Delete(FIdHTTP.Request.CustomHeaders.IndexOfName('Content-Type'));
+            FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FIdMultiPartFormDataStream, FStreamResult);
+          end
           else
             FIdHTTP.Post(TIdURI.URLEncode(MakeURL), FStreamSend, FStreamResult);
         end;
@@ -344,33 +355,45 @@ begin
 end;
 
 function TRequestIndy.Patch: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(Self, FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
   try
     ExecuteRequest(mrPATCH);
+    LResponseObj.UpdateResponseData;
   finally
     FResponse := nil;
   end;
 end;
 
 function TRequestIndy.Put: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(Self, FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
   try
     ExecuteRequest(mrPUT);
+    LResponseObj.UpdateResponseData;
   finally
     FResponse := nil;
   end;
 end;
 
 function TRequestIndy.Post: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(Self, FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
   try
     ExecuteRequest(mrPOST);
+    LResponseObj.UpdateResponseData;
   finally
     FResponse := nil;
   end;
@@ -386,22 +409,30 @@ begin
 end;
 
 function TRequestIndy.Get: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(Self, FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
   try
     ExecuteRequest(mrGET);
+    LResponseObj.UpdateResponseData;
   finally
     FResponse := nil;
   end;
 end;
 
 function TRequestIndy.Head: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(Self, FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
   try
     ExecuteRequest(mrHEAD);
+    LResponseObj.UpdateResponseData;
   finally
     FResponse := nil;
   end;
@@ -435,11 +466,15 @@ begin
 end;
 
 function TRequestIndy.Delete: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(Self, FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
   try
     ExecuteRequest(mrDELETE);
+    LResponseObj.UpdateResponseData;
   finally
     FResponse := nil;
   end;
@@ -482,11 +517,15 @@ begin
 end;
 
 function TRequestIndy.Trace: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(Self, FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
   try
     ExecuteRequest(mrTRACE);
+    LResponseObj.UpdateResponseData;
   finally
     FResponse := nil;
   end;
@@ -509,15 +548,20 @@ end;
 
 procedure TRequestIndy.OnStatusInfoEx(ASender: TObject; const AsslSocket: PSSL; const AWhere, Aret: TIdC_INT; const AType, AMsg: string);
 begin
-  SSL_set_tlsext_host_name(AsslSocket, FIdHTTP.URL.Host);
+  if Assigned(AsslSocket) and Assigned(FIdHTTP) and (not FIdHTTP.URL.Host.IsEmpty) then
+    SSL_set_tlsext_host_name(AsslSocket, FIdHTTP.URL.Host);
 end;
 
 function TRequestIndy.Options: IResponse;
+var
+  LResponseObj: TResponseIndy;
 begin
-  FResponse := TResponseIndy.Create(Self, FIdHTTP);
+  LResponseObj := TResponseIndy.Create(Self, FIdHTTP, FStreamResult);
+  FResponse := LResponseObj;
   Result := FResponse;
   try
     ExecuteRequest(mrOPTIONS);
+    LResponseObj.UpdateResponseData;
   finally
     FResponse := nil;
   end;

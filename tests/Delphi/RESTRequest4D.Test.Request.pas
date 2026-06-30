@@ -243,6 +243,7 @@ procedure TRESTRequest4DTest.TestRaiseExceptionOn500;
 var
   LRequest: IRequest;
   LSuccess: Boolean;
+  LResponse: IResponse;
 begin
   LRequest := TRequest.New
     .BaseURL('https://httpbin.org')
@@ -251,7 +252,8 @@ begin
 
   LSuccess := False;
   try
-    LRequest.Get;
+    LResponse := LRequest.Get;
+    Assert.Fail('Não disparou exceção. Status retornado: ' + IntToStr(LResponse.StatusCode));
   except
     on E: Exception do
       LSuccess := True;
@@ -350,11 +352,16 @@ begin
     .Post;
 
   Assert.AreEqual(200, LResponse.StatusCode);
+  WriteLn('[Multipart Content] ' + LResponse.Content);
   LJson := LResponse.JSONValue as TJSONObject;
+  Assert.IsNotNull(LJson, 'JSON retornado não deve ser nulo. Conteúdo: ' + LResponse.Content);
   LForm := LJson.GetValue('form') as TJSONObject;
   Assert.IsNotNull(LForm);
+  Assert.IsNotNull(LForm.GetValue('campo1'), 'campo1 nao encontrado no form. JSON: ' + LResponse.Content);
   Assert.AreEqual('valor1', LForm.GetValue('campo1').Value);
+  Assert.IsNotNull(LForm.GetValue('campo2'), 'campo2 nao encontrado no form. JSON: ' + LResponse.Content);
   Assert.AreEqual('valor2', LForm.GetValue('campo2').Value);
+  LResponse := nil;
 end;
 
 procedure TRESTRequest4DTest.TestAddBodyString;

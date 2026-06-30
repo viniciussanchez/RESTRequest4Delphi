@@ -26,6 +26,7 @@ type
     FOnAfterExecute: TRR4DCallbackOnAfterExecute;
     FOnReceiveProgress: TRR4DCallbackOnProgress;
     FOnSendProgress: TRR4DCallbackOnProgress;
+    FRaiseExceptionOn500: Boolean;
     function ExecuteRequest(const AMethod: TMethodRequest): IHTTPResponse;
     function AcceptEncoding: string; overload;
     function AcceptEncoding(const AAcceptEncoding: string): IRequest; overload;
@@ -107,8 +108,6 @@ type
   end;
 
 implementation
-
-uses RESTRequest4D.Utils;
 
 function TRequestNetHTTP.Accept(const AAccept: string): IRequest;
 begin
@@ -410,6 +409,7 @@ begin
 
   FMultipartFormData := TMultipartFormData.Create;
   FUseMultipartFormData := False;
+  FRaiseExceptionOn500 := False;
 end;
 
 function TRequestNetHTTP.DeactivateProxy: IRequest;
@@ -538,7 +538,11 @@ begin
           Result := FNetHTTPClient.Delete(TIdURI.URLEncode(MakeURL), FStreamResult);
       end;
       if Assigned(Result) then
-        LAttempts := 0
+      begin
+        LAttempts := 0;
+        if FRaiseExceptionOn500 and (Result.StatusCode >= 500) then
+          raise Exception.Create(Format('HTTP/1.1 %d %s', [Result.StatusCode, Result.StatusText]));
+      end
       else
         LAttempts := LAttempts - 1;
     except
@@ -623,12 +627,13 @@ end;
 
 function TRequestNetHTTP.RaiseExceptionOn500(const ARaiseException: Boolean): IRequest;
 begin
-  raise Exception.Create('Not implemented');
+  Result := Self;
+  FRaiseExceptionOn500 := ARaiseException;
 end;
 
 function TRequestNetHTTP.RaiseExceptionOn500: Boolean;
 begin
-  raise Exception.Create('Not implemented');
+  Result := FRaiseExceptionOn500;
 end;
 
 function TRequestNetHTTP.Resource: string;

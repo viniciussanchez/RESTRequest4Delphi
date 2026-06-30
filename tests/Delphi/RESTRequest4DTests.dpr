@@ -1,6 +1,7 @@
 program RESTRequest4DTests;
 
 {$APPTYPE CONSOLE}
+{$DYNAMICBASE OFF}
 
 //{$R *.res}
 
