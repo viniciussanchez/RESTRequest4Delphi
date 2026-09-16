@@ -201,11 +201,6 @@ begin
       FIdHTTP.CookieManager := TIdCookieManager.Create(FIdHTTP);
     FIdHTTP.CookieManager.AddServerCookies(ACookies, LURI);
   finally
-    {$IF DEFINED(MSWINDOWS) OR DEFINED(FPC)}
-      ACookies.Free;
-    {$ELSE}
-      ACookies.DisposeOf;
-    {$ENDIF}
     LURI.Free;
   end;
 end;
@@ -225,10 +220,9 @@ begin
         cookies.AddPair(ACookieName, ACookieValue);
       {$ENDIF}
     {$ENDIF}
-  Result := AddCookies(cookies);
-  except
+    Result := AddCookies(cookies);
+  finally
     cookies.Free;
-    raise;
   end;
 end;
 

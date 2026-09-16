@@ -175,16 +175,12 @@ var
   I: Integer;
 begin
   Result := Self;
-  try
-    for I := 0 to Pred(ACookies.Count) do
-    begin
-      if FSslHttpRest.Cookie.Trim.IsEmpty then
-        FSslHttpRest.Cookie := ACookies.Names[I] + '=' + ACookies.Values[ACookies.Names[I]]
-      else
-        FSslHttpRest.Cookie := FSslHttpRest.Cookie + '; ' + ACookies.Names[I] + '=' + ACookies.Values[ACookies.Names[I]];
-    end;
-  finally
-    ACookies.Free;
+  for I := 0 to Pred(ACookies.Count) do
+  begin
+    if FSslHttpRest.Cookie.Trim.IsEmpty then
+      FSslHttpRest.Cookie := ACookies.Names[I] + '=' + ACookies.Values[ACookies.Names[I]]
+    else
+      FSslHttpRest.Cookie := FSslHttpRest.Cookie + '; ' + ACookies.Names[I] + '=' + ACookies.Values[ACookies.Names[I]];
   end;
 end;
 

@@ -223,7 +223,6 @@ begin
       FNetHTTPClient.CookieManager := TCookieManager.Create;
     FNetHTTPClient.CookieManager.AddServerCookie(ACookies.Text, LURI.URI);
   finally
-    ACookies.Free;
     LURI.Free;
   end;
 end;
@@ -236,9 +235,8 @@ begin
   try
     cookies.AddPair(ACookieName, ACookieValue);
     Result := AddCookies(cookies);
-  except
+  finally
     cookies.Free;
-    raise;
   end;
 end;
 

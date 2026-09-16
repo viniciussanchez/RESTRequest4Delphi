@@ -549,7 +549,7 @@ begin
   FFPHTTPClient.AddHeader('User-Agent', AName);
 end;
 
-function TRequestFPHTTPClient.AddCookies(const ACookies: Tstrings): IRequest;
+function TRequestFPHTTPClient.AddCookies(const ACookies: TStrings): IRequest;
 var
   I: Integer;
 begin
