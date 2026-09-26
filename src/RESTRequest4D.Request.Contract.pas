@@ -115,9 +115,9 @@ type
       function Trace: IResponse;
     {$ENDIF}
 
-	{$IF NOT (DEFINED(RR4D_SYNAPSE) OR NOT DEFINED(RR4D_ICS))}
-    function AddFieldFormData(const AFieldName: string; const AValue: string): IRequest;
-    function AddFieldXWwwForm(const AFieldName: string; const AValue: string): IRequest;
+	  {$IF DEFINED(RR4D_NETHTTP) OR DEFINED(RR4D_INDY) OR DEFINED(RR4D_ICS) OR (NOT DEFINED(FPC) AND NOT DEFINED(RR4D_SYNAPSE))}
+      function AddFieldFormData(const AFieldName: string; const AValue: string): IRequest;
+      function AddFieldXWwwForm(const AFieldName: string; const AValue: string): IRequest;
     {$ENDIF}
 
     {$IF DEFINED(RR4D_NETHTTP)}
